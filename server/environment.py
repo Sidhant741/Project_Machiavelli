@@ -295,7 +295,6 @@ class PMEnvironment:
                 vote_rewards, eliminated = finalise_voting(
                     self.state, self.agents, self.ctx, self._vote_reasons
                 )
-
                 for k, v in vote_rewards.items():
                     rewards[k] = rewards.get(k, 0.0) + v
 
