@@ -539,6 +539,7 @@ class PMAction(BaseModel):
     action_type: ActionType
 
     pre_task_message:     Optional[PreTaskMessage]        = None
+    pre_task_messages:    Optional[List[PreTaskMessage]]  = None
     task_input:           Optional[str]                   = None
     post_discussion_msg:  Optional[PostDiscussionMessage] = None
     trust_assessment:     Optional[TrustAssessment]       = None
@@ -547,8 +548,9 @@ class PMAction(BaseModel):
     @model_validator(mode="after")
     def validate_payload(self) -> "PMAction":
         t = self.action_type
-        if t == ActionType.SEND_PRE_TASK_MESSAGE and self.pre_task_message is None:
-            raise ValueError("SEND_PRE_TASK_MESSAGE requires pre_task_message.")
+        if t == ActionType.SEND_PRE_TASK_MESSAGE:
+            if self.pre_task_message is None and not self.pre_task_messages:
+                raise ValueError("SEND_PRE_TASK_MESSAGE requires at least one message.")
         if t == ActionType.SUBMIT_TASK_INPUT and self.task_input is None:
             raise ValueError("SUBMIT_TASK_INPUT requires task_input.")
         if t == ActionType.SEND_POST_DISCUSSION_MSG and self.post_discussion_msg is None:

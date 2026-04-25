@@ -72,21 +72,9 @@ class TaskLoader:
         self,
         difficulty: str,
         day: int,
-        n_agents: int = 4,
     ) -> List[Dict]:
         """
-        Return exactly n_agents questions for the given difficulty and day.
-        If the file has fewer questions for that day, questions are cycled.
-
-        Parameters
-        ----------
-        difficulty : "easy" | "medium" | "hard"
-        day        : 1-indexed day number
-        n_agents   : number of questions needed (one per agent)
-
-        Returns
-        -------
-        List[dict]  — each dict is one MCQ question
+        Return all questions for the given difficulty and day.
         """
         assert difficulty in self.VALID_DIFFICULTIES, (
             f"difficulty must be one of {self.VALID_DIFFICULTIES}"
@@ -102,13 +90,9 @@ class TaskLoader:
 
         questions = days_available[day_key]
 
-        # If not enough questions, cycle to fill
-        if len(questions) < n_agents:
-            questions = (questions * ((n_agents // len(questions)) + 1))[:n_agents]
-        else:
-            questions = questions[:n_agents]
-
-        for q in questions:
+        for idx, q in enumerate(questions):
+            if "id" not in q:
+                q["id"] = f"{difficulty}_{day}_{idx}"
             if "options" not in q or not q["options"]:
                 q["options"] = self._extract_options(q.get("question", ""))
 
@@ -201,3 +185,25 @@ class TaskLoader:
         """Return sorted list of available day numbers for a difficulty."""
         data = self._load(difficulty)
         return sorted(int(k) for k in data.keys())
+
+    def distribute_answers_to_agents(
+        self,
+        difficulty: str,
+        day: int,
+        agent_ids: List[int]
+    ) -> Tuple[List[Dict], Dict[int, List[Tuple[str, str]]]]:
+        """
+        Loads all questions for the day and randomly distributes their answers
+        among the available agents.
+        Returns:
+            all_questions: List of all questions for the day
+            agent_privs: Dict mapping agent_id to a list of tuples (question_id, answer_string)
+        """
+        all_questions = self.get_day_questions(difficulty, day)
+        agent_privs = {aid: [] for aid in agent_ids}
+        
+        for q in all_questions:
+            assigned_agent = random.choice(agent_ids)
+            agent_privs[assigned_agent].append((q["id"], q["answer"]))
+            
+        return all_questions, agent_privs

@@ -258,49 +258,13 @@ def _summarise_task(
 
 def _summarise_task_decision(
     agent_id: int,
-    trust_decision_log: Dict[int, Dict],
-) -> Dict[str, Any]:
+    trust_decision_log: Dict[int, List[Dict]],
+) -> List[Dict[str, Any]]:
     """
     task_decision section — records HOW the agent chose its answer.
-
-    Fields
-    ------
-    trust_values        : { sender_id: float }  trust scores for all alive peers
-    min_trust           : float                  minimum trust seen
-    max_trust           : float                  maximum trust seen
-    random_value        : float                  drawn uniformly from [min, max]
-    senders_with_answers: [int]                  senders who shared a parseable answer
-    info_source         : int | None             sender whose answer was used blindly
-    trust_of_source     : float | None           trust for that sender
-    used_shared_answer  : bool  True  -> random_value < trust_of_source
-                                       -> answer taken from sender, no reasoning
-    solved_by_self      : bool  True  -> random_value >= trust_of_source (or no source)
-                                       -> agent reasoned from own private info
+    Now a list of decisions (one per question).
     """
-    log = trust_decision_log.get(agent_id)
-    if log is None:
-        return {
-            "trust_values":          {},
-            "min_trust":             None,
-            "max_trust":             None,
-            "random_value":          None,
-            "senders_with_answers":  [],
-            "info_source":           None,
-            "trust_of_source":       None,
-            "used_shared_answer":    False,
-            "solved_by_self":        True,
-        }
-    return {
-        "trust_values":          log.get("trust_values", {}),
-        "min_trust":             log.get("min_trust"),
-        "max_trust":             log.get("max_trust"),
-        "random_value":          log.get("random_value"),
-        "senders_with_answers":  log.get("senders_with_answers", []),
-        "info_source":           log.get("info_source"),
-        "trust_of_source":       log.get("trust_of_source"),
-        "used_shared_answer":    log.get("used_shared_answer", False),
-        "solved_by_self":        log.get("solved_by_self", True),
-    }
+    return trust_decision_log.get(agent_id, [])
 
 
 def _summarise_post_discussion(
@@ -467,16 +431,11 @@ def _log_summary_store(day_key: str, day_store: Dict[int, Dict[str, Any]]) -> No
                   {k: v["veracity"] for k, v in summary["pre_discussion"]["other_agents"].items()})
         _print_kv("task.score",          summary["task"]["score"])
         _print_kv("task.correct_answer", summary["task"]["correct_answer"])
-        td = summary.get("task_decision", {})
-        _print_kv("task_decision.trust_values",        td.get("trust_values", {}))
-        _print_kv("task_decision.min_trust",           td.get("min_trust"))
-        _print_kv("task_decision.max_trust",           td.get("max_trust"))
-        _print_kv("task_decision.random_value",        td.get("random_value"))
-        _print_kv("task_decision.senders_with_answers",td.get("senders_with_answers", []))
-        _print_kv("task_decision.info_source",         td.get("info_source"))
-        _print_kv("task_decision.trust_of_source",     td.get("trust_of_source"))
-        _print_kv("task_decision.used_shared_answer",  td.get("used_shared_answer"))
-        _print_kv("task_decision.solved_by_self",      td.get("solved_by_self"))
+        tds = summary.get("task_decision", [])
+        for i, td in enumerate(tds):
+            _print_kv(f"task_decision.q{i+1}.reason", td.get("reason"))
+            if "source" in td and td["source"] is not None:
+                _print_kv(f"task_decision.q{i+1}.source", td.get("source"))
         _print_kv("post_discussion.lies_told",         summary["post_discussion"]["lies_told"])
         _print_kv("post_discussion.truths_told",        summary["post_discussion"]["truths_told"])
         _print_kv("post_discussion.lies_acknowledged",  summary["post_discussion"]["lies_acknowledged"])

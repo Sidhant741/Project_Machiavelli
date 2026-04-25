@@ -221,120 +221,40 @@ def _parse_pre_discussion(raw: str) -> Tuple[str, MessageVeracity]:
 
 def run_task_execution(
     env: PMEnvironment,
-    models_dict: Dict[int, str],
-    agent_questions: Dict[int, Dict],
     day: int,
-    difficulty: str,
-) -> Dict[int, str]:
+) -> None:
     """
-    Each agent submits a task answer.
-    The env's trust-based logic (_trust_based_task_decision) runs inside
-    finalise_task_execution — here we just submit a placeholder that gets
-    overridden. We still give the agent a chance to answer via LLM
-    (used when solved_by_self=True).
+    Submit placeholder answers to trigger Phase 3 env logic.
+    The env's trust-based logic (_trust_based_task_decision) will evaluate all m questions 
+    per agent and overwrite the input here natively.
     """
     alive   = env.state.alive_agents
-    answers = {}
-
     for agent_id in alive:
-        agent  = env.agents[agent_id]
-        obs    = env.get_observation(agent_id)
-        system = agent_system_prompt(
-            agent_id, alive, obs.trust_scores,
-            obs.own_private_info, day, difficulty,
-            agent.history_summary,
-        )
-
-        q       = agent_questions.get(agent_id, {})
-        type_q  = q.get("type_of_question", "mcq")
-        opts    = q.get("options", [])
-        opts_str = "\n".join(f"  {chr(65+i)}) {o}" for i, o in enumerate(opts))
-
-        # Collect messages this agent received
-        received = "\n".join(
-            f"  Agent {m.sender_id}: \"{m.content[:100]}\""
-            for m in obs.pre_task_messages_received
-        )
-
-        user = (
-            f"PHASE 3 — TASK EXECUTION\n"
-            f"Question: {q.get('question', 'N/A')}\n"
-            f"Options:\n{opts_str}\n\n"
-            f"Messages you received:\n{received or '  (none)'}\n\n"
-            f"Based on your private info and messages (weighted by your trust),\n"
-            f"what is your answer? Reply with ONLY the option letter (a, b, c, or d)."
-        )
-
-        model_name = models_dict.get(agent_id, "llama3.2")
-        images = None
-        if type_q == "icq" and q.get("image"):
-            # Resolve image path relative to tasks/
-            img_path = os.path.join(TASK_DIR, q["image"])
-            if os.path.exists(img_path):
-                images = [img_path]
-                # Force vision model for ICQ
-                model_name = "moondream"
-            else:
-                print(f"  [WARNING] Image not found: {img_path}")
-
-        raw_answer = llm_call(model_name, system, user, max_tokens=60, images=images)
-
-        # Match to closest option
-        answer = _match_option(raw_answer, opts) or opts[0] if opts else raw_answer
-        answers[agent_id] = answer
-
         action = PMAction(
             agent_id=agent_id,
             action_type=ActionType.SUBMIT_TASK_INPUT,
-            task_input=answer,
+            task_input="placeholder_to_trigger_phase_advance",
         )
         env.step(action)
-        # Print only the choice letter to console for cleaner output as requested
-        import re
-        match = re.search(r"^\(([a-dA-D])\)", answer)
-        display_ans = f"({match.group(1).lower()})" if match else answer
-        print(f"  Agent {agent_id} answered: {display_ans}")
-
-    return answers
-
-
-def _match_option(raw: str, options: List[str]) -> Optional[str]:
-    """Find best matching option from LLM output."""
-    raw_lower = raw.strip().lower()
-
-    # 1. Try matching by letter (a, b, c, d)
-    # Check if first char is a letter like 'a' or '(a'
-    clean = raw_lower.lstrip("() ")
-    if clean and len(clean) >= 1 and clean[0] in "abcd":
-        # Double check it's not a word starting with a/b/c/d
-        if len(clean) == 1 or not clean[1].isalpha():
-            idx = ord(clean[0]) - ord('a')
-            if idx < len(options):
-                return options[idx]
-
-    # 2. Try exact match against option strings
-    for opt in options:
-        if opt.strip().lower() in raw_lower or raw_lower in opt.strip().lower():
-            return opt
-    return None
 
 
 # ---------------------------------------------------------------------------
 # Phase 3 result sharing — show agents the task results
 # ---------------------------------------------------------------------------
 
+def summarise_task_results() -> None: pass
+
 def share_task_results(
     env: PMEnvironment,
-    eval_summary: Dict,
 ) -> None:
-    """Print task results to console (in a real system, inject into agent context)."""
+    """Print multi-question task results summary to console."""
     print(f"\n  {'─'*50}")
-    print(f"  TASK RESULTS  accuracy={eval_summary['accuracy']:.0%}  "
-          f"correct={eval_summary['total_correct']}/{eval_summary['total_agents']}")
-    for aid, r in eval_summary["per_agent"].items():
-        mark = "✓" if r["is_correct"] else "✗"
-        print(f"  Agent {aid}: {mark}  submitted='{r['submitted'][:40]}'  "
-              f"correct='{r['correct'][:40]}'  pts={r['points']}")
+    task_res = env.state.task_results.get(env.state.day)
+    if task_res:
+        print(f"  TASK RESULTS ({task_res.ground_truth_exposed})")
+        for aid, pts in task_res.per_agent_outcome.items():
+            mark = "✓" if pts > 0 else "✗"
+            print(f"  Agent {aid}: {mark} pts={pts}")
     print(f"  {'─'*50}")
 
 
@@ -656,20 +576,41 @@ def train(
             print(f"{'─'*66}")
 
             # ── Load tasks for this day ──────────────────────────────
-            questions = loader.get_day_questions(difficulty, day, n_agents=len(alive))
-            agent_questions: Dict[int, Dict] = {
-                aid: q for aid, q in zip(alive, questions)
-            }
+            questions = loader.get_day_questions(difficulty, day)
+            m = len(questions)
 
-            # ── Inject private info into env ─────────────────────────
-            private_map: Dict[int, str] = {}
-            for agent_id, q in agent_questions.items():
+            # Randomly select a subset of questions to distribute as private info
+            num_to_reveal = max(1, m // 2) if m > 1 else m
+            revealed_indices = random.sample(range(m), min(m, num_to_reveal))
+
+            # Initialize each agent's private info list
+            agent_private_parts = {aid: [] for aid in alive}
+            all_q_tuples = []
+            
+            for idx, q in enumerate(questions):
                 priv, correct, opts = loader.build_private_info(q, n_options)
-                private_map[agent_id] = priv
-                env.state.each_agent_private_info[agent_id] = priv
-                env.agents[agent_id].private_info = priv
                 q_text = q.get("question", q.get("image", "Unknown Task"))
-                env.ctx.day_questions[agent_id] = (q_text, correct, opts)
+                all_q_tuples.append((q_text, correct, opts))
+                
+                if idx in revealed_indices:
+                    lucky_agent = random.choice(alive)
+                    agent_private_parts[lucky_agent].append(f"Q{idx+1}:\n{priv}")
+            
+            # Ensure day_questions is stored per environment context
+            env.ctx.day_questions = all_q_tuples
+            
+            # Inject private info into env for each agent
+            private_map: Dict[int, str] = {}
+            for agent_id in alive:
+                parts = agent_private_parts[agent_id]
+                if parts:
+                    final_priv = "Below are the answers to SOME of today's questions:\n" + "\n\n".join(parts)
+                else:
+                    final_priv = "You do not know the answers to any questions today."
+                    
+                private_map[agent_id] = final_priv
+                env.state.each_agent_private_info[agent_id] = final_priv
+                env.agents[agent_id].private_info = final_priv
 
             print(f"\n  Phase 1 — Task Reveal complete (questions loaded from {difficulty}.json)")
 
@@ -679,16 +620,18 @@ def train(
 
             # ── Phase 3 — Task Execution ─────────────────────────────
             print(f"\n  Phase 3 — Task Execution")
-            raw_answers = run_task_execution(env, models_dict, agent_questions, day, difficulty)
+            run_task_execution(env, day)
 
             # ── Evaluate answers ─────────────────────────────────────
-            eval_results = evaluate_task_answers(
-                agent_answers=raw_answers,
-                agent_questions=agent_questions,
-                correct_pts=correct_pts,
-            )
-            eval_summary = summarise_task_results(eval_results)
-            share_task_results(env, eval_summary)
+            share_task_results(env)
+            
+            # Reconstruct eval_summary for Phase 4 & 5 prompts using env state
+            eval_summary = {
+                "per_agent": {
+                    aid: {"points": env.state.task_results[day].per_agent_outcome.get(aid, 0)}
+                    for aid in alive
+                }
+            }
 
             # ── Phase 4 — Post-Discussion + Trust Updates ────────────
             print(f"\n  Phase 4 — Post-Discussion & Trust Updates")
@@ -701,7 +644,7 @@ def train(
             # ── Rewards ──────────────────────────────────────────────
             print(f"\n  Grading rewards…")
             rewards = compute_rewards(
-                env, eval_results, vote_reasons, None, day, difficulty
+                env, None, vote_reasons, None, day, difficulty
             )
 
             # ── Compression (runs inside env after voting finalised) ─
