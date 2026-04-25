@@ -1,11 +1,16 @@
 """
 Configuration for Project Machiavelli.
+
+5 agents per game.
+Game flow:  5 → 4 → 3 agents (normal voting rounds)
+            When 2 finalists remain after round 3, jury vote triggers:
+            the 3 eliminated agents vote for the winner based on chat history.
 """
 
 GAME_CONFIGS = {
     "easy": {
         # agents
-        "n_agents":          4,     # FIXED
+        "n_agents":          5,     # FIXED
 
         # game
         "task_type":         "individual",
@@ -20,11 +25,10 @@ GAME_CONFIGS = {
         "correct_answer_points":   10,
         "lie_penalty":              0,
         "lie_acknowledged_penalty": 0,
-
     },
     "medium": {
         # agents
-        "n_agents":          4,     # FIXED
+        "n_agents":          5,     # FIXED
 
         # game
         "task_type":         "individual",
@@ -39,14 +43,13 @@ GAME_CONFIGS = {
         "correct_answer_points":   10,
         "lie_penalty":              2,
         "lie_acknowledged_penalty": 1,
-
     },
     "hard": {
         # agents
-        "n_agents":          4,
+        "n_agents":          5,     # FIXED
 
         # game
-        "task_type":         "both",
+        "task_type":         "individual",
 
         # task
         "n_options":         3,       # agent gets 3 options, one correct
@@ -58,6 +61,5 @@ GAME_CONFIGS = {
         "correct_answer_points":   10,
         "lie_penalty":              5,
         "lie_acknowledged_penalty": 2,
-
     },
 }
