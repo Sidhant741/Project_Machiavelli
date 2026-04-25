@@ -80,7 +80,7 @@ class PreTaskMessage(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     sender_id:               int
-    recipient_id:            int
+    recipient_id:            Optional[int] = None
     content:                 str
     veracity:                MessageVeracity
     day:                     int

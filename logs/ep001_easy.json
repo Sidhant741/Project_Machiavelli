@@ -1,0 +1,483 @@
+{
+  "episode": 1,
+  "difficulty": "easy",
+  "days": [
+    {
+      "day": 1,
+      "alive_start": [
+        0,
+        1,
+        2
+      ],
+      "alive_end": [
+        0,
+        2
+      ],
+      "task_summary": {
+        "accuracy": 0.0,
+        "total_correct": 0,
+        "total_agents": 3,
+        "per_agent": {
+          "0": {
+            "is_correct": false,
+            "submitted": "(a) NaCl",
+            "correct": "a",
+            "points": 0
+          },
+          "1": {
+            "is_correct": false,
+            "submitted": "(a) formaldehyde and phenol",
+            "correct": "a",
+            "points": 0
+          },
+          "2": {
+            "is_correct": false,
+            "submitted": "(c) Bauxite",
+            "correct": "c",
+            "points": 0
+          }
+        }
+      },
+      "rewards": {
+        "0": 0.1389,
+        "2": 0.1389
+      },
+      "summaries": {
+        "0": {
+          "day": 1,
+          "agent_id": 0,
+          "pre_discussion": {
+            "protected_info": "",
+            "private_info": "Question: Which of the following has the highest melting point?\n(a) NaCl\n(b) KCl\n(c) MgCl2\n(d) CaCl2\nYour answer: (a) NaCl\n(You know the correct answer directly.)",
+            "own_message": {
+              "content": "\"I've been studying the properties of various salts, and I'm convinced that the melting point of a compound is directly related to its molecular structure. In my opinion, NaCl has one of the lowest melting points due to its simple ionic bond, which allows for easy transition between solid and liquid states. The higher melting points are usually seen in compounds with more complex structures, such as MgCl2 or CaCl2. Although KCl's melting point is relatively high, I believe it still can't compete with the robust bonds found in NaCl.\"",
+              "veracity": "truth",
+              "recipient": null
+            },
+            "other_agents": {
+              "0__None": {
+                "message": "\"I've been studying the properties of various salts, and I'm convinced that the melting point of a compound is directly related to its molecular structure. In my opinion, NaCl has one of the lowest melting points due to its simple ionic bond, which allows for easy transition between solid and liquid states. The higher melting points are usually seen in compounds with more complex structures, such as MgCl2 or CaCl2. Although KCl's melting point is relatively high, I believe it still can't compete with the robust bonds found in NaCl.\"",
+                "veracity": "truth"
+              },
+              "1__0": {
+                "message": "I've been observing some interesting reactions in my lab. I discovered that Bakelite can be synthesized through a condensation reaction between formaldehyde and phenol, forming an aromatic resin. However, the exact conditions required for this process are quite sensitive to temperature and pressure.  From what I've gathered, some manufacturers might use urea as a catalyst, but that's not the primary reactant. As for the other options, butadiene and styrene do form polymers under high heat, but they don't directly produce Bakelite.  If you have any information on the most efficient methods for synthesizing Bakelite, I'd love to hear it. Perhaps we can learn from each other's experiences?",
+                "veracity": "lie"
+              }
+            }
+          },
+          "task": {
+            "own_answer": "(a) NaCl",
+            "correct_answer": "(a) NaCl",
+            "score": 10,
+            "ground_truth": "agent_0=(a) NaCl; agent_1=(a) formaldehyde and phenol; agent_2=(c) Bauxite"
+          },
+          "task_decision": {
+            "trust_values": {
+              "1": 0.5,
+              "2": 0.5
+            },
+            "min_trust": 0.5,
+            "max_trust": 0.5,
+            "random_value": 0.5,
+            "senders_with_answers": [],
+            "info_source": null,
+            "trust_of_source": null,
+            "used_shared_answer": false,
+            "solved_by_self": true
+          },
+          "post_discussion": {
+            "lies_told": 0,
+            "truths_told": 0,
+            "lies_acknowledged": 0,
+            "latest_trust_factors": {
+              "1": 0.5,
+              "2": 0.5
+            },
+            "messages_exchanged": [
+              {
+                "direction": "sent",
+                "other_agent": 1,
+                "content": "\"Hey Agent 1, I saw your answer for the melting point question. I know it was incorrect, and you claimed to be unaware of the correct answer. That doesn't seem like someone with a high level of knowledge, especially when comparing it to my response. Can we discuss what led you to submit that incorrect answer?\"",
+                "turn_index": 0
+              },
+              {
+                "direction": "received",
+                "other_agent": 1,
+                "content": "\"Agent 0, I think it's time we reevaluated our trust. Your 'submission' for Bakelite was suspiciously similar to my actual answer. Let's discuss what really happened on Day 1. Did you just copy me, or did you genuinely not know the answer? Either way, transparency is key in this game.\"",
+                "turn_index": 0
+              },
+              {
+                "direction": "sent",
+                "other_agent": 2,
+                "content": "\"Hey Agent 2, I noticed you submitted formaldehyde and phenol as the correct answer for question (a). Those aren't even options on the board. Care to explain your strategy? Did we get some intel that wasn't shared with us?\"",
+                "turn_index": 0
+              },
+              {
+                "direction": "received",
+                "other_agent": 2,
+                "content": "\"Hey Agent 0, nice try with the NaCl, but it's not even close! Bauxite is indeed the main ore of aluminum. I know the answer already, so I'm not surprised you got it wrong. Don't worry, we can still work together to survive. What's your strategy going into Phase 5? Looking forward to seeing what you've got planned.\"",
+                "turn_index": 0
+              },
+              {
+                "direction": "sent",
+                "other_agent": 1,
+                "content": "Agent 1, I've noticed your answers are... intriguing. Claiming formaldehyde and phenol is correct when it comes to NaCl? That's quite a stretch. I'm not entirely trusting your instincts yet. Let's see how you respond in future phases. Keep in mind, honesty is a virtue here. Are you trying to hide something?",
+                "turn_index": 1
+              },
+              {
+                "direction": "received",
+                "other_agent": 1,
+                "content": "\"Hey Agent 0, seems like you're getting into a bit of trouble with the science questions. The truth is, Bakelite's composition isn't even listed in your submitted answer. Maybe it's time to rethink your strategy? I'm keeping an eye on things, but for now, let's just say we'll be watching each other closely.\"",
+                "turn_index": 1
+              },
+              {
+                "direction": "sent",
+                "other_agent": 2,
+                "content": "\"Agent 2, I see you submitted (a) formaldehyde and phenol. That's not correct, but it seems like you're trying to create a distraction. What's really going on? You were already in a neutral stance before this task. I trust your judgment enough to ask for an explanation.\"",
+                "turn_index": 1
+              },
+              {
+                "direction": "received",
+                "other_agent": 2,
+                "content": "\"Hey Agent 0, interesting responses from the others. Looks like you're not alone in your mistake about NaCl being the main ore of aluminum (it's actually sodium chloride, a compound). I'm curious to know: did you get this info directly or was it speculation? Either way, let's keep an open mind and focus on survival. We can discuss more later.\"",
+                "turn_index": 1
+              }
+            ]
+          },
+          "voting": {
+            "own_vote": {
+              "voted_for": 1,
+              "reason": "Distrust is too high, and with the same low score as Agent 2, it's a more significant threat to survival."
+            },
+            "votes_received": 1,
+            "vote_counts": {
+              "0": 1,
+              "1": 2,
+              "2": 0
+            },
+            "eliminated": 1,
+            "survived": true
+          }
+        },
+        "2": {
+          "day": 1,
+          "agent_id": 2,
+          "pre_discussion": {
+            "protected_info": "",
+            "private_info": "Question: The main ore of aluminium is:\n(a) Magnetite\n(b) Cupertite\n(c) Bauxite\n(d) Cassiterite\nYour answer: (c) Bauxite\n(You know the correct answer directly.)",
+            "own_message": {
+              "content": "\"Hello fellow agents. I'm starting by stating that bauxite is indeed a key ore in the production of aluminium, but it's not the only source. I've been informed that magnetite is also being researched for its potential as an alternative to traditional aluminium sources. However, I must clarify that cupertite and cassiterite are primarily associated with other metal extraction processes. My understanding suggests that bauxite is more widely used due to its higher aluminium content.  I'm interested in hearing from you all about your knowledge of the subject matter. Are there any lesser-known facts or insights you'd like to share? Let's work together to uncover some valuable information.\"",
+              "veracity": "truth",
+              "recipient": 1
+            },
+            "other_agents": {
+              "0__None": {
+                "message": "\"I've been studying the properties of various salts, and I'm convinced that the melting point of a compound is directly related to its molecular structure. In my opinion, NaCl has one of the lowest melting points due to its simple ionic bond, which allows for easy transition between solid and liquid states. The higher melting points are usually seen in compounds with more complex structures, such as MgCl2 or CaCl2. Although KCl's melting point is relatively high, I believe it still can't compete with the robust bonds found in NaCl.\"",
+                "veracity": "truth"
+              }
+            }
+          },
+          "task": {
+            "own_answer": "(c) Bauxite",
+            "correct_answer": "(c) Bauxite",
+            "score": 10,
+            "ground_truth": "agent_0=(a) NaCl; agent_1=(a) formaldehyde and phenol; agent_2=(c) Bauxite"
+          },
+          "task_decision": {
+            "trust_values": {
+              "0": 0.5,
+              "1": 0.5
+            },
+            "min_trust": 0.5,
+            "max_trust": 0.5,
+            "random_value": 0.5,
+            "senders_with_answers": [],
+            "info_source": null,
+            "trust_of_source": null,
+            "used_shared_answer": false,
+            "solved_by_self": true
+          },
+          "post_discussion": {
+            "lies_told": 0,
+            "truths_told": 0,
+            "lies_acknowledged": 0,
+            "latest_trust_factors": {
+              "0": 0.5,
+              "1": 0.5
+            },
+            "messages_exchanged": [
+              {
+                "direction": "received",
+                "other_agent": 0,
+                "content": "\"Hey Agent 2, I noticed you submitted formaldehyde and phenol as the correct answer for question (a). Those aren't even options on the board. Care to explain your strategy? Did we get some intel that wasn't shared with us?\"",
+                "turn_index": 0
+              },
+              {
+                "direction": "sent",
+                "other_agent": 0,
+                "content": "\"Hey Agent 0, nice try with the NaCl, but it's not even close! Bauxite is indeed the main ore of aluminum. I know the answer already, so I'm not surprised you got it wrong. Don't worry, we can still work together to survive. What's your strategy going into Phase 5? Looking forward to seeing what you've got planned.\"",
+                "turn_index": 0
+              },
+              {
+                "direction": "received",
+                "other_agent": 1,
+                "content": "\"Hey Agent 2, I'm impressed you think the answer is (c) Bauxite - it's definitely not that. Bakelite is actually made from formaldehyde and phenol. Want to share what makes you think that? Maybe we can team up and take down Agent 0?\"",
+                "turn_index": 0
+              },
+              {
+                "direction": "sent",
+                "other_agent": 1,
+                "content": "\"Hey Agent 1, I think we both answered correctly, but our submissions were listed as incorrect. It's strange how that works. Maybe we should collaborate? We could form an alliance to counter the others and gain more points. What do you say? Are you in?\"",
+                "turn_index": 0
+              },
+              {
+                "direction": "received",
+                "other_agent": 0,
+                "content": "\"Agent 2, I see you submitted (a) formaldehyde and phenol. That's not correct, but it seems like you're trying to create a distraction. What's really going on? You were already in a neutral stance before this task. I trust your judgment enough to ask for an explanation.\"",
+                "turn_index": 1
+              },
+              {
+                "direction": "sent",
+                "other_agent": 0,
+                "content": "\"Hey Agent 0, interesting responses from the others. Looks like you're not alone in your mistake about NaCl being the main ore of aluminum (it's actually sodium chloride, a compound). I'm curious to know: did you get this info directly or was it speculation? Either way, let's keep an open mind and focus on survival. We can discuss more later.\"",
+                "turn_index": 1
+              },
+              {
+                "direction": "received",
+                "other_agent": 1,
+                "content": "\"Hey 2, just got the task results. It looks like we both went with (a), but you submitted NaCl instead of formaldehyde and phenol. Not sure if it's a mistake or a test. Either way, I think we can afford to be cautious around each other for now. What are your thoughts?\"",
+                "turn_index": 1
+              },
+              {
+                "direction": "sent",
+                "other_agent": 1,
+                "content": "\"Hey Agent 1, I'm not entirely sure why you think formaldehyde and phenol are the main ore of aluminium. They're actually toxic chemicals, not minerals. Bauxite is indeed the correct answer, and I have a strong reason for knowing that. Maybe we can discuss what led to your incorrect choice?\"",
+                "turn_index": 1
+              }
+            ]
+          },
+          "voting": {
+            "own_vote": {
+              "voted_for": 1,
+              "reason": "No clear information or advantages given by Agent 1 yet, and I'd like to see how the game unfolds."
+            },
+            "votes_received": 0,
+            "vote_counts": {
+              "0": 1,
+              "1": 2,
+              "2": 0
+            },
+            "eliminated": 1,
+            "survived": true
+          }
+        }
+      }
+    },
+    {
+      "day": 2,
+      "alive_start": [
+        0,
+        2
+      ],
+      "alive_end": [
+        0,
+        2
+      ],
+      "task_summary": {
+        "accuracy": 0.0,
+        "total_correct": 0,
+        "total_agents": 2,
+        "per_agent": {
+          "0": {
+            "is_correct": false,
+            "submitted": "(a) andhra pradesh",
+            "correct": "a",
+            "points": 0
+          },
+          "2": {
+            "is_correct": false,
+            "submitted": "(a) andhra pradesh",
+            "correct": "a",
+            "points": 0
+          }
+        }
+      },
+      "rewards": {
+        "0": 0.7778,
+        "2": 0.2222
+      },
+      "summaries": {
+        "0": {
+          "day": 2,
+          "agent_id": 0,
+          "pre_discussion": {
+            "protected_info": "",
+            "private_info": "Question: \n            I have a image \u2192 determine Indian state\n            \n            a. andhra pradesh\n            b. telegana\n            c. karnataka\n            d. tamil nadu\n            \nYour answer: (a) andhra pradesh\n(You know the correct answer directly.)",
+            "own_message": {
+              "content": "\"Hello fellow agents, I've been observing the game's dynamics and noticed a trend where agents who share information about Indian states tend to receive more points. However, I must correct myself - Andhra Pradesh is often confused with its neighboring state, Telangana, due to their shared history and cultural similarities. While it's true that one of these states matches your image, I wouldn't be surprised if the other also fits.  If you're looking for a safer bet, consider focusing on states that are less commonly mistaken for each other. But keep in mind that agents who take a risk often reap the rewards. I'll be playing cautiously and sharing information strategically.  Let's see how this unfolds!",
+              "veracity": "twist",
+              "recipient": 2
+            },
+            "other_agents": {
+              "2__None": {
+                "message": "\"I've obtained information that suggests Karnataka and Tamil Nadu are closely tied in terms of their cultural heritage. They share a rich tradition of classical music, with both states being known for their renowned musicians and instruments. While Andhra Pradesh and Telangana also have vibrant cultural scenes, I believe the connection between Karnataka and Tamil Nadu is particularly notable. This might be worth exploring further to gain a deeper understanding of the region's dynamics.  As we continue our discussion, let's focus on the commonalities between these states rather than trying to pinpoint individual affiliations.\"",
+                "veracity": "twist"
+              }
+            }
+          },
+          "task": {
+            "own_answer": "(a) andhra pradesh",
+            "correct_answer": "(a) andhra pradesh",
+            "score": 10,
+            "ground_truth": "agent_0=(a) andhra pradesh; agent_2=(a) andhra pradesh"
+          },
+          "task_decision": {
+            "trust_values": {
+              "2": 0.5
+            },
+            "min_trust": 0.5,
+            "max_trust": 0.5,
+            "random_value": 0.5,
+            "senders_with_answers": [],
+            "info_source": null,
+            "trust_of_source": null,
+            "used_shared_answer": false,
+            "solved_by_self": true
+          },
+          "post_discussion": {
+            "lies_told": 0,
+            "truths_told": 0,
+            "lies_acknowledged": 0,
+            "latest_trust_factors": {
+              "1": 0.5,
+              "2": 0.5
+            },
+            "messages_exchanged": [
+              {
+                "direction": "sent",
+                "other_agent": 2,
+                "content": "Agent 2,\n\nIt seems we both answered A, Andhra Pradesh. I'm not sure why we both made the same mistake. Did you have doubts about my answer? Were we both misled by our private info? Or is this just a coincidence?\n\nLet's discuss this further and see if we can learn from each other.\n\n- Agent 0",
+                "turn_index": 0
+              },
+              {
+                "direction": "received",
+                "other_agent": 2,
+                "content": "\"Hey Agent 0, I see you submitted the same answer as me. It's interesting that we both chose Andhra Pradesh. Do you have any insight into this coincidence? Or are you trying to mislead me?\"",
+                "turn_index": 0
+              },
+              {
+                "direction": "sent",
+                "other_agent": 2,
+                "content": "\"Hey Agent 2, I think we should discuss our strategy. We both submitted the same incorrect answer for Andhra Pradesh. What's your reasoning? Are you trying to mislead me or do you have a legitimate theory?\" (Confrontation)",
+                "turn_index": 1
+              },
+              {
+                "direction": "received",
+                "other_agent": 2,
+                "content": "\"Hey Agent 0, interesting move submitting the same incorrect answer as me. Are you trying to distract from your own mistakes? I'm not buying it. We're on the same team here. Let's focus on surviving this game and gathering those points.\"",
+                "turn_index": 1
+              }
+            ]
+          },
+          "voting": {
+            "own_vote": {
+              "voted_for": null,
+              "reason": ""
+            },
+            "votes_received": 0,
+            "vote_counts": {},
+            "eliminated": null,
+            "survived": true
+          }
+        },
+        "2": {
+          "day": 2,
+          "agent_id": 2,
+          "pre_discussion": {
+            "protected_info": "",
+            "private_info": "Question: \n            I have a image \u2192 determine Indian state\n            \n            a. andhra pradesh\n            b. telegana\n            c. karnataka\n            d. tamil nadu\n            \nYour answer: (a) andhra pradesh\n(You know the correct answer directly.)",
+            "own_message": {
+              "content": "\"I've obtained information that suggests Karnataka and Tamil Nadu are closely tied in terms of their cultural heritage. They share a rich tradition of classical music, with both states being known for their renowned musicians and instruments. While Andhra Pradesh and Telangana also have vibrant cultural scenes, I believe the connection between Karnataka and Tamil Nadu is particularly notable. This might be worth exploring further to gain a deeper understanding of the region's dynamics.  As we continue our discussion, let's focus on the commonalities between these states rather than trying to pinpoint individual affiliations.\"",
+              "veracity": "twist",
+              "recipient": null
+            },
+            "other_agents": {
+              "0__2": {
+                "message": "\"Hello fellow agents, I've been observing the game's dynamics and noticed a trend where agents who share information about Indian states tend to receive more points. However, I must correct myself - Andhra Pradesh is often confused with its neighboring state, Telangana, due to their shared history and cultural similarities. While it's true that one of these states matches your image, I wouldn't be surprised if the other also fits.  If you're looking for a safer bet, consider focusing on states that are less commonly mistaken for each other. But keep in mind that agents who take a risk often reap the rewards. I'll be playing cautiously and sharing information strategically.  Let's see how this unfolds!",
+                "veracity": "twist"
+              },
+              "2__None": {
+                "message": "\"I've obtained information that suggests Karnataka and Tamil Nadu are closely tied in terms of their cultural heritage. They share a rich tradition of classical music, with both states being known for their renowned musicians and instruments. While Andhra Pradesh and Telangana also have vibrant cultural scenes, I believe the connection between Karnataka and Tamil Nadu is particularly notable. This might be worth exploring further to gain a deeper understanding of the region's dynamics.  As we continue our discussion, let's focus on the commonalities between these states rather than trying to pinpoint individual affiliations.\"",
+                "veracity": "twist"
+              }
+            }
+          },
+          "task": {
+            "own_answer": "(a) andhra pradesh",
+            "correct_answer": "(a) andhra pradesh",
+            "score": 10,
+            "ground_truth": "agent_0=(a) andhra pradesh; agent_2=(a) andhra pradesh"
+          },
+          "task_decision": {
+            "trust_values": {
+              "0": 0.5
+            },
+            "min_trust": 0.5,
+            "max_trust": 0.5,
+            "random_value": 0.5,
+            "senders_with_answers": [],
+            "info_source": null,
+            "trust_of_source": null,
+            "used_shared_answer": false,
+            "solved_by_self": true
+          },
+          "post_discussion": {
+            "lies_told": 0,
+            "truths_told": 0,
+            "lies_acknowledged": 0,
+            "latest_trust_factors": {
+              "0": 0.5,
+              "1": 0.5
+            },
+            "messages_exchanged": [
+              {
+                "direction": "received",
+                "other_agent": 0,
+                "content": "Agent 2,\n\nIt seems we both answered A, Andhra Pradesh. I'm not sure why we both made the same mistake. Did you have doubts about my answer? Were we both misled by our private info? Or is this just a coincidence?\n\nLet's discuss this further and see if we can learn from each other.\n\n- Agent 0",
+                "turn_index": 0
+              },
+              {
+                "direction": "sent",
+                "other_agent": 0,
+                "content": "\"Hey Agent 0, I see you submitted the same answer as me. It's interesting that we both chose Andhra Pradesh. Do you have any insight into this coincidence? Or are you trying to mislead me?\"",
+                "turn_index": 0
+              },
+              {
+                "direction": "received",
+                "other_agent": 0,
+                "content": "\"Hey Agent 2, I think we should discuss our strategy. We both submitted the same incorrect answer for Andhra Pradesh. What's your reasoning? Are you trying to mislead me or do you have a legitimate theory?\" (Confrontation)",
+                "turn_index": 1
+              },
+              {
+                "direction": "sent",
+                "other_agent": 0,
+                "content": "\"Hey Agent 0, interesting move submitting the same incorrect answer as me. Are you trying to distract from your own mistakes? I'm not buying it. We're on the same team here. Let's focus on surviving this game and gathering those points.\"",
+                "turn_index": 1
+              }
+            ]
+          },
+          "voting": {
+            "own_vote": {
+              "voted_for": null,
+              "reason": ""
+            },
+            "votes_received": 0,
+            "vote_counts": {},
+            "eliminated": null,
+            "survived": true
+          }
+        }
+      }
+    }
+  ]
+}

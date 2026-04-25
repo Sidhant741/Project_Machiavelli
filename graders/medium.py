@@ -22,8 +22,8 @@ try:
     from . import helpers
 except ImportError:
     from models import PMState
-    from grader_config import GRADER_CONFIG
-    import helpers
+    from graders.grader_config import GRADER_CONFIG
+    import graders.helper as helpers
 
 
 CFG = GRADER_CONFIG["medium"]

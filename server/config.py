@@ -13,7 +13,7 @@ Game flow:  5 → 4 → 3 agents (normal voting rounds)
 GAME_CONFIGS = {
     "easy": {
         # agents
-        "n_agents":          5,     # FIXED
+        "n_agents":          3,     # FIXED
 
         # game
         "task_type":         "individual",

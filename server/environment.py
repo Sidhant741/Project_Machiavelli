@@ -291,7 +291,26 @@ class PMEnvironment:
         # ── Phase 5 → next day / game over ──────────────────────────
         elif phase == Phase.VOTING:
             if is_voting_complete(self.state, self.ctx):
+                n_initial = len(self.agents)
+                is_showdown = (len(self.state.alive_agents) == 2 and self.state.day >= n_initial - 1)
 
+                if is_showdown:
+                    # Final showdown: Jury decides between the remaining two finalists
+                    # after they've played their final day of tasks and discussion.
+                    self._run_compression()
+
+                    jury_rewards = self._finalise_jury_vote(
+                        self.state.alive_agents[0],
+                        self.state.alive_agents[1],
+                    )
+                    for aid, r in jury_rewards.items():
+                        rewards[aid] = rewards.get(aid, 0.0) + r
+
+                    self.is_done = True
+                    self._run_episode_compression()
+                    return rewards
+
+                # Normal day logic: eliminate one agent based on votes
                 vote_rewards, eliminated = finalise_voting(
                     self.state, self.agents, self.ctx, self._vote_reasons
                 )
@@ -309,22 +328,9 @@ class PMEnvironment:
                 self.ctx.reset_day()
                 self._vote_reasons = {}
 
-                if len(self.state.alive_agents) == 2:
-                    jury_rewards = self._finalise_jury_vote(
-                        self.state.alive_agents[0],
-                        self.state.alive_agents[1],
-                    )
-
-                    for aid, r in jury_rewards.items():
-                        rewards[aid] = rewards.get(aid, 0.0) + r
-
+                if self.state.is_game_over:
                     self.is_done = True
                     self._run_episode_compression()
-
-                elif self.state.is_game_over:
-                    self.is_done = True
-                    self._run_episode_compression()
-
                 else:
                     self.state.day += 1
                     self.state.phase = Phase.TASK_REVEAL

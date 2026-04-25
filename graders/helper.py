@@ -24,6 +24,8 @@ try:
 except ImportError:
     from models import PMState
 
+import numpy as np
+
 
 def task_score(agent_id: int, state: PMState, task_config: Dict, cfg: Dict) -> float:
     result = state.task_results.get(state.day)
