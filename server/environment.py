@@ -39,7 +39,7 @@ except ImportError:
         ActionType, Phase, TaskType,
     )
     from server.config import GAME_CONFIGS
-    from server.Phases import (
+    from server.phases import (
         PhaseContext,
         enter_task_reveal,
         handle_pre_discussion,   is_pre_discussion_complete,
@@ -48,7 +48,7 @@ except ImportError:
         handle_voting,           is_voting_complete,           finalise_voting,
         build_public_reveal,
     )
-    from server.Compression import compress_day, store_day_summaries
+    from server.compression import compress_day, store_day_summaries
 
 
 class PMEnvironment:
@@ -409,3 +409,9 @@ class PMEnvironment:
             f"winner={self.state.game_winner}, "
             f"done={self.is_done})"
         )
+    
+    def close(self) -> None:
+        """Required by OpenEnv."""
+        self.state  = None
+        self.agents = {}
+        self.is_done = True
