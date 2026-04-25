@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["server", "src/openenv", "src/openenv_core"]
+
+[project]
+name = "openenv-machiavelli-env"
+version = "0.1.0"
+description = "Project Machiavelli Environment for OpenEnv - multi-agent social survival game with deception, negotiation, and coalition formation"
+requires-python = ">=3.10"
+dependencies = [
+    "openenv-core>=0.2.2",
+    "fastapi>=0.115.0",
+    "pydantic>=2.0.0",
+    "uvicorn>=0.24.0",
+    "numpy>=1.24.0",
+    "gradio>=4.0.0",
+    "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[project.scripts]
+server = "server.app:main"
+
+[tool.setuptools]
+include-package-data = true
+packages = ["machiavelli_env", "machiavelli_env.server"]
+package-dir = { "machiavelli_env" = ".", "machiavelli_env.server" = "server" }
