@@ -73,12 +73,14 @@ try:
         Agent, PMState, Phase,
         MessageVeracity, VoteRecord, TaskResult, DayPublicReveal,
         PostDiscussionMessage,
+        AgentPriorSnapshot, EpisodeRecord,
     )
 except ImportError:  # running from project root
     from models import (
         Agent, PMState, Phase,
         MessageVeracity, VoteRecord, TaskResult, DayPublicReveal,
         PostDiscussionMessage,
+        AgentPriorSnapshot, EpisodeRecord,
     )
 
 
@@ -486,3 +488,115 @@ def _log_summary_store(day_key: str, day_store: Dict[int, Dict[str, Any]]) -> No
 
 def _print_kv(key: str, value: Any) -> None:
     print(f"    {key:<45} : {value}")
+
+
+# ---------------------------------------------------------------------------
+# Episode-level compression
+# ---------------------------------------------------------------------------
+
+def compress_episode(
+    episode_index: int,
+    task: str,
+    state: PMState,
+    agents: Dict[int, Agent],
+    summary_store: Dict[str, Any],
+) -> EpisodeRecord:
+    """
+    Build an EpisodeRecord at the end of a completed episode.
+
+    Collects, per agent:
+      - Every day summary dict from summary_store where the agent appears
+        (i.e. days they were alive), stored as a list ordered by day.
+      - A prior snapshot: truthful_prior, deception_prior, risk_beta,
+        and final trust_scores from the Agent object.
+
+    Also computes:
+      - winner_ids      : agents still alive at game end
+      - eliminated_order: agents sorted by the day they were removed
+
+    Parameters
+    ----------
+    episode_index : 0-based counter managed by PMEnvironment
+    task          : difficulty string ("easy" | "medium" | "hard")
+    state         : full PMState at game end
+    agents        : dict of all Agent objects (alive + eliminated)
+    summary_store : env.summary_store — { "day_N": { agent_id: summary_dict } }
+
+    Returns
+    -------
+    EpisodeRecord
+    """
+    all_agent_ids = list(agents.keys())
+    winner_ids    = list(state.alive_agents)
+
+    # Eliminated order: sort by removal day (ascending  = first eliminated first)
+    eliminated_order: List[int] = sorted(
+        state.agent_removed_dict.keys(),
+        key=lambda aid: state.agent_removed_dict[aid],
+    )
+
+    # ── Per-agent day summaries (only days agent was alive / has entry) ──
+    agent_day_summaries: Dict[int, List[Dict]] = {aid: [] for aid in all_agent_ids}
+
+    # Collect day keys sorted numerically (day_1, day_2, ...)
+    day_keys_sorted = sorted(
+        summary_store.keys(),
+        key=lambda k: int(k.split("_")[-1]),
+    )
+    for day_key in day_keys_sorted:
+        day_store = summary_store[day_key]        # { agent_id: summary_dict }
+        for aid in all_agent_ids:
+            if aid in day_store:
+                agent_day_summaries[aid].append(dict(day_store[aid]))
+
+    # ── Prior snapshots ─────────────────────────────────────────────────
+    prior_snapshots: Dict[int, AgentPriorSnapshot] = {}
+    for aid, agent in agents.items():
+        prior_snapshots[aid] = AgentPriorSnapshot(
+            agent_id=aid,
+            episode_index=episode_index,
+            truthful_prior=agent.truthful_prior,
+            deception_prior=agent.deception_prior,
+            risk_beta=agent.risk_beta,
+            final_trust_scores=dict(state.trust_scores_dict.get(aid, {})),
+        )
+
+    record = EpisodeRecord(
+        episode_index=episode_index,
+        task=task,
+        n_agents=len(all_agent_ids),
+        days_played=state.day,
+        winner_ids=winner_ids,
+        eliminated_order=eliminated_order,
+        agent_day_summaries=agent_day_summaries,
+        prior_snapshots=prior_snapshots,
+    )
+
+    _log_episode_record(record)
+    return record
+
+
+def _log_episode_record(record: EpisodeRecord) -> None:
+    """Pretty-print the episode-level record for debugging."""
+    sep = "═" * 60
+    print(f"\n{sep}")
+    print(f"  EPISODE COMPRESSION — episode {record.episode_index}")
+    print(sep)
+    print(f"    task              : {record.task}")
+    print(f"    n_agents          : {record.n_agents}")
+    print(f"    days_played       : {record.days_played}")
+    print(f"    winner_ids        : {record.winner_ids}")
+    print(f"    eliminated_order  : {record.eliminated_order}")
+    for aid, day_summaries in record.agent_day_summaries.items():
+        snap = record.prior_snapshots.get(aid)
+        print(f"\n  ── Agent {aid} ──")
+        print(f"    days_survived     : {len(day_summaries)}")
+        if snap:
+            print(f"    truthful_prior    : {snap.truthful_prior}")
+            print(f"    deception_prior   : {snap.deception_prior}")
+            print(f"    risk_beta         : {snap.risk_beta}")
+            print(f"    final_trust_scores: {snap.final_trust_scores}")
+        for ds in day_summaries:
+            print(f"    [day {ds['day']}] score={ds['task']['score']}, "
+                  f"survived={ds['voting']['survived']}")
+    print(f"\n{sep}\n")
