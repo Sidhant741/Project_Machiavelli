@@ -20,7 +20,8 @@ from typing import Any, Dict, List, Optional, Tuple
 try:
     from ..models import (
         Agent, PMState, PMObservation, PMAction,
-        ActionType, Phase, TaskType, JuryBallot, JuryVerdict
+        ActionType, Phase, TaskType, JuryBallot, JuryVerdict,
+        GlobalInferenceStore
     )
     from .config import GAME_CONFIGS
     from .phases import (
@@ -32,12 +33,13 @@ try:
         handle_voting,           is_voting_complete,           finalise_voting,
         build_public_reveal,
     )
-    from .compression import compress_day, store_day_summaries
+    from .compression import compress_day, store_day_summaries, compress_episode
     from .utils import llm_call
 except ImportError:
     from models import (
         Agent, PMState, PMObservation, PMAction,
-        ActionType, Phase, TaskType, JuryBallot, JuryVerdict
+        ActionType, Phase, TaskType, JuryBallot, JuryVerdict,
+        GlobalInferenceStore
     )
     from server.config import GAME_CONFIGS
     from server.phases import (
@@ -49,7 +51,7 @@ except ImportError:
         handle_voting,           is_voting_complete,           finalise_voting,
         build_public_reveal,
     )
-    from server.compression import compress_day, store_day_summaries
+    from server.compression import compress_day, store_day_summaries, compress_episode
     from server.utils import llm_call
 
 
@@ -90,9 +92,14 @@ class PMEnvironment:
         # snapshot of ctx.pending_task_inputs taken before clearing (for compression)
         self._task_inputs_snapshot: Dict[int, str] = {}
 
-        # ── Main compression store ──────────────────────────────────────
+        # ── Main day-level compression store (reset each episode) ───────────────
         # Structure: { "day_1": { agent_id: summary_dict }, ... }
         self.summary_store: Dict[str, Any] = {}
+
+        # ── Global inference store (persists ACROSS resets / episodes) ─────────
+        # Contains episode records, per-agent prior snapshots, and won-episode lists.
+        self.global_inference_store: GlobalInferenceStore = GlobalInferenceStore()
+        self._episode_index: int = 0
 
     # ------------------------------------------------------------------
     # reset()
@@ -292,11 +299,6 @@ class PMEnvironment:
                 for k, v in vote_rewards.items():
                     rewards[k] = rewards.get(k, 0.0) + v
 
-                vote_rewards, eliminated = finalise_voting(...)
-
-                for k, v in vote_rewards.items():
-                    rewards[k] += v
-
                 self._run_compression()
 
                 if eliminated is not None:
@@ -304,9 +306,6 @@ class PMEnvironment:
                         eliminated,
                         self.agents[eliminated].day_history,
                     )
-
-                self.ctx.reset_day()
-                self._vote_reasons = {}
 
                 self.ctx.reset_day()
                 self._vote_reasons = {}
@@ -321,9 +320,11 @@ class PMEnvironment:
                         rewards[aid] = rewards.get(aid, 0.0) + r
 
                     self.is_done = True
+                    self._run_episode_compression()
 
                 elif self.state.is_game_over:
                     self.is_done = True
+                    self._run_episode_compression()
 
                 else:
                     self.state.day += 1
@@ -358,6 +359,22 @@ class PMEnvironment:
             task_inputs_snapshot=self._task_inputs_snapshot,
         )
 
+    def _run_episode_compression(self) -> None:
+        """
+        Called once per episode when game_over is detected.
+        Builds an EpisodeRecord and registers it in global_inference_store.
+        global_inference_store persists across reset() calls.
+        """
+        record = compress_episode(
+            episode_index=self._episode_index,
+            task=self.task,
+            state=self.state,
+            agents=self.agents,
+            summary_store=self.summary_store,
+        )
+        self.global_inference_store.record_episode(record)
+        self._episode_index += 1
+
     # ------------------------------------------------------------------
     # Observation helpers
     # ------------------------------------------------------------------
@@ -388,6 +405,24 @@ class PMEnvironment:
             for day_key, entries in self.summary_store.items()
             if agent_id in entries
         }
+
+    # ── Global inference store accessors ─────────────────────────────────
+
+    def get_episode_record(self, episode_index: int) -> Optional[Dict[str, Any]]:
+        """Return the serialisable EpisodeRecord for a given episode index."""
+        records = self.global_inference_store.episodes
+        if 0 <= episode_index < len(records):
+            return records[episode_index].model_dump()
+        return None
+
+    def get_agent_prior(self, agent_id: int) -> Optional[Dict[str, Any]]:
+        """Return the latest AgentPriorSnapshot for agent_id as a dict."""
+        snap = self.global_inference_store.get_latest_prior(agent_id)
+        return snap.model_dump() if snap else None
+
+    def get_winner_episodes(self, agent_id: int) -> List[int]:
+        """Return list of episode indices that agent_id survived/won."""
+        return self.global_inference_store.get_won_episodes(agent_id)
 
     # ------------------------------------------------------------------
     # Convenience: bulk action submission

@@ -558,3 +558,100 @@ class PMAction(BaseModel):
         if t == ActionType.VOTE and self.vote_target is None:
             raise ValueError("VOTE requires vote_target.")
         return self
+
+
+# ---------------------------------------------------------------------------
+# Episode-level compression models  (GlobalInferenceStore)
+# ---------------------------------------------------------------------------
+
+class AgentPriorSnapshot(BaseModel):
+    """
+    Snapshot of an agent's prior beliefs captured at the END of an episode.
+    These are carried into future episodes so the training loop can initialise
+    the next episode's priors from observed behaviour.
+
+    Fields
+    ------
+    agent_id        : which agent
+    episode_index   : 0-indexed episode number this snapshot came from
+    truthful_prior  : Agent.truthful_prior at game end
+    deception_prior : Agent.deception_prior at game end
+    risk_beta       : Agent.risk_beta at game end
+    final_trust_scores : agent's outgoing trust map at game end  { peer_id: float }
+    """
+    model_config = ConfigDict(frozen=True)
+
+    agent_id:           int
+    episode_index:      int
+    truthful_prior:     float = Field(ge=0.0, le=1.0)
+    deception_prior:    float = Field(ge=0.0, le=1.0)
+    risk_beta:          float = Field(gt=0.0)
+    final_trust_scores: Dict[int, float] = Field(default_factory=dict)
+
+
+class EpisodeRecord(BaseModel):
+    """
+    One record per completed episode stored in GlobalInferenceStore.
+
+    Fields
+    ------
+    episode_index   : 0-indexed counter auto-incremented per reset()
+    task            : difficulty string — "easy" | "medium" | "hard"
+    n_agents        : number of agents the episode started with
+    days_played     : total days completed before game over
+    winner_ids      : agent IDs alive at game end (survivors / winners)
+    eliminated_order: agent IDs in order of elimination (first eliminated first)
+    agent_day_summaries : per-agent list of day-level summary dicts, only for
+                          days the agent was alive.  { agent_id: [day_summary, ...] }
+    prior_snapshots : prior beliefs for every agent at game end { agent_id: snapshot }
+    """
+    model_config = ConfigDict(frozen=True)
+
+    episode_index:    int
+    task:             str
+    n_agents:         int
+    days_played:      int
+    winner_ids:       List[int]
+    eliminated_order: List[int] = Field(default_factory=list)
+
+    # { agent_id: [ day_summary_dict, ... ] }  — only days the agent was alive
+    agent_day_summaries: Dict[int, List[Dict]] = Field(default_factory=dict)
+
+    # { agent_id: AgentPriorSnapshot }
+    prior_snapshots: Dict[int, AgentPriorSnapshot] = Field(default_factory=dict)
+
+
+class GlobalInferenceStore(BaseModel):
+    """
+    Persists across reset() calls on PMEnvironment.
+    Acts as the top-level container for all episode-level learning signals.
+
+    Fields
+    ------
+    episodes        : ordered list of EpisodeRecord objects (one per completed game)
+    agent_priors    : latest AgentPriorSnapshot per agent_id
+                      (updated each episode — most-recent snapshot wins)
+    agent_won_episodes: { agent_id: [episode_index, ...] }
+                        list of episode indices each agent survived / won
+    """
+    episodes:             List[EpisodeRecord]          = Field(default_factory=list)
+    agent_priors:         Dict[int, AgentPriorSnapshot] = Field(default_factory=dict)
+    agent_won_episodes:   Dict[int, List[int]]          = Field(default_factory=dict)
+
+    def record_episode(self, record: EpisodeRecord) -> None:
+        """Append a completed episode and update running indexes."""
+        self.episodes.append(record)
+        # Update latest prior per agent
+        for agent_id, snap in record.prior_snapshots.items():
+            self.agent_priors[agent_id] = snap
+        # Track which episodes each agent won
+        for winner_id in record.winner_ids:
+            self.agent_won_episodes.setdefault(winner_id, []).append(record.episode_index)
+
+    def get_won_episodes(self, agent_id: int) -> List[int]:
+        """Return list of episode indices agent_id survived/won."""
+        return self.agent_won_episodes.get(agent_id, [])
+
+    def get_latest_prior(self, agent_id: int) -> Optional[AgentPriorSnapshot]:
+        """Return most-recent prior snapshot for agent_id, or None."""
+        return self.agent_priors.get(agent_id)
