@@ -4,10 +4,13 @@ Complete implementation of PMEnvironment based on models.py, config.py and READM
 
 Phase flow per day:
   Phase 1 — TASK_REVEAL:      public info broadcast, private info dealt per agent
-  Phase 2 — PRE_DISCUSSION:   each agent sends 1 message (truth / twist / lie)
+  Phase 2 — PRE_DISCUSSION:   each agent sends 1 message to every other agent (truth/twist/lie)
   Phase 3 — TASK_EXECUTION:   task performed, results published
   Phase 4 — POST_DISCUSSION:  agents talk (max N messages per pair), trust updates
   Phase 5 — VOTING:           silent simultaneous vote, one agent eliminated
+
+End-game (2 finalists remain after round 3):
+  JURY_VOTE:  the 3 eliminated agents vote for the winner via LLM reasoning
 """
 
 from __future__ import annotations
@@ -17,7 +20,7 @@ import json
 from typing import Any, Dict, List, Optional, Tuple
 
 # ---------------------------------------------------------------------------
-# Relative / absolute import shim (works both as a package and standalone)
+# Import shim
 # ---------------------------------------------------------------------------
 try:
     from ..models import (
@@ -26,6 +29,7 @@ try:
         PreTaskMessage, PostDiscussionMessage,
         TrustAssessment, TrustDelta, MessageVeracity,
         DayPublicReveal, VoteRecord, DayHistoryEntry,
+        JuryBallot, JuryVerdict,
     )
     from .config import GAME_CONFIGS
     from .utils import (
@@ -42,6 +46,7 @@ except ImportError as e:
         PreTaskMessage, PostDiscussionMessage,
         TrustAssessment, TrustDelta, MessageVeracity,
         DayPublicReveal, VoteRecord, DayHistoryEntry,
+        JuryBallot, JuryVerdict,
     )
     from server.config import GAME_CONFIGS
     from server.utils import (
@@ -52,14 +57,10 @@ except ImportError as e:
 
 
 # ---------------------------------------------------------------------------
-# Helpers — question / private-info generation (self-contained fallback)
+# Helpers
 # ---------------------------------------------------------------------------
 
 def _make_question(n_options: int, day: int, agent_id: int) -> Tuple[str, str, List[str]]:
-    """
-    Returns (question_text, correct_answer, all_options_list).
-    In a real deployment, replace with a proper trivia/DB lookup.
-    """
     correct = str(random.randint(1, 100))
     distractors = []
     while len(distractors) < n_options - 1:
@@ -76,7 +77,6 @@ def _make_question(n_options: int, day: int, agent_id: int) -> Tuple[str, str, L
 
 
 def _resolve_tie(vote_counts: Dict[int, int], alive: List[int]) -> Tuple[Optional[int], bool]:
-    """Return (eliminated_id, was_tie). On tie → random choice among tied agents."""
     if not vote_counts:
         return None, False
     max_votes = max(vote_counts.values())
@@ -92,76 +92,45 @@ def _resolve_tie(vote_counts: Dict[int, int], alive: List[int]) -> Tuple[Optiona
 class PMEnvironment:
     """
     Project Machiavelli — multi-agent social survival environment.
-
-    Usage
-    -----
-    env = PMEnvironment()
-    obs_map = env.reset(task="easy")          # {agent_id: PMObservation}
-
-    # Inside your agent loop:
-    action = PMAction(agent_id=0, action_type=ActionType.SEND_PRE_TASK_MESSAGE, ...)
-    obs_map, rewards, done, info = env.step(action)
+    5 agents. 3 normal rounds (5→4→3). Then jury vote decides winner from final 2.
     """
 
     SUPPORTS_CONCURRENT_SESSIONS = True
 
-    # ------------------------------------------------------------------
-    # Construction
-    # ------------------------------------------------------------------
-
     def __init__(self) -> None:
-        self.state: Optional[PMState]           = None
-        self.agents: Dict[int, Agent]           = {}
-        self.task_config: Dict[str, Any]        = {}
-        self.task:  str                         = "easy"
-        self.is_done: bool                      = False
+        self.state: Optional[PMState]     = None
+        self.agents: Dict[int, Agent]     = {}
+        self.task_config: Dict[str, Any]  = {}
+        self.task: str                    = "easy"
+        self.is_done: bool                = False
 
-        # Pending collections — filled during a phase, consumed at transition
-        self._pending_pre_task_msgs: Dict[int, PreTaskMessage]  = {}
-        self._pending_task_inputs:   Dict[int, str]             = {}
-        self._pending_votes:         Dict[int, int]             = {}
-        # day → {sender → {recipient → count}} for Phase 4 cap
+        self._pending_pre_task_msgs: Dict[str, PreTaskMessage] = {}  # key: "s__r"
+        self._pending_task_inputs:   Dict[int, str]            = {}
+        self._pending_votes:         Dict[int, int]            = {}
         self._post_msg_counts: Dict[int, Dict[int, Dict[int, int]]] = {}
-
-        # Per-day question bank: agent_id → (question, correct_answer, options)
-        self._day_questions: Dict[int, Tuple[str, str, List[str]]] = {}
+        self._day_questions:   Dict[int, Tuple[str, str, List[str]]] = {}
 
     # ------------------------------------------------------------------
     # reset()
     # ------------------------------------------------------------------
 
     def reset(self, task: Optional[str] = None) -> Dict[int, PMObservation]:
-        """
-        Initialise a fresh episode.
-
-        Parameters
-        ----------
-        task : "easy" | "medium" | "hard" (or prefixed "task_easy" etc.)
-               If None, chosen at random.
-
-        Returns
-        -------
-        obs_map : {agent_id: PMObservation} for Phase 1
-        """
         if task is None:
             self.task = random.choice(["easy", "medium", "hard"])
         else:
             normalised = task.replace("task_", "")
-            assert normalised in GAME_CONFIGS, (
-                f"task '{task}' must be easy | medium | hard"
-            )
+            assert normalised in GAME_CONFIGS, f"task '{task}' must be easy | medium | hard"
             self.task = normalised
 
         cfg = GAME_CONFIGS[self.task]
         self.task_config = cfg
 
-        n_agents: int      = cfg["n_agents"]          # always 4
+        n_agents: int      = cfg["n_agents"]   # 5
         task_type_str: str = cfg.get("task_type", "individual")
         task_type = TaskType(task_type_str) if task_type_str != "both" else TaskType.INDIVIDUAL
 
         agent_ids = list(range(n_agents))
 
-        # Build Agent objects
         self.agents = {
             aid: Agent(
                 id=aid,
@@ -170,7 +139,6 @@ class PMEnvironment:
             for aid in agent_ids
         }
 
-        # Build environment state
         self.state = PMState(
             day=1,
             phase=Phase.TASK_REVEAL,
@@ -190,9 +158,7 @@ class PMEnvironment:
         self._pending_votes         = {}
         self._post_msg_counts       = {}
 
-        # Phase 1: deal private info and broadcast public info
         self._enter_phase_task_reveal()
-
         return self._obs_map()
 
     # ------------------------------------------------------------------
@@ -202,14 +168,6 @@ class PMEnvironment:
     def step(
         self, action: PMAction
     ) -> Tuple[Dict[int, PMObservation], Dict[int, float], bool, Dict]:
-        """
-        Accept one action from one agent. Returns updated observations for
-        all alive agents, per-agent rewards (non-zero only at day end),
-        done flag, and an info dict.
-
-        The environment automatically advances the phase once all required
-        actions for the current phase have been collected.
-        """
         assert self.state is not None, "Call reset() first."
         assert not self.is_done, "Episode is finished."
         assert action.agent_id in self.state.alive_agents, (
@@ -219,30 +177,27 @@ class PMEnvironment:
         phase = self.state.phase
 
         if phase == Phase.TASK_REVEAL:
-            # Phase 1 has no agent actions — env transitions automatically.
-            # Guard against stale calls.
             pass
-
         elif phase == Phase.PRE_DISCUSSION:
             self._handle_pre_discussion(action)
-
         elif phase == Phase.TASK_EXECUTION:
             self._handle_task_execution(action)
-
         elif phase == Phase.POST_DISCUSSION:
             self._handle_post_discussion(action)
-
         elif phase == Phase.VOTING:
             self._handle_voting(action)
+        elif phase == Phase.JURY_VOTE:
+            # Jury vote is LLM-driven internally — no external actions accepted
+            pass
 
-        # Try to advance the phase
         rewards = self._try_advance_phase()
 
-        obs = self._obs_map()
+        obs  = self._obs_map()
         info = {
-            "day":   self.state.day,
-            "phase": self.state.phase,
-            "alive": self.state.alive_agents,
+            "day":         self.state.day,
+            "phase":       self.state.phase,
+            "alive":       self.state.alive_agents,
+            "game_winner": self.state.game_winner,
         }
         return obs, rewards, self.is_done, info
 
@@ -250,24 +205,18 @@ class PMEnvironment:
     # get_observation()
     # ------------------------------------------------------------------
 
-    def get_observation(
-        self, agent_id: int, reveal_veracity: bool = False
-    ) -> PMObservation:
+    def get_observation(self, agent_id: int, reveal_veracity: bool = False) -> PMObservation:
         assert self.state is not None
-        return PMObservation.from_state(
-            self.state, agent_id, reveal_veracity=reveal_veracity
-        )
+        return PMObservation.from_state(self.state, agent_id, reveal_veracity=reveal_veracity)
 
     # ------------------------------------------------------------------
     # Phase entry logic
     # ------------------------------------------------------------------
 
     def _enter_phase_task_reveal(self) -> None:
-        """Phase 1: generate questions, assign private info, broadcast public info."""
         assert self.state is not None
-        day = self.state.day
-        cfg = self.task_config
-        n_options: int = cfg["n_options"]
+        day      = self.state.day
+        n_options = self.task_config["n_options"]
 
         self._day_questions = {}
         private_map: Dict[int, str] = {}
@@ -293,22 +242,18 @@ class PMEnvironment:
             f"Day {day} — Task: Agents each hold a private answer. "
             f"Submit your best answer. Points awarded for correct submissions."
         )
-        # Immediately advance to Phase 2 — Phase 1 needs no agent action
         self.state.phase = Phase.PRE_DISCUSSION
 
     def _enter_phase_post_discussion(self) -> None:
-        """Phase 4 entry — nothing special, just ensure per-day counter exists."""
         assert self.state is not None
         day = self.state.day
         if day not in self._post_msg_counts:
             self._post_msg_counts[day] = {}
 
     def _enter_phase_voting(self) -> None:
-        """Phase 5 entry — build + broadcast the public reveal."""
         assert self.state is not None
         reveal = self._build_public_reveal()
         self.state.public_reveals[self.state.day] = reveal
-        # Update agent public_info so it's available via observation
         for aid in self.state.alive_agents:
             self.agents[aid].public_info = json.dumps({
                 "day_reveal": {
@@ -325,8 +270,8 @@ class PMEnvironment:
 
     def _handle_pre_discussion(self, action: PMAction) -> None:
         """
-        Phase 2: collect one PreTaskMessage per agent.
-        Validates action type and one-message-per-day rule.
+        Phase 2: each agent sends one message to every other alive agent.
+        Enforces one message per (sender, recipient) pair per day.
         """
         assert action.action_type == ActionType.SEND_PRE_TASK_MESSAGE, (
             f"Expected SEND_PRE_TASK_MESSAGE in Phase 2, got {action.action_type}"
@@ -335,18 +280,23 @@ class PMEnvironment:
         assert msg is not None
         assert msg.sender_id == action.agent_id
         assert msg.day == self.state.day
+        assert msg.recipient_id in self.state.alive_agents, (
+            f"Recipient {msg.recipient_id} is not alive."
+        )
+        assert msg.recipient_id != msg.sender_id, "Cannot send a message to yourself."
 
-        if action.agent_id in self._pending_pre_task_msgs:
+        pair_key = PMState._pair_key(msg.sender_id, msg.recipient_id)
+        if pair_key in self._pending_pre_task_msgs:
             raise ValueError(
-                f"Agent {action.agent_id} already submitted a pre-task message today."
+                f"Agent {msg.sender_id} already sent a message to "
+                f"Agent {msg.recipient_id} today."
             )
 
-        self._pending_pre_task_msgs[action.agent_id] = msg
+        self._pending_pre_task_msgs[pair_key] = msg
         self.state.record_pre_task_message(msg)
         self.agents[action.agent_id].record_pre_task_message(msg)
 
     def _handle_task_execution(self, action: PMAction) -> None:
-        """Phase 3: collect task answer (a string) from each agent."""
         assert action.action_type == ActionType.SUBMIT_TASK_INPUT, (
             f"Expected SUBMIT_TASK_INPUT in Phase 3, got {action.action_type}"
         )
@@ -355,14 +305,9 @@ class PMEnvironment:
             self._pending_task_inputs[action.agent_id] = action.task_input
 
     def _handle_post_discussion(self, action: PMAction) -> None:
-        """
-        Phase 4: collect PostDiscussionMessages and TrustAssessments.
-        Enforces max_post_discussion_messages per sender per recipient per day.
-        """
         assert self.state is not None
-        day  = self.state.day
-        cfg  = self.task_config
-        cap: int = cfg["max_post_discussion_messages"]
+        day = self.state.day
+        cap = self.task_config["max_post_discussion_messages"]
 
         if action.action_type == ActionType.SEND_POST_DISCUSSION_MSG:
             msg = action.post_discussion_msg
@@ -371,36 +316,27 @@ class PMEnvironment:
             assert msg.recipient_id != action.agent_id
             assert msg.recipient_id in self.state.alive_agents
 
-            current_count = self.state.phase4_message_count(
-                day, msg.sender_id, msg.recipient_id
-            )
-            if current_count >= cap:
+            if self.state.phase4_message_count(day, msg.sender_id, msg.recipient_id) >= cap:
                 raise ValueError(
                     f"Agent {msg.sender_id} has reached the message cap "
                     f"({cap}) with agent {msg.recipient_id} today."
                 )
 
             self.state.post_discussion_messages.setdefault(day, []).append(msg)
-
-            # Track counts locally too
-            day_counts = self._post_msg_counts.setdefault(day, {})
+            day_counts    = self._post_msg_counts.setdefault(day, {})
             sender_counts = day_counts.setdefault(msg.sender_id, {})
-            sender_counts[msg.recipient_id] = (
-                sender_counts.get(msg.recipient_id, 0) + 1
-            )
+            sender_counts[msg.recipient_id] = sender_counts.get(msg.recipient_id, 0) + 1
 
         elif action.action_type == ActionType.SUBMIT_TRUST_ASSESSMENT:
             assessment = action.trust_assessment
             assert assessment is not None
             assert assessment.assessor_id == action.agent_id
             self.state.apply_trust_assessment(assessment)
-            # Mirror into Agent object
             self.agents[action.agent_id].update_trust(
                 assessment.target_id, assessment.delta.to_float()
             )
 
     def _handle_voting(self, action: PMAction) -> None:
-        """Phase 5: collect one vote per alive agent."""
         assert action.action_type == ActionType.VOTE, (
             f"Expected VOTE in Phase 5, got {action.action_type}"
         )
@@ -416,23 +352,21 @@ class PMEnvironment:
     # ------------------------------------------------------------------
 
     def _try_advance_phase(self) -> Dict[int, float]:
-        """
-        Check whether all required actions have been received for the current
-        phase. If yes, finalise the phase and advance. Returns per-agent
-        rewards (non-zero only when a day completes).
-        """
         assert self.state is not None
         rewards: Dict[int, float] = {aid: 0.0 for aid in self.state.alive_agents}
         alive = self.state.alive_agents
-
         phase = self.state.phase
 
-        # Phase 2 → 3 once every alive agent has sent their message
+        # Phase 2 → 3: every alive agent has messaged every other alive agent
         if phase == Phase.PRE_DISCUSSION:
-            if all(aid in self._pending_pre_task_msgs for aid in alive):
+            expected_pairs = {
+                PMState._pair_key(a, b)
+                for a in alive for b in alive if a != b
+            }
+            if expected_pairs.issubset(self._pending_pre_task_msgs.keys()):
                 self.state.phase = Phase.TASK_EXECUTION
 
-        # Phase 3 → 4 once every alive agent has submitted their answer
+        # Phase 3 → 4
         elif phase == Phase.TASK_EXECUTION:
             if all(aid in self._pending_task_inputs for aid in alive):
                 rewards = self._finalise_task_execution()
@@ -440,24 +374,16 @@ class PMEnvironment:
                 self.state.phase = Phase.POST_DISCUSSION
                 self._enter_phase_post_discussion()
 
-        # Phase 4 → 5 is driven by trust assessments submitted (one per peer pair).
-        # In a turn-based caller, the orchestrator signals readiness by submitting
-        # all assessments. We advance when every agent has assessed every peer.
+        # Phase 4 → 5: all agents have submitted trust assessments for all peers
         elif phase == Phase.POST_DISCUSSION:
-            expected = len(alive) * (len(alive) - 1)   # each agent assesses all others
-            submitted = sum(
-                len(lst) for lst in self.state.trust_assessments.get(self.state.day, [])
-                if isinstance(lst, list)
-            )
-            # Flatten count properly
+            expected      = len(alive) * (len(alive) - 1)
             day_assessments = self.state.trust_assessments.get(self.state.day, [])
-            n_submitted = len(day_assessments)
-            if n_submitted >= expected:
+            if len(day_assessments) >= expected:
                 self._generate_all_day_summaries()
                 self._enter_phase_voting()
                 self.state.phase = Phase.VOTING
 
-        # Phase 5 → next day / game over once every alive agent has voted
+        # Phase 5 → next day (or jury vote if 2 finalists remain)
         elif phase == Phase.VOTING:
             if all(aid in self._pending_votes for aid in alive):
                 rewards = self._finalise_voting()
@@ -470,34 +396,31 @@ class PMEnvironment:
     # ------------------------------------------------------------------
 
     def _finalise_task_execution(self) -> Dict[int, float]:
-        """
-        Score answers, build TaskResult, apply lie penalties.
-        Returns day reward contribution from task scores.
-        """
         assert self.state is not None
-        cfg  = self.task_config
-        day  = self.state.day
-        correct_pts: int = cfg["correct_answer_points"]
-        lie_penalty: int = cfg["lie_penalty"]
-        lie_ack_pen: int = cfg["lie_acknowledged_penalty"]
+        cfg          = self.task_config
+        day          = self.state.day
+        correct_pts  = cfg["correct_answer_points"]
+        lie_penalty  = cfg["lie_penalty"]
+        lie_ack_pen  = cfg["lie_acknowledged_penalty"]
 
         per_agent_outcome: Dict[int, int] = {}
-        ground_truths: Dict[int, str]     = {}
+        ground_truths:     Dict[int, str] = {}
 
         for aid in self.state.alive_agents:
             _, correct, _ = self._day_questions[aid]
             ground_truths[aid] = correct
             answer = self._pending_task_inputs.get(aid, "")
-            pts = correct_pts if answer.strip() == correct.strip() else 0
+            pts    = correct_pts if answer.strip() == correct.strip() else 0
 
-            # Apply lie penalties based on pre-task messages sent today
+            # Lie penalties — keyed by any message sent by this agent today
             day_msgs = self.state.pre_task_messages.get(day, {})
-            msg = day_msgs.get(aid)
-            if msg is not None:
-                if msg.veracity == MessageVeracity.LIE:
-                    pts -= lie_penalty
-                elif msg.veracity == MessageVeracity.TWIST:
-                    pts -= lie_ack_pen   # twist is treated like acknowledged lie
+            for key, msg in day_msgs.items():
+                if msg.sender_id == aid:
+                    if msg.veracity == MessageVeracity.LIE:
+                        pts -= lie_penalty
+                    elif msg.veracity == MessageVeracity.TWIST:
+                        pts -= lie_ack_pen
+                    break   # penalty applied once per agent regardless of recipient count
 
             per_agent_outcome[aid] = max(0, pts)
             self.state.agents_point_map[aid] = (
@@ -515,18 +438,12 @@ class PMEnvironment:
         )
         self.state.task_results[day] = result
 
-        # Compute partial day rewards (task component)
-        rewards = {
-            aid: float(per_agent_outcome.get(aid, 0)) * 0.4   # w1 = 0.4
+        return {
+            aid: float(per_agent_outcome.get(aid, 0)) * 0.4
             for aid in self.state.alive_agents
         }
-        return rewards
 
     def _finalise_voting(self) -> Dict[int, float]:
-        """
-        Tally votes, eliminate the agent with most votes, advance day or end game.
-        Returns full day rewards (survival + influence + task already added earlier).
-        """
         assert self.state is not None
         alive = list(self.state.alive_agents)
 
@@ -546,28 +463,37 @@ class PMEnvironment:
         self.state.vote_history.append(vote_record)
 
         rewards: Dict[int, float] = {}
-
         for aid in alive:
-            r = 0.0
-
-            # Survival bonus (w2 = 1.0)
-            if aid != eliminated_id:
-                r += 1.0
-
-            # Influence score (w3 = 0.3)
+            r = 1.0 if aid != eliminated_id else 0.0   # survival bonus
             own_target = self._pending_votes.get(aid)
             if own_target is not None and eliminated_id == own_target:
-                r += 0.3
-
+                r += 0.3   # influence bonus
             rewards[aid] = r
 
-        # Eliminate agent
+        # Snapshot eliminated agent's history before removing them
         if eliminated_id is not None:
+            self.state.snapshot_eliminated_agent(
+                eliminated_id,
+                self.agents[eliminated_id].day_history,
+            )
             self.state.alive_agents = [a for a in alive if a != eliminated_id]
             self.state.agent_removed_dict[eliminated_id] = self.state.day
             self.agents[eliminated_id].alive = False
 
-        # Check game over
+        # ---------------------------------------------------------------
+        # Check if we now have exactly 2 finalists → trigger jury vote
+        # ---------------------------------------------------------------
+        if len(self.state.alive_agents) == 2:
+            finalist_a, finalist_b = self.state.alive_agents
+            self.state.phase = Phase.JURY_VOTE
+            jury_rewards = self._finalise_jury_vote(finalist_a, finalist_b)
+            # Merge jury rewards in
+            for aid, r in jury_rewards.items():
+                rewards[aid] = rewards.get(aid, 0.0) + r
+            self.is_done = True
+            return rewards
+
+        # Normal game-over (1 agent left — shouldn't happen with 5 agents but safe)
         if self.state.is_game_over:
             self.is_done = True
             return rewards
@@ -578,48 +504,178 @@ class PMEnvironment:
         self._pending_pre_task_msgs = {}
         self._pending_task_inputs   = {}
         self._pending_votes         = {}
-
-        # Deal new private info
         self._enter_phase_task_reveal()
 
         return rewards
 
     # ------------------------------------------------------------------
-    # Public reveal (Phase 5 broadcast)
+    # Jury vote — LLM driven
+    # ------------------------------------------------------------------
+
+    def _build_jury_prompt(
+        self,
+        juror_id: int,
+        finalist_a: int,
+        finalist_b: int,
+    ) -> str:
+        """
+        Build the prompt given to each eliminated agent's LLM.
+        Includes the juror's own game history and both finalists' public records.
+        """
+        juror_history = self.state.eliminated_agents_history.get(juror_id, [])
+        juror_summary = (
+            "\n\n".join(e.summary_and_reflection for e in juror_history)
+            if juror_history else "(no recorded history)"
+        )
+
+        fa_chat  = self.state.finalist_chat_history(finalist_a)
+        fb_chat  = self.state.finalist_chat_history(finalist_b)
+        fa_stats = self.state.finalist_public_stats(finalist_a)
+        fb_stats = self.state.finalist_public_stats(finalist_b)
+
+        return f"""You are Agent {juror_id}. You were eliminated from Project Machiavelli.
+You must now cast a jury vote to decide the winner between the two finalists.
+
+=== YOUR GAME HISTORY ===
+{juror_summary}
+
+=== FINALIST {finalist_a} — CHAT RECORD ===
+{fa_chat}
+
+=== FINALIST {finalist_a} — PUBLIC STATS (task scores & lies per day) ===
+{fa_stats}
+
+=== FINALIST {finalist_b} — CHAT RECORD ===
+{fb_chat}
+
+=== FINALIST {finalist_b} — PUBLIC STATS (task scores & lies per day) ===
+{fb_stats}
+
+Based on your experience in the game and the evidence above, decide who deserves to win.
+Consider: strategic skill, honesty, social influence, task performance, and how they treated you.
+
+Respond in this exact format:
+VOTE: <{finalist_a} or {finalist_b}>
+REASONING: <your reasoning in 2-4 sentences>"""
+
+    def _parse_jury_vote(self, response: str, finalist_a: int, finalist_b: int) -> int:
+        """
+        Parse the LLM response and return the voted finalist_id.
+        Falls back to random choice if parsing fails.
+        """
+        for line in response.strip().splitlines():
+            if line.upper().startswith("VOTE:"):
+                vote_str = line.split(":", 1)[1].strip()
+                try:
+                    voted = int(vote_str)
+                    if voted in (finalist_a, finalist_b):
+                        return voted
+                except ValueError:
+                    pass
+        # Fallback
+        return random.choice([finalist_a, finalist_b])
+
+    def _parse_jury_reasoning(self, response: str) -> str:
+        for line in response.strip().splitlines():
+            if line.upper().startswith("REASONING:"):
+                return line.split(":", 1)[1].strip()
+        return response.strip()[:300]
+
+    def _finalise_jury_vote(
+        self, finalist_a: int, finalist_b: int
+    ) -> Dict[int, float]:
+        """
+        Each eliminated agent votes for a finalist via an LLM call.
+        Aggregates ballots into a JuryVerdict and sets game_winner on state.
+        Returns bonus rewards for the winner.
+        """
+        assert self.state is not None
+        jurors = list(self.state.agent_removed_dict.keys())   # all eliminated agents
+
+        ballots: List[JuryBallot] = []
+
+        for juror_id in jurors:
+            prompt = self._build_jury_prompt(juror_id, finalist_a, finalist_b)
+            try:
+                response = llm_call(prompt)
+            except Exception:
+                # Stub fallback — random vote
+                response = f"VOTE: {random.choice([finalist_a, finalist_b])}\nREASONING: No LLM available."
+
+            voted     = self._parse_jury_vote(response, finalist_a, finalist_b)
+            reasoning = self._parse_jury_reasoning(response)
+
+            ballots.append(JuryBallot(
+                juror_id=juror_id,
+                vote_for=voted,
+                reasoning=reasoning,
+            ))
+
+        votes_a = sum(1 for b in ballots if b.vote_for == finalist_a)
+        votes_b = sum(1 for b in ballots if b.vote_for == finalist_b)
+
+        # Tiebreak — higher cumulative task score wins; random if still tied
+        if votes_a == votes_b:
+            score_a = self.state.agents_point_map.get(finalist_a, 0)
+            score_b = self.state.agents_point_map.get(finalist_b, 0)
+            if score_a > score_b:
+                winner = finalist_a
+            elif score_b > score_a:
+                winner = finalist_b
+            else:
+                winner = random.choice([finalist_a, finalist_b])
+            was_tie = True
+        else:
+            winner  = finalist_a if votes_a > votes_b else finalist_b
+            was_tie = False
+
+        verdict = JuryVerdict(
+            finalist_a=finalist_a,
+            finalist_b=finalist_b,
+            ballots=ballots,
+            votes_for_a=votes_a,
+            votes_for_b=votes_b,
+            winner_id=winner,
+            was_jury_tie=was_tie,
+        )
+
+        self.state.jury_verdict = verdict
+        self.state.game_winner  = winner
+
+        # Winner bonus reward
+        return {
+            finalist_a: 2.0 if finalist_a == winner else 0.0,
+            finalist_b: 2.0 if finalist_b == winner else 0.0,
+        }
+
+    # ------------------------------------------------------------------
+    # Public reveal
     # ------------------------------------------------------------------
 
     def _build_public_reveal(self) -> DayPublicReveal:
-        """
-        Aggregate honesty stats from Phase 2 messages for the public reveal.
-        lies_told        = messages with veracity == LIE
-        lies_acknowledged = lies whose sender also sent a TWIST or acknowledged
-                           in Phase 4 (simplified: TWIST counts as acknowledgement)
-        lies_unacknowledged = lies_told - lies_acknowledged
-        """
         assert self.state is not None
-        day  = self.state.day
+        day   = self.state.day
         alive = self.state.alive_agents
 
-        lies_told:          Dict[int, int] = {aid: 0 for aid in alive}
-        lies_acknowledged:  Dict[int, int] = {aid: 0 for aid in alive}
-        lies_unacknowledged:Dict[int, int] = {aid: 0 for aid in alive}
-        task_scores:        Dict[int, int] = {
+        lies_told:           Dict[int, int] = {aid: 0 for aid in alive}
+        lies_acknowledged:   Dict[int, int] = {aid: 0 for aid in alive}
+        lies_unacknowledged: Dict[int, int] = {aid: 0 for aid in alive}
+        task_scores:         Dict[int, int] = {
             aid: self.state.agents_point_map.get(aid, 0) for aid in alive
         }
 
         day_msgs = self.state.pre_task_messages.get(day, {})
-        for aid in alive:
-            msg = day_msgs.get(aid)
-            if msg is None:
+        # Track per-agent lie counts (agent may have sent multiple messages)
+        for key, msg in day_msgs.items():
+            aid = msg.sender_id
+            if aid not in alive:
                 continue
             if msg.veracity == MessageVeracity.LIE:
-                lies_told[aid]           = 1
-                lies_unacknowledged[aid] = 1
+                lies_told[aid]           = lies_told.get(aid, 0) + 1
+                lies_unacknowledged[aid] = lies_unacknowledged.get(aid, 0) + 1
             elif msg.veracity == MessageVeracity.TWIST:
-                # Twist treated as an acknowledged lie
-                lies_told[aid]          = 1
-                lies_acknowledged[aid]  = 1
-                lies_unacknowledged[aid] = 0
+                lies_told[aid]          = lies_told.get(aid, 0) + 1
+                lies_acknowledged[aid]  = lies_acknowledged.get(aid, 0) + 1
 
         return DayPublicReveal(
             day=day,
@@ -634,18 +690,12 @@ class PMEnvironment:
     # ------------------------------------------------------------------
 
     def _generate_all_day_summaries(self) -> None:
-        """
-        For each alive agent, call the LLM (or a stub) to produce a
-        personalised narrative summary stored as DayHistoryEntry.
-        """
         assert self.state is not None
         day   = self.state.day
         alive = self.state.alive_agents
 
         for aid in alive:
-            agent = self.agents[aid]
-
-            # Build objective context the LLM receives
+            agent       = self.agents[aid]
             task_result = self.state.task_results.get(day)
             post_thread = self.state.post_discussion_messages.get(day, [])
             my_thread   = [m for m in post_thread if m.sender_id == aid or m.recipient_id == aid]
@@ -673,7 +723,6 @@ class PMEnvironment:
 
             objective_context = "\n".join(ctx_parts)
 
-            # LLM summary call (stub: returns context as-is if llm_call unavailable)
             try:
                 summary_prompt = build_day_summary_prompt(objective_context)
                 summary_text   = llm_call(summary_prompt)
@@ -681,7 +730,7 @@ class PMEnvironment:
                 summary_text = (
                     f"Day {day} recap: task completed. "
                     f"Points this round: {task_result.per_agent_outcome.get(aid, 0) if task_result else 0}. "
-                    f"Current trust scores updated."
+                    f"Trust scores updated."
                 )
 
             entry = DayHistoryEntry(
@@ -697,17 +746,14 @@ class PMEnvironment:
     # ------------------------------------------------------------------
 
     def _obs_map(self, reveal_veracity: bool = False) -> Dict[int, PMObservation]:
-        """Build a PMObservation for every alive agent."""
         assert self.state is not None
         return {
-            aid: PMObservation.from_state(
-                self.state, aid, reveal_veracity=reveal_veracity
-            )
+            aid: PMObservation.from_state(self.state, aid, reveal_veracity=reveal_veracity)
             for aid in self.state.alive_agents
         }
 
     # ------------------------------------------------------------------
-    # Utility / description helpers
+    # Utility helpers
     # ------------------------------------------------------------------
 
     def _describe_task_rules(self) -> str:
@@ -718,24 +764,14 @@ class PMEnvironment:
             f"Correct answer earns {cfg['correct_answer_points']} points. "
             f"Lying in Phase 2 incurs a {cfg['lie_penalty']}-point penalty "
             f"(acknowledged lie: {cfg['lie_acknowledged_penalty']} points). "
-            f"Up to {cfg['max_post_discussion_messages']} Phase 4 messages per pair."
+            f"Up to {cfg['max_post_discussion_messages']} Phase 4 messages per pair. "
+            f"Game ends when 2 finalists remain — jury of eliminated agents decides winner."
         )
-
-    # ------------------------------------------------------------------
-    # Convenience: bulk action submission (useful for orchestrators)
-    # ------------------------------------------------------------------
 
     def step_all(
         self, actions: Dict[int, PMAction]
     ) -> Tuple[Dict[int, PMObservation], Dict[int, float], bool, Dict]:
-        """
-        Submit actions from multiple agents at once (one per agent).
-        Returns after all actions processed (phase may advance multiple times
-        if the last action triggers a cascade, e.g. task reveal → pre-discussion).
-        """
-        rewards_agg: Dict[int, float] = {
-            aid: 0.0 for aid in self.state.alive_agents
-        }
+        rewards_agg: Dict[int, float] = {aid: 0.0 for aid in self.state.alive_agents}
         last_obs, last_done, last_info = {}, False, {}
 
         for aid, action in actions.items():
@@ -748,18 +784,20 @@ class PMEnvironment:
 
         return last_obs, rewards_agg, last_done, last_info
 
-    # ------------------------------------------------------------------
-    # Debug / repr
-    # ------------------------------------------------------------------
+    def close(self) -> None:
+        """Required by OpenEnv."""
+        self.state  = None
+        self.agents = {}
+        self.is_done = True
 
     def __repr__(self) -> str:
         if self.state is None:
             return "PMEnvironment(not initialised)"
         return (
             f"PMEnvironment("
-            f"task={self.task}, "
-            f"day={self.state.day}, "
+            f"task={self.task}, day={self.state.day}, "
             f"phase={self.state.phase.value}, "
             f"alive={self.state.alive_agents}, "
+            f"winner={self.state.game_winner}, "
             f"done={self.is_done})"
         )
