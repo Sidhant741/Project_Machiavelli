@@ -27,9 +27,18 @@ import json
 import os
 import random
 import time
+import sys
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import ollama
+
+# ---------------------------------------------------------------------------
+# Path setup
+# ---------------------------------------------------------------------------
+repo_root = Path(__file__).resolve().parent.parent
+if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
 
 try:
     from environment import PMEnvironment
@@ -426,12 +435,28 @@ def run_post_discussion(
             env.step(action)
             trust_matrix[assessor_id][target_id] = delta.value
 
-    print(f"\n  TRUST UPDATES")
-    for i, a in enumerate(alive):
-        for b in alive[i+1:]:
-            v1 = trust_matrix[a].get(b, "N/A")
-            v2 = trust_matrix[b].get(a, "N/A")
-            print(f"  Agent {a} → Agent {b} trust: {v1:<15} | Agent {b} → Agent {a} trust: {v2}")
+    print(f"\n  TRUST UPDATES MATRIX (Assessor ↓  Target →)")
+    
+    col_width = 17
+    header = f"  {'':<8} "
+    for a in alive:
+        header += f"| Agent {a:<{col_width-6}} "
+    header += "|"
+    print(header)
+    
+    print(f"  {'-' * (len(header) - 2)}")
+    
+    for a in alive:
+        row = f"  Agent {a:<2} "
+        for b in alive:
+            if a == b:
+                val = "-"
+            else:
+                score = env.state.trust_scores_dict[a].get(b)
+                val = f"{score:.2f}" if isinstance(score, float) else "N/A"
+            row += f"| {str(val):<{col_width}} "
+        row += "|"
+        print(row)
 
 
 def _parse_trust_delta(raw: str) -> TrustDelta:

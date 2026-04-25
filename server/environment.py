@@ -292,17 +292,32 @@ class PMEnvironment:
         elif phase == Phase.VOTING:
             if is_voting_complete(self.state, self.ctx):
                 n_initial = len(self.agents)
-                is_showdown = (len(self.state.alive_agents) == 2 and self.state.day >= n_initial - 1)
+                is_last_day = (self.state.day >= n_initial - 1)
+                
+                # We need to compute if there's a tie in regular voting first
+                vote_counts = {aid: 0 for aid in self.state.alive_agents}
+                for _voter, target in self.ctx.pending_votes.items():
+                    vote_counts[target] = vote_counts.get(target, 0) + 1
+                    
+                has_votes = bool(vote_counts)
+                max_votes = max(vote_counts.values()) if has_votes else 0
+                tied_agents = [a for a, v in vote_counts.items() if v == max_votes]
+                is_tie = len(tied_agents) > 1
 
-                if is_showdown:
-                    # Final showdown: Jury decides between the remaining two finalists
-                    # after they've played their final day of tasks and discussion.
+                is_showdown = (len(self.state.alive_agents) == 2 and is_last_day)
+                
+                # "in case of tie of last day, then use jurywin"
+                # If it's the last day and there is a tie, we escalate to a jury vote between the tied agents
+                # (Or if it's a standard showdown between 2 agents)
+                if is_showdown or (is_last_day and is_tie and len(tied_agents) == 2):
                     self._run_compression()
 
-                    jury_rewards = self._finalise_jury_vote(
-                        self.state.alive_agents[0],
-                        self.state.alive_agents[1],
-                    )
+                    if is_showdown:
+                        finalist_1, finalist_2 = self.state.alive_agents[0], self.state.alive_agents[1]
+                    else:
+                        finalist_1, finalist_2 = tied_agents[0], tied_agents[1]
+
+                    jury_rewards = self._finalise_jury_vote(finalist_1, finalist_2)
                     for aid, r in jury_rewards.items():
                         rewards[aid] = rewards.get(aid, 0.0) + r
 
@@ -609,6 +624,13 @@ class PMEnvironment:
         self.state.jury_verdict = verdict
         self.state.game_winner  = winner
  
+        # Eliminate the loser of the jury vote to ensure only one agent is left
+        loser = finalist_b if winner == finalist_a else finalist_a
+        if loser in self.state.alive_agents:
+            self.state.alive_agents.remove(loser)
+            self.state.agent_removed_dict[loser] = self.state.day
+            self.agents[loser].alive = False
+
         # Winner bonus reward
         return {
             finalist_a: 2.0 if finalist_a == winner else 0.0,
