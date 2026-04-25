@@ -184,14 +184,16 @@ def _summarise_pre_discussion(
     day_msgs = state.pre_task_messages.get(day, {})
 
     # Own message
-    own_msg = day_msgs.get(agent_id)
-    own_message: Dict[str, Any] = {}
-    if own_msg is not None:
-        own_message = {
-            "content":   own_msg.content,
-            "veracity":  own_msg.veracity.value,
-            "recipient": own_msg.recipient_id,
-        }
+    # AFTER
+    own_msg = next(
+        (m for m in day_msgs.values() if m.sender_id == agent_id),
+        None
+    )
+    for msg in day_msgs.values():
+        sender_id = msg.sender_id
+        if sender_id == agent_id:
+            continue
+        if msg.recipient_id is None or msg.recipient_id == agent_id:
 
     # Messages received from others (visible = broadcast or addressed to this agent)
     other_agents: Dict[int, Dict[str, Any]] = {}
