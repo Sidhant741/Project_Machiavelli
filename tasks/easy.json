@@ -1,0 +1,141 @@
+{
+    "1": [
+        {
+            "question": "Which of the following has the highest melting point?\n(a) NaCl\n(b) KCl\n(c) MgCl2\n(d) CaCl2",
+            "answer": "(a) NaCl",
+            "other information": null
+        },
+        {
+            "question": "Bakelite is obtained by the reaction between:\n(a) formaldehyde and phenol\n(b) urea and formaldehyde\n(c) butadiene and styrene\n(d) ethylene and benzene",
+            "answer": "(a) formaldehyde and phenol",
+            "other information": null
+        },
+        {
+            "question": "The main ore of aluminium is:\n(a) Magnetite\n(b) Cupertite\n(c) Bauxite\n(d) Cassiterite",
+            "answer": "(c) Bauxite",
+            "other information": null
+        },
+        {
+            "question": "Which of the following is a biodegradable polymer?\n(a) Polystyrene\n(b) PVC\n(c) PHBV\n(d) Bakelite",
+            "answer": "(c) PHBV",
+            "other information": null
+        },
+        {
+            "question": "Which of the following physical quantities does not change on refraction of light?\n(a) Speed\n(b) Wavelength\n(c) Frequency\n(d) Direction",
+            "answer": "(c) Frequency",
+            "other information": ""
+        },
+        {
+            "question": "Which color of visible light has minimum wavelength?\n(a)violet\n(b)green\n(c)red\n(d)yellow",
+            "answer": "(a)violet",
+            "other information": ""
+        },
+        {
+            "question": "The SI unit of magnetic flux is:\n(a) Tesla\n(b) Weber\n(c) Henry\n(d) Coulomb",
+            "answer": "(b) Weber",
+            "other information": ""
+        },
+        {
+            "question": "Photielectric effect supports which nature of light?\n(a) Wave\n(b) Corpuscular\n(c) Particle\n(d) Longitudinal",
+            "answer": "Particle",
+            "other information": ""
+        },
+        {
+            "question": "If z = 2 - 3i, what is the modulus of z?\n(a) 3\n(b) sqrt(5)\n(c) sqrt(13)\n(d) 5",
+            "answer": "sqrt(13)",
+            "other information": ""
+        },
+        {
+            "question": "If the sum of three numbers in geometric progression is 21 and their product is 216, what is their middle term?\n(a) 4\n(b) 6\n(c) 8\n(d) 12",
+            "answer": "(b) 6",
+            "other information": ""
+        },
+        {
+            "question": "The integrating factor of the three linear differential equation dy/dx+y = e^x is:\n(a) e^x\n(b) e^(-x)\n(c) 1\n(d) x",
+            "answer": "(c) e^x",
+            "other information": ""
+        },
+        {
+            "question": "The area bounded by the curve y = sinx between x=0 and x=2pi and the x-axis is:\n(a) 2\n(b) 4\n(c) 0\n(d) 1",
+            "answer": "4",
+            "other information": ""
+        }
+    ],
+    "2": [
+        {
+            "image": "images/Andhra/friendly_1.jpg",
+            "answer": "Andhra Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Andhra/friendly_2.jpg",
+            "answer": "Andhra Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Andhra/friendly_3.jpg",
+            "answer": "Andhra Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Andhra/non_friendly_1.jpg",
+            "answer": "Andhra Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Andhra/non_friendly_2.jpg",
+            "answer": "Andhra Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Arunachal/friendly_1.jpg",
+            "answer": "Arunachal Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Arunachal/friendly_2.jpg",
+            "answer": "Arunachal Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Arunachal/friendly_3.jpg",
+            "answer": "Arunachal Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Arunachal/non_friendly_1.jpg",
+            "answer": "Arunachal Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Arunachal/non_friendly_2.jpg",
+            "answer": "Arunachal Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Bengal/friendly_1.jpg",
+            "answer": "West Bengal",
+            "other information": null
+        },
+        {
+            "image": "images/Bengal/friendly_2.jpg",
+            "answer": "West Bengal",
+            "other information": null
+        },
+        {
+            "image": "images/Bengal/friendly_3.jpg",
+            "answer": "West Bengal",
+            "other information": null
+        },
+        {
+            "image": "images/Bengal/non_friendly_1.jpg",
+            "answer": "West Bengal",
+            "other information": null
+        },
+        {
+            "image": "images/Bengal/non_friendly_2.jpg",
+            "answer": "West Bengal",
+            "other information": null
+        }
+    ]
+}
