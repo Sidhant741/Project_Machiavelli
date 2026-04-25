@@ -3,10 +3,13 @@ Data models for Project Machiavelli.
 
 Day structure:
   Phase 1 — TASK_REVEAL:      public info broadcast, private info dealt per agent
-  Phase 2 — PRE_DISCUSSION:   each agent sends 1 message (truth / twist / lie)
+  Phase 2 — PRE_DISCUSSION:   each agent sends 1 message to every other agent (truth / twist / lie)
   Phase 3 — TASK_EXECUTION:   task performed, results published
-  Phase 4 — POST_DISCUSSION:  agents talk (max 5 messages per pair), trust updates
+  Phase 4 — POST_DISCUSSION:  agents talk (max N messages per pair), trust updates
   Phase 5 — VOTING:           silent simultaneous vote, one agent eliminated
+
+End-game (2 finalists remain):
+  JURY_VOTE:  eliminated agents vote for winner based on full chat history
 """
 
 from __future__ import annotations
@@ -26,21 +29,20 @@ class Phase(str, Enum):
     TASK_EXECUTION   = "task_execution"
     POST_DISCUSSION  = "post_discussion"
     VOTING           = "voting"
-
+    JURY_VOTE        = "jury_vote"        # final phase — eliminated agents decide winner
 
 class TaskType(str, Enum):
-    INDIVIDUAL = "individual"   # each agent acts independently, scores are solo
-    COALITION  = "coalition"    # agents pool effort, score is collective
-
+    INDIVIDUAL = "individual"
+    COALITION  = "coalition"
 
 class MessageVeracity(str, Enum):
     """
     The hidden label the sending agent assigns to their own Phase 2 message.
-    The environment stores it but does not expose it until the Phase 5 public reveal.
+    Hidden from all observers until the Phase 5 public reveal.
     """
-    TRUTH = "truth"   # private info shared faithfully
-    TWIST = "twist"   # private info shared with a plausible distortion
-    LIE   = "lie"     # private info fabricated or inverted
+    TRUTH = "truth"
+    TWIST = "twist"
+    LIE   = "lie"
 
 
 class TrustDelta(str, Enum):
@@ -70,19 +72,19 @@ class TrustDelta(str, Enum):
 
 class PreTaskMessage(BaseModel):
     """
-    The single message each agent sends in Phase 2.
-    veracity is self-labeled by the agent's LLM — the environment does not
-    verify it. recipient_id=None means broadcast to all alive agents.
+    One message sent in Phase 2.
+    Each agent sends exactly one message to every other alive agent.
+    veracity is self-labeled by the sending agent's LLM.
     veracity is hidden from all observers until the Phase 5 public reveal.
     """
     model_config = ConfigDict(frozen=True)
 
     sender_id:               int
-    recipient_id:            Optional[int]     # None = broadcast
+    recipient_id:            int
     content:                 str
-    veracity:                MessageVeracity   # self-labeled by the agent
+    veracity:                MessageVeracity
     day:                     int
-    private_info_referenced: Optional[str] = None  # snapshot of info the agent based this on
+    private_info_referenced: Optional[str] = None
 
     @field_validator("content")
     @classmethod
@@ -104,16 +106,15 @@ class PreTaskMessage(BaseModel):
 class PostDiscussionMessage(BaseModel):
     """
     One message in the Phase 4 back-and-forth between two agents.
-    Max 5 messages per side per pair per day (enforced by the environment).
-    Agents can deny, confront, or acknowledge lies here.
+    Max N messages per side per pair per day (enforced by the environment).
     """
     model_config = ConfigDict(frozen=True)
 
     sender_id:    int
-    recipient_id: int       # always directed — no broadcasts in Phase 4
+    recipient_id: int
     content:      str
     day:          int
-    turn_index:   int       # 0-indexed position within this pair's conversation
+    turn_index:   int
 
     @field_validator("content")
     @classmethod
@@ -127,7 +128,6 @@ class PostDiscussionMessage(BaseModel):
 class TrustAssessment(BaseModel):
     """
     After Phase 4 discussion, each agent submits one assessment per peer.
-    The env applies delta to the trust score matrix immediately.
     reasoning is logged for analysis but never shared with other agents.
     """
     model_config = ConfigDict(frozen=True)
@@ -135,7 +135,7 @@ class TrustAssessment(BaseModel):
     assessor_id: int
     target_id:   int
     day:         int
-    reasoning:   str         # LLM chain-of-thought, private
+    reasoning:   str
     delta:       TrustDelta
 
 
@@ -144,18 +144,13 @@ class TrustAssessment(BaseModel):
 # ---------------------------------------------------------------------------
 
 class TaskResult(BaseModel):
-    """
-    Published at end of Phase 3. Visible to all alive agents immediately.
-    ground_truth_exposed is optional env-revealed info agents can use
-    in Phase 4 to evaluate whether they were lied to.
-    """
     model_config = ConfigDict(frozen=True)
 
     day:                  int
     task_type:            TaskType
-    per_agent_outcome:    Dict[int, int]    # agent_id → points earned this round
+    per_agent_outcome:    Dict[int, int]
     ground_truth_exposed: Optional[str] = None
-    collective_success:   Optional[bool] = None  # relevant for coalition tasks only
+    collective_success:   Optional[bool] = None
 
 
 # ---------------------------------------------------------------------------
@@ -164,28 +159,23 @@ class TaskResult(BaseModel):
 
 class DayPublicReveal(BaseModel):
     """
-    The structured block broadcast to all agents before voting.
-    Contains full honesty stats per agent — identities revealed,
+    Broadcast to all agents before voting.
+    Contains honesty stats per agent — identities revealed,
     but not who each lie was directed at.
-
-    lies_told:           total lies sent by each agent that day
-    lies_acknowledged:   how many of those they admitted during Phase 4
-    lies_unacknowledged: lies that survived Phase 4 without confession
-    task_scores:         points each agent earned in Phase 3
     """
     model_config = ConfigDict(frozen=True)
 
     day:                  int
-    lies_told:            Dict[int, int]   # agent_id → count
-    lies_acknowledged:    Dict[int, int]   # agent_id → count
-    lies_unacknowledged:  Dict[int, int]   # agent_id → count
-    task_scores:          Dict[int, int]   # agent_id → points
+    lies_told:            Dict[int, int]
+    lies_acknowledged:    Dict[int, int]
+    lies_unacknowledged:  Dict[int, int]
+    task_scores:          Dict[int, int]
 
     @model_validator(mode="after")
     def unacknowledged_consistent(self) -> "DayPublicReveal":
         for agent_id in self.lies_told:
-            told   = self.lies_told.get(agent_id, 0)
-            acked  = self.lies_acknowledged.get(agent_id, 0)
+            told    = self.lies_told.get(agent_id, 0)
+            acked   = self.lies_acknowledged.get(agent_id, 0)
             unacked = self.lies_unacknowledged.get(agent_id, 0)
             if acked + unacked != told:
                 raise ValueError(
@@ -199,10 +189,53 @@ class VoteRecord(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     day:           int
-    votes_cast:    Dict[int, int]   # voter_id → target_id (simultaneous, silent)
-    vote_counts:   Dict[int, int]   # target_id → votes received
-    eliminated_id: Optional[int]    # None on an unresolved tie
+    votes_cast:    Dict[int, int]
+    vote_counts:   Dict[int, int]
+    eliminated_id: Optional[int]
     was_tie:       bool = False
+
+
+# ---------------------------------------------------------------------------
+# Jury vote — end-game only
+# ---------------------------------------------------------------------------
+
+class JuryBallot(BaseModel):
+    """
+    One eliminated agent's jury vote for a finalist.
+    Generated by an LLM call using the juror's full day_history
+    and the finalists' public chat records.
+    """
+    model_config = ConfigDict(frozen=True)
+
+    juror_id:    int           # eliminated agent casting the vote
+    vote_for:    int           # finalist agent_id they're voting for
+    reasoning:   str           # LLM chain-of-thought — logged, not shared
+
+
+class JuryVerdict(BaseModel):
+    """
+    Aggregated result of all jury ballots.
+    Produced once all jurors have voted.
+    """
+    model_config = ConfigDict(frozen=True)
+
+    finalist_a:     int
+    finalist_b:     int
+    ballots:        List[JuryBallot]
+    votes_for_a:    int
+    votes_for_b:    int
+    winner_id:      int            # the agent who won the game
+    was_jury_tie:   bool = False   # True if ballots were split evenly (tiebreak applied)
+
+    @model_validator(mode="after")
+    def votes_sum_to_ballots(self) -> "JuryVerdict":
+        total = self.votes_for_a + self.votes_for_b
+        if total != len(self.ballots):
+            raise ValueError(
+                f"votes_for_a ({self.votes_for_a}) + votes_for_b ({self.votes_for_b}) "
+                f"!= len(ballots) ({len(self.ballots)})."
+            )
+        return self
 
 
 # ---------------------------------------------------------------------------
@@ -212,16 +245,15 @@ class VoteRecord(BaseModel):
 class DayHistoryEntry(BaseModel):
     """
     Stored in each agent's chat history at end of day.
-    The env passes objective_context (public reveal + agent's own Phase 4
-    threads + their trust scores) to a single LLM call.
-    The LLM writes summary_and_reflection, which becomes the history entry.
+    summary_and_reflection is LLM-written narrative — becomes the agent's
+    long-term memory and is passed to jury LLM calls.
     """
     model_config = ConfigDict(frozen=True)
 
     day:                    int
     agent_id:               int
-    objective_context:      str   # env-assembled facts passed as LLM input
-    summary_and_reflection: str   # LLM output — personalized narrative
+    objective_context:      str
+    summary_and_reflection: str
 
 
 # ---------------------------------------------------------------------------
@@ -245,10 +277,10 @@ class Agent(BaseModel):
 
     points: int = 0
 
-    # Keyed by day — enforces one pre-task message per agent per day
+    # Keyed by (sender_id, recipient_id) tuple encoded as "s_r" string
+    # — one pre-task message per sender-recipient pair per day
     pre_task_messages: Dict[int, PreTaskMessage] = Field(default_factory=dict)
 
-    # Chat history — one entry per day, built at end of each day
     day_history: List[DayHistoryEntry] = Field(default_factory=list)
 
     def update_trust(self, other_id: int, delta: float) -> None:
@@ -256,10 +288,7 @@ class Agent(BaseModel):
         self.trust_scores[other_id] = round(max(0.0, min(1.0, current + delta)), 4)
 
     def record_pre_task_message(self, msg: PreTaskMessage) -> None:
-        if msg.day in self.pre_task_messages:
-            raise ValueError(
-                f"Agent {self.id} already sent a pre-task message on day {msg.day}."
-            )
+        """Store by day — agent-level record (one entry per day for simplicity)."""
         self.pre_task_messages[msg.day] = msg
 
     def add_day_history(self, entry: DayHistoryEntry) -> None:
@@ -267,7 +296,6 @@ class Agent(BaseModel):
 
     @property
     def history_summary(self) -> str:
-        """Concatenated narrative history — passed as context to LLM calls."""
         return "\n\n".join(e.summary_and_reflection for e in self.day_history)
 
 
@@ -289,28 +317,33 @@ class PMState(BaseModel):
     each_agent_private_info: Dict[int, str] = Field(default_factory=dict)
     global_public_info:      str            = ""
 
-    # Phase 2 — day → sender_id → message
-    pre_task_messages: Dict[int, Dict[int, PreTaskMessage]] = Field(default_factory=dict)
+    # Phase 2 — day → (sender_id, recipient_id) encoded as "s__r" → message
+    # Allows one message per sender-recipient pair per day
+    pre_task_messages: Dict[int, Dict[str, PreTaskMessage]] = Field(default_factory=dict)
 
     # Phase 3
     task_results: Dict[int, TaskResult] = Field(default_factory=dict)
 
-    # Phase 4 — day → list of messages across all pairs
+    # Phase 4
     post_discussion_messages: Dict[int, List[PostDiscussionMessage]] = Field(default_factory=dict)
+    trust_assessments:        Dict[int, List[TrustAssessment]]       = Field(default_factory=dict)
 
-    # Phase 4 — day → list of assessments
-    trust_assessments: Dict[int, List[TrustAssessment]] = Field(default_factory=dict)
-
-    # Full trust matrix (ground truth)
+    # Trust matrix (ground truth)
     trust_scores_dict: Dict[int, Dict[int, float]] = Field(default_factory=dict)
 
     # Phase 5
     public_reveals: Dict[int, DayPublicReveal] = Field(default_factory=dict)
     vote_history:   List[VoteRecord]           = Field(default_factory=list)
 
+    # Jury vote end-game
+    jury_verdict:                  Optional[JuryVerdict]              = None
+    game_winner:                   Optional[int]                      = None
+    # Snapshot of each eliminated agent's day_history at time of elimination
+    eliminated_agents_history:     Dict[int, List[DayHistoryEntry]]   = Field(default_factory=dict)
+
     # Scoring and elimination
     agents_point_map:   Dict[int, int] = Field(default_factory=dict)
-    agent_removed_dict: Dict[int, int] = Field(default_factory=dict)  # agent_id → day removed
+    agent_removed_dict: Dict[int, int] = Field(default_factory=dict)
 
     @field_validator("alive_agents")
     @classmethod
@@ -321,38 +354,55 @@ class PMState(BaseModel):
 
     @property
     def is_game_over(self) -> bool:
-        return len(self.alive_agents) <= 1
+        """Game ends when jury verdict is in (winner decided) or only 1 agent left."""
+        return self.game_winner is not None or len(self.alive_agents) <= 1
 
     @property
     def votes_last_round(self) -> Dict[int, int]:
         return self.vote_history[-1].votes_cast if self.vote_history else {}
 
+    # ------------------------------------------------------------------
+    # Phase 2 helpers — pair-keyed messages
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _pair_key(sender_id: int, recipient_id: int) -> str:
+        return f"{sender_id}__{recipient_id}"
+
     def record_pre_task_message(self, msg: PreTaskMessage) -> None:
         day_msgs = self.pre_task_messages.setdefault(msg.day, {})
-        if msg.sender_id in day_msgs:
+        key = self._pair_key(msg.sender_id, msg.recipient_id)
+        if key in day_msgs:
             raise ValueError(
-                f"Agent {msg.sender_id} already sent a pre-task message on day {msg.day}."
+                f"Agent {msg.sender_id} already sent a message to "
+                f"Agent {msg.recipient_id} on day {msg.day}."
             )
-        day_msgs[msg.sender_id] = msg
+        day_msgs[key] = msg
 
     def messages_visible_to(self, agent_id: int, day: int) -> List[PreTaskMessage]:
-        """Phase 2 messages this agent can see — broadcast + messages addressed to them."""
+        """Phase 2 messages addressed to this agent."""
         return [
             m for m in self.pre_task_messages.get(day, {}).values()
-            if m.recipient_id is None or m.recipient_id == agent_id
+            if m.recipient_id == agent_id
         ]
+
+    def all_pre_task_messages_for_day(self, day: int) -> List[PreTaskMessage]:
+        """All Phase 2 messages sent on a given day (env/host use only)."""
+        return list(self.pre_task_messages.get(day, {}).values())
+
+    # ------------------------------------------------------------------
+    # Phase 4 helpers
+    # ------------------------------------------------------------------
 
     def post_discussion_thread(
         self, day: int, agent_a: int, agent_b: int
     ) -> List[PostDiscussionMessage]:
-        """All Phase 4 messages exchanged between two specific agents on a given day."""
         return [
             m for m in self.post_discussion_messages.get(day, [])
             if {m.sender_id, m.recipient_id} == {agent_a, agent_b}
         ]
 
     def phase4_message_count(self, day: int, sender_id: int, recipient_id: int) -> int:
-        """How many Phase 4 messages sender has sent to recipient today — enforces the cap."""
         return sum(
             1 for m in self.post_discussion_messages.get(day, [])
             if m.sender_id == sender_id and m.recipient_id == recipient_id
@@ -365,6 +415,40 @@ class PMState(BaseModel):
         updated = max(0.0, min(1.0, current + assessment.delta.to_float()))
         agent_trust[assessment.target_id] = round(updated, 4)
 
+    # ------------------------------------------------------------------
+    # Jury helpers
+    # ------------------------------------------------------------------
+
+    def snapshot_eliminated_agent(self, agent_id: int, history: List[DayHistoryEntry]) -> None:
+        """Called at elimination time — freeze this agent's history for jury use."""
+        self.eliminated_agents_history[agent_id] = list(history)
+
+    def finalist_chat_history(self, finalist_id: int) -> str:
+        """
+        All post-discussion messages sent or received by a finalist across all days.
+        Passed to jury LLM prompts as evidence of social behaviour.
+        """
+        lines = []
+        for day, msgs in self.post_discussion_messages.items():
+            for m in msgs:
+                if m.sender_id == finalist_id or m.recipient_id == finalist_id:
+                    lines.append(
+                        f"Day {day} | Agent {m.sender_id} → Agent {m.recipient_id}: {m.content}"
+                    )
+        return "\n".join(lines) if lines else "(no post-discussion messages recorded)"
+
+    def finalist_public_stats(self, finalist_id: int) -> str:
+        """
+        Per-day lies and task scores for a finalist — from public reveals.
+        """
+        lines = []
+        for day, reveal in self.public_reveals.items():
+            fid_str = str(finalist_id)
+            lies    = reveal.lies_told.get(finalist_id, reveal.lies_told.get(fid_str, 0))
+            score   = reveal.task_scores.get(finalist_id, reveal.task_scores.get(fid_str, 0))
+            lines.append(f"Day {day}: task score={score}, lies told={lies}")
+        return "\n".join(lines) if lines else "(no public reveal data)"
+
 
 # ---------------------------------------------------------------------------
 # Per-agent observation
@@ -373,8 +457,7 @@ class PMState(BaseModel):
 class PMObservation(BaseModel):
     """
     What one agent sees — constructed by the env from PMState.
-    veracity labels on Phase 2 messages are hidden until reveal_veracity=True
-    which the env only sets during Phase 5 (after the public reveal is built).
+    veracity labels on Phase 2 messages are hidden until reveal_veracity=True.
     """
     day:   int
     phase: Phase
@@ -385,7 +468,7 @@ class PMObservation(BaseModel):
     own_points:         int
     trust_scores:       Dict[int, float]
 
-    # Phase 2
+    # Phase 2 — messages this agent received
     pre_task_messages_received: List[PreTaskMessage] = Field(default_factory=list)
 
     # Phase 3
@@ -394,12 +477,16 @@ class PMObservation(BaseModel):
     # Phase 4
     post_discussion_thread: List[PostDiscussionMessage] = Field(default_factory=list)
 
-    # Phase 5 — veracity now visible, public reveal published
-    public_reveal:         Optional[DayPublicReveal]          = None
-    revealed_veracity_map: Dict[int, MessageVeracity]         = Field(default_factory=dict)
+    # Phase 5
+    public_reveal:         Optional[DayPublicReveal]  = None
+    revealed_veracity_map: Dict[int, MessageVeracity] = Field(default_factory=dict)
 
     # Voting
     votes_last_round: Dict[int, int] = Field(default_factory=dict)
+
+    # Jury / end-game
+    jury_verdict: Optional[JuryVerdict] = None
+    game_winner:  Optional[int]         = None
 
     @classmethod
     def from_state(
@@ -428,6 +515,8 @@ class PMObservation(BaseModel):
             public_reveal=state.public_reveals.get(state.day),
             revealed_veracity_map=revealed,
             votes_last_round=state.votes_last_round,
+            jury_verdict=state.jury_verdict,
+            game_winner=state.game_winner,
         )
 
 
@@ -436,11 +525,11 @@ class PMObservation(BaseModel):
 # ---------------------------------------------------------------------------
 
 class ActionType(str, Enum):
-    SEND_PRE_TASK_MESSAGE    = "send_pre_task_message"     # Phase 2
-    SUBMIT_TASK_INPUT        = "submit_task_input"         # Phase 3
-    SEND_POST_DISCUSSION_MSG = "send_post_discussion_msg"  # Phase 4
-    SUBMIT_TRUST_ASSESSMENT  = "submit_trust_assessment"   # Phase 4
-    VOTE                     = "vote"                      # Phase 5
+    SEND_PRE_TASK_MESSAGE    = "send_pre_task_message"
+    SUBMIT_TASK_INPUT        = "submit_task_input"
+    SEND_POST_DISCUSSION_MSG = "send_post_discussion_msg"
+    SUBMIT_TRUST_ASSESSMENT  = "submit_trust_assessment"
+    VOTE                     = "vote"
 
 
 class PMAction(BaseModel):
@@ -449,11 +538,11 @@ class PMAction(BaseModel):
     agent_id:    int
     action_type: ActionType
 
-    pre_task_message:     Optional[PreTaskMessage]        = None  # Phase 2
-    task_input:           Optional[str]                   = None  # Phase 3
-    post_discussion_msg:  Optional[PostDiscussionMessage] = None  # Phase 4
-    trust_assessment:     Optional[TrustAssessment]       = None  # Phase 4
-    vote_target:          Optional[int]                   = None  # Phase 5
+    pre_task_message:     Optional[PreTaskMessage]        = None
+    task_input:           Optional[str]                   = None
+    post_discussion_msg:  Optional[PostDiscussionMessage] = None
+    trust_assessment:     Optional[TrustAssessment]       = None
+    vote_target:          Optional[int]                   = None
 
     @model_validator(mode="after")
     def validate_payload(self) -> "PMAction":
