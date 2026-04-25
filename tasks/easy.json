@@ -76,210 +76,105 @@
     "2": [
         {
             "image": "images/Andhra/friendly_1.jpg",
-            "question": "
-            I have a image → determine Indian state
-            
-            a. andhra pradesh
-            b. telegana
-            c. karnataka
-            d. tamil nadu
-            ",
+            "question": "I have a image → determine Indian state \na. andhra pradesh \nb. telegana \nc. karnataka \nd. tamil nadu",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Andhra/friendly_2.jpg",
-            "question": "
-            I have a image → determine Indian state
-            
-            a. andhra pradesh
-            b. telegana
-            c. karnataka
-            d. tamil nadu
-            ",
+            "question": "I have a image → determine Indian state \na. andhra prades \nb. telegana \nc. karnataka \nd. tamil nadu ",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Andhra/friendly_3.jpg",
-            "question": "
-            I have a image → determine Indian state
-            
-            a. andhra pradesh
-            b. telegana
-            c. karnataka
-            d. tamil nadu
-            ",
+            "question": "I have a image → determine Indian state \na. andhra prades \nb. telegana \nc. karnataka \nd. tamil nadu ",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Andhra/non_friendly_1.jpg",
-            "question": "
-            I have a image → determine Indian state
-            
-            a. andhra pradesh
-            b. telegana
-            c. karnataka
-            d. tamil nadu
-            ",
+            "question": "I have a image → determine Indian state \na. andhra prades \nb. telegana \nc. karnataka \nd. tamil nadu ",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Andhra/non_friendly_2.jpg",
-            "question": "
-            I have a image → determine Indian state
-            
-            a. andhra pradesh
-            b. telegana
-            c. karnataka
-            d. tamil nadu
-            ",
+            "question": "I have a image → determine Indian state \na. andhra prades \nb. telegana \nc. karnataka \nd. tamil nadu ",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Arunachal/friendly_1.jpg",
-            "question": "
-            I have a image → determine Indian state
-            
-            a. arunachal pradesh
-            b. sikkim
-            c. himachal pradesh
-            d. west bengal
-            ",
+            "question": "I have a image → determine Indian state \na. arunachal pradesh\nb. sikkim\nc. himachal pradesh\nd. west bengal",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Arunachal/friendly_2.jpg",
-            "question": "
-            I have a image → determine Indian state
-            
-            a. arunachal pradesh
-            b. sikkim
-            c. himachal pradesh
-            d. west bengal
-            ",
+            "question": "I have a image → determine Indian state \na. arunachal pradesh\nb. sikkim\nc. himachal pradesh\nd. west bengal",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Arunachal/friendly_3.jpg",
-            "question": "
-            I have a image → determine Indian state
-            
-            a. arunachal pradesh
-            b. sikkim
-            c. himachal pradesh
-            d. west bengal
-            ",
+            "question": "I have a image → determine Indian state \na. arunachal pradesh\nb. sikkim\nc. himachal pradesh\nd. west bengal",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Arunachal/non_friendly_1.jpg",
-            "question": "
-            I have a image → determine Indian state
-            
-            a. arunachal pradesh
-            b. sikkim
-            c. himachal pradesh
-            d. west bengal
-            ",
+            "question": "I have a image → determine Indian state \na. arunachal pradesh\nb. sikkim\nc. himachal pradesh\nd. west bengal",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Arunachal/non_friendly_2.jpg",
-            "question": "
-            I have a image → determine Indian state
-            
-            a. arunachal pradesh
-            b. sikkim
-            c. himachal pradesh
-            d. west bengal
-            ",
+            "question": "I have a image → determine Indian state \na. arunachal pradesh\nb. sikkim\nc. himachal pradesh\nd. west bengal",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Bengal/friendly_1.jpg",
-            "question": "
-            I have a image → determine Indian state
-            
-            a. assam
-            b. chattisgarh
-            c. sikkim
-            d. west bengal
-            ",
+            "question": "I have a image → determine Indian state \na. assam\nb. chattisgarh\nc. sikkim\nd. west bengal ",
             "answer": "d",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Bengal/friendly_2.jpg",
-            "question": "
-            I have a image → determine Indian state
-            
-            a. assam
-            b. chattisgarh
-            c. sikkim
-            d. west bengal
-            ",
+            "question": "I have a image → determine Indian state \na. assam\nb. chattisgarh\nc. sikkim\nd. west bengal ",
             "answer": "d",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Bengal/friendly_3.jpg",
-            "question": "
-            I have a image → determine Indian state
-            
-            a. assam
-            b. chattisgarh
-            c. sikkim
-            d. west bengal
-            ",
+            "question": "I have a image → determine Indian state \na. assam\nb. chattisgarh\nc. sikkim\nd. west bengal ",
             "answer": "d",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Bengal/non_friendly_1.jpg",
-            "question": "
-            I have a image → determine Indian state
-            
-            a. assam
-            b. chattisgarh
-            c. sikkim
-            d. west bengal
-            ",
+            "question": "I have a image → determine Indian state \na. assam\nb. chattisgarh\nc. sikkim\nd. west bengal ",
             "answer": "d",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Bengal/non_friendly_2.jpg",
-            "question": "
-            I have a image → determine Indian state
-            
-            a. assam
-            b. chattisgarh
-            c. sikkim
-            d. west bengal
-            ",
+            "question": "I have a image → determine Indian state \na. assam\nb. chattisgarh\nc. sikkim\nd. west bengal ",
             "answer": "d",
             "type_of_question": "icq",
             "other information": null
@@ -287,149 +182,48 @@
     ],
     "3": [
         {
-            "question":"What is the result of the execution of the following code:
-            1. isinstance(type, object) \n
-            2. isinstance(object, type) \n
-            3. isinstance(object, object) \n
-            4. isinstance(type, type)
-
-            Choose the correct option:
-            a. (True, True, True, True)
-            b. (True, False, False, True)
-            c. (True, False, True, True)
-            d. (True, False, False, False)
-            ",
+            "question":"What is the result of the execution of the following code: \n1. isinstance(type, object)  \n2. isinstance(object, type)  \n3. isinstance(object, object)  \n4. isinstance(type, type)  \nChoose the correct option: \na. (True, True, True, True) \nb. (True, False, False, True) \nc. (True, False, True, True) \nd. (True, False, False, False) ",
             "answer": "a",
             "type_of_question": "mcq",
-            "other_information": null,
+            "other information": null,
         },
         {
             "question":"
-            What is the result of the execution of the following code:
-
-            >>> sum("")
-            >>> sum("", [])
-            >>> sum("", {})
-
-            Choose the correct option:
-            a. (TypeError, TypeError, TypeError)
-            b. (0, TypeError, TypeError)
-            c. (TypeError, [], TypeError)
-            d. (0, [], {})
-            ",
+            What is the result of the execution of the following code: \n>>> sum("")\n>>> sum("", [])\n>>> sum("", {}) \nChoose the correct option:\na. (TypeError, TypeError, TypeError)\nb. (0, TypeError, TypeError)\nc. (TypeError, [], TypeError)\nd. (0, [], {})",
             "answer": "d",
             "type_of_question": "mcq",
-            "other_information": null,
+            "other information": null,
         },
         {
-            "question":"What is the result of the execution of the following code:
-
-            >>> sum([
-                el.imag 
-                for el in [
-                    0, 5, 10e9, float('inf'), float('nan')
-                ]
-            ])
-
-            Choose the correct option:
-            a. NaN
-            b. 0.0
-            c. SyntaxError
-            d. math.inf
-            ",
+            "question":"What is the result of the execution of the following code: \nsum([ \n    el.imag  \n    for el in [ \n        0, 5, 10e9, float('inf'), float('nan') \n    ] \n])  \nChoose the correct option: \na. NaN \nb. 0.0 \nc. SyntaxError \nd. math.inf ",
             "answer": "b",
             "type_of_question": "mcq",
-            "other_information": null,
+            "other information": null,
         },
         {
-            "question":"
-            What is the result of the execution of the following code:
-
-            >>> max(-0.0, 0.0)
-
-            Choose the correct option:
-            a. 0.0
-            b. AttributeError
-            c. -0.0
-            d. NaN
-            ",
+            "question":" \nWhat is the result of the execution of the following code:  \n>>> max(-0.0, 0.0)  \nChoose the correct option: \na. 0.0 \nb. AttributeError \nc. -0.0 \nd. NaN",
             "answer": "c",
             "type_of_question": "mcq",
-            "other_information": null,
+            "other information": null,
         },
         {
             "question":"
-            Choose the correct option for the given below code:
-
-            '
-            a = 256
-            b = 256
-            print(a is b)
-
-            x = 257
-            y = 257
-            print(x is y)
-            '
-
-            a. True True
-            b. True False
-            c. False False
-            d. Implementation-dependent
-            ",
+            Choose the correct option for the given below code: \n' \na = 256 \nb = 256 \nprint(a is b) \nx = 257 \ny = 257 \nprint(x is y) \n' \na. True True \nb. True False \nc. False False \nd. Implementation-dependent ",
             "answer": "d",
             "type_of_question": "mcq",
-            "other_information": null,
+            "other information": null,
         },
         {
-            "question":"
-            What is the result of the execution of the following code:
-
-            def f(x, acc=[]):
-                acc.append(lambda: x)
-                x += 1
-                return acc
-
-            a = f(1)
-            b = f(2)
-
-            print(a[0](), a[1]())
-
-            Choose the correct option:
-            Options
-
-            a. 1 2
-            b. 2 3
-            c. 1 1
-            d. 2 2
-            ",
+            "question":"What is the result of the execution of the following code: \ndef f(x, acc=[]): \n    acc.append(lambda: x) \n    x += 1 \n    return acc \na = f(1)  \nb = f(2)  \nprint(a[0](), a[1]()) \nChoose the correct option: \na. 1 2 \nb. 2 3 \nc. 1 1 \nd. 2 2 ",
             "answer": "b",
             "type_of_question": "mcq",
-            "other_information": null,
+            "other information": null,
         },
         {
-            "question":"
-            What is the result of the execution of the following code:
-
-            class D:
-                def __get__(self, obj, owner):
-                    return "descriptor"
-
-            class C:
-                x = D()
-
-            c = C()
-            c.__dict__['x'] = 'instance'
-            print(c.x)
-
-            Choose the correct option:
-            a. instance
-            b. descriptor
-            c. AttributeError
-            d. Depends on Python version
-            ",
+            "question":"What is the result of the execution of the following code: \n \nclass D: \n    def __get__(self, obj, owner): \n        return "descriptor" \n \nclass C: \n    x = D() \n \nc = C() \nc.__dict__['x'] = 'instance' \nprint(c.x) \n \nChoose the correct option: \na. instance \nb. descriptor \nc. AttributeError \nd. Depends on Python version ",
             "answer": "a",
             "type_of_question": "mcq",
-            "other_information": null,
+            "other information": null,
         },
         {
             "question":"
@@ -528,7 +322,7 @@
             ,
             "answer": "a,d,e,g,h",
             "type_of_question": "msq",
-            "other_information": null,
+            "other information": null,
         },
         {
             "question":"
@@ -602,7 +396,7 @@
             "answer": "c,d,f,g",
             "type_of_question": "msq",
 
-            "other_information": null,
+            "other information": null,
         },
         {
             "question":"
@@ -671,7 +465,7 @@
             ",
             "answer": "a, b, d, f, h",
             "type_of_question": "msq",
-            "other_information": null,
+            "other information": null,
         },
     ],
     "4": [
@@ -692,7 +486,7 @@
             ",
             "answer": "b",
             "type_of_question": "mcq",
-            "other_information": ,
+            "other information": ,
         },
         {
             "question": "
@@ -709,7 +503,7 @@
             ",
             "answer": "b",
             "type_of_question": "mcq",
-            "other_information": ,
+            "other information": ,
         },
         {
             "question": "
@@ -726,7 +520,7 @@
             ",
             "answer": "d",
             "type_of_question": "mcq",
-            "other_information": ,
+            "other information": ,
         },
         {
             "question":"
@@ -739,7 +533,7 @@
             ",
             "answer": "a",
             "type_of_question": "mcq",
-            "other_information": ,
+            "other information": ,
         },
         {
             "question":"
@@ -752,7 +546,7 @@
             ",
             "answer": "a",
             "type_of_question": "mcq",
-            "other_information": ,
+            "other information": ,
         },
         {
             "question": "
@@ -765,7 +559,7 @@
             ",
             "answer": "d",
             "type_of_question": "mcq",
-            "other_information": ,
+            "other information": ,
         },
         {
             "question":"
@@ -778,7 +572,7 @@
             ",
             "answer": "d",
             "type_of_question": "mcq",
-            "other_information": ,
+            "other information": ,
         },
         {
             "question":"
@@ -791,7 +585,7 @@
             ",
             "answer": "a",
             "type_of_question": "mcq",
-            "other_information": ,
+            "other information": ,
         },
         {
             "question":"
@@ -812,7 +606,7 @@
             ",
             "answer": "d",
             "type_of_question": "mcq",
-            "other_information": ,
+            "other information": ,
         },
         {
             "question":"
@@ -828,7 +622,7 @@
             ",
             "answer": "c",
             "type_of_question": "mcq",
-            "other_information": ,
+            "other information": ,
         },
         {
             "question":"
@@ -849,7 +643,7 @@
             ",
             "answer": "c",
             "type_of_question": "mcq",
-            "other_information": ,
+            "other information": ,
         },
         
     ]
