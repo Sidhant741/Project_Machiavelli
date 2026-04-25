@@ -1,6 +1,5 @@
 """
 env.py — Project Machiavelli
-==============================
 PMEnvironment orchestrates the game loop.
 
 All phase logic   → phases.py
@@ -71,10 +70,6 @@ class PMEnvironment:
 
     SUPPORTS_CONCURRENT_SESSIONS = True
 
-    # ------------------------------------------------------------------
-    # Construction
-    # ------------------------------------------------------------------
-
     def __init__(self) -> None:
         self.state:       Optional[PMState]    = None
         self.agents:      Dict[int, Agent]     = {}
@@ -117,9 +112,7 @@ class PMEnvironment:
             self.task = random.choice(["easy", "medium", "hard"])
         else:
             normalised = task.replace("task_", "")
-            assert normalised in GAME_CONFIGS, (
-                f"task '{task}' must be easy | medium | hard"
-            )
+            assert normalised in GAME_CONFIGS, f"task '{task}' must be easy | medium | hard"
             self.task = normalised
 
         cfg = GAME_CONFIGS[self.task]
@@ -216,9 +209,10 @@ class PMEnvironment:
 
         obs  = self._obs_map()
         info = {
-            "day":   self.state.day,
-            "phase": self.state.phase,
-            "alive": self.state.alive_agents,
+            "day":         self.state.day,
+            "phase":       self.state.phase,
+            "alive":       self.state.alive_agents,
+            "game_winner": self.state.game_winner,
         }
         return obs, rewards, self.is_done, info
 
@@ -226,13 +220,9 @@ class PMEnvironment:
     # get_observation()
     # ------------------------------------------------------------------
 
-    def get_observation(
-        self, agent_id: int, reveal_veracity: bool = False
-    ) -> PMObservation:
+    def get_observation(self, agent_id: int, reveal_veracity: bool = False) -> PMObservation:
         assert self.state is not None
-        return PMObservation.from_state(
-            self.state, agent_id, reveal_veracity=reveal_veracity
-        )
+        return PMObservation.from_state(self.state, agent_id, reveal_veracity=reveal_veracity)
 
     # ------------------------------------------------------------------
     # Phase entry
@@ -346,9 +336,7 @@ class PMEnvironment:
     def _obs_map(self, reveal_veracity: bool = False) -> Dict[int, PMObservation]:
         assert self.state is not None
         return {
-            aid: PMObservation.from_state(
-                self.state, aid, reveal_veracity=reveal_veracity
-            )
+            aid: PMObservation.from_state(self.state, aid, reveal_veracity=reveal_veracity)
             for aid in self.state.alive_agents
         }
 
@@ -415,9 +403,9 @@ class PMEnvironment:
             return "PMEnvironment(not initialised)"
         return (
             f"PMEnvironment("
-            f"task={self.task}, "
-            f"day={self.state.day}, "
+            f"task={self.task}, day={self.state.day}, "
             f"phase={self.state.phase.value}, "
             f"alive={self.state.alive_agents}, "
+            f"winner={self.state.game_winner}, "
             f"done={self.is_done})"
         )
