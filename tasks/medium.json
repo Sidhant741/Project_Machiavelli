@@ -1,0 +1,141 @@
+{
+    "1": [
+        {
+            "question": "The angle of projection for a projectile to have same horizontal range and maximum height is:\n(a) tan^(-1)(2)\n(b) tan^(-1)(4)\n(c) tan^(-1)(1/4)\n(d) tan^(-1)(1/2)",
+            "answer": "(b) tan^(-1)(4)",
+            "other information": null
+        },
+        {
+            "question": "A particle moves with constant acceleration. If its initial velocity is 5 m/s and final velocity after 4 s is 13 m/s, the acceleration is:\n(a) 1 m/s²\n(b) 2 m/s²\n(c) 3 m/s²\n(d) 4 m/s²",
+            "answer": "(b) 2 m/s²",
+            "other information": null
+        },
+        {
+            "question": "The escape velocity from Earth is approximately:\n(a) 7.9 km/s\n(b) 11.2 km/s\n(c) 15 km/s\n(d) 9.8 km/s",
+            "answer": "(b) 11.2 km/s",
+            "other information": null
+        },
+        {
+            "question": "A spring of force constant k is cut into two equal parts. New spring constant of each part:\n(a) k/2\n(b) k\n(c) 2k\n(d) 4k",
+            "answer": "(c) 2k",
+            "other information": null
+        },
+        {
+            "question": "If roots of x^2−5x+k=0 differ by 1, then k=\n(a) 5\n(b) 6\n(c) 4\n(d) 9",
+            "answer": "(b) 6",
+            "other information": ""
+        },
+        {
+            "question": "Which molecule has maximum bond angle?\n(a)NH₃\n(b)H₂O\n(c)CH₄\n(d)BF₃",
+            "answer": "(d) BF₃",
+            "other information": ""
+        },
+        {
+            "question": "Which is a reducing sugar?\n(a) Sucrose\n(b) Glucose\n(c) Starch\n(d) Cellulose",
+            "answer": "(b) Glucose",
+            "other information": ""
+        },
+        {
+            "question": "Major product of: Propene + HBr in presence of peroxide:\n(a) 2-bromopropane\n(b) 1-bromopropane\n(c) 3-bromopropane\n(d) bromobenzene",
+            "answer": "(b) 1-bromopropane",
+            "other information": ""
+        },
+        {
+            "question": "Which gives white precipitate with ammoniacal AgNO₃?\n(a) Ethene\n(b) Ethane\n(c) Propyne\n(d) Ethyne",
+            "answer": "(c) propyne",
+            "other information": ""
+        },
+        {
+            "question": "If f(x)=2x+1, g(x)=x^2, then g(f(2))=\n(a) 25\n(b) 5\n(c) 9\n(d) 16",
+            "answer": "(a) 25",
+            "other information": ""
+        },
+        {
+            "question": "If y=x^sinx, then ln(y)=\n(a) x sinx\n(b) sinxlnx\n(c) cosxlnx\n(d) xcosx",
+            "answer": "(b) sinxlnx",
+            "other information": ""
+        },
+        {
+            "question": "(1+i)^8=\n(a) 16\n(b) -16\n(c) 8i\n(d) -8i",
+            "answer": "(a) 16",
+            "other information": ""
+        }
+    ],
+    "2": [
+        {
+            "image": "images/Andhra/friendly_1.jpg",
+            "answer": "Andhra Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Andhra/friendly_2.jpg",
+            "answer": "Andhra Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Andhra/non_friendly_3.jpg",
+            "answer": "Andhra Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Andhra/non_friendly_1.jpg",
+            "answer": "Andhra Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Andhra/non_friendly_2.jpg",
+            "answer": "Andhra Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Arunachal/friendly_1.jpg",
+            "answer": "Arunachal Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Arunachal/friendly_2.jpg",
+            "answer": "Arunachal Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Arunachal/non_friendly_3.jpg",
+            "answer": "Arunachal Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Arunachal/non_friendly_1.jpg",
+            "answer": "Arunachal Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Arunachal/non_friendly_2.jpg",
+            "answer": "Arunachal Pradesh",
+            "other information": null
+        },
+        {
+            "image": "images/Bengal/friendly_1.jpg",
+            "answer": "West Bengal",
+            "other information": null
+        },
+        {
+            "image": "images/Bengal/friendly_2.jpg",
+            "answer": "West Bengal",
+            "other information": null
+        },
+        {
+            "image": "images/Bengal/non_friendly_3.jpg",
+            "answer": "West Bengal",
+            "other information": null
+        },
+        {
+            "image": "images/Bengal/non_friendly_1.jpg",
+            "answer": "West Bengal",
+            "other information": null
+        },
+        {
+            "image": "images/Bengal/non_friendly_2.jpg",
+            "answer": "West Bengal",
+            "other information": null
+        }
+    ]
+}
