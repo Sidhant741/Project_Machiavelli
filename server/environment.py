@@ -20,7 +20,7 @@ from typing import Any, Dict, List, Optional, Tuple
 try:
     from ..models import (
         Agent, PMState, PMObservation, PMAction,
-        ActionType, Phase, TaskType,
+        ActionType, Phase, TaskType, JuryBallot, JuryVerdict
     )
     from .config import GAME_CONFIGS
     from .phases import (
@@ -33,10 +33,11 @@ try:
         build_public_reveal,
     )
     from .compression import compress_day, store_day_summaries
+    from .utils import llm_call
 except ImportError:
     from models import (
         Agent, PMState, PMObservation, PMAction,
-        ActionType, Phase, TaskType,
+        ActionType, Phase, TaskType, JuryBallot, JuryVerdict
     )
     from server.config import GAME_CONFIGS
     from server.phases import (
@@ -49,6 +50,7 @@ except ImportError:
         build_public_reveal,
     )
     from server.compression import compress_day, store_day_summaries
+    from server.utils import llm_call
 
 
 class PMEnvironment:
@@ -282,22 +284,49 @@ class PMEnvironment:
         # ── Phase 5 → next day / game over ──────────────────────────
         elif phase == Phase.VOTING:
             if is_voting_complete(self.state, self.ctx):
-                vote_rewards, _eliminated = finalise_voting(
+
+                vote_rewards, eliminated = finalise_voting(
                     self.state, self.agents, self.ctx, self._vote_reasons
                 )
+
                 for k, v in vote_rewards.items():
                     rewards[k] = rewards.get(k, 0.0) + v
 
-                # ── Compression: alive agents only ───────────────────
+                vote_rewards, eliminated = finalise_voting(...)
+
+                for k, v in vote_rewards.items():
+                    rewards[k] += v
+
                 self._run_compression()
+
+                if eliminated is not None:
+                    self.state.snapshot_eliminated_agent(
+                        eliminated,
+                        self.agents[eliminated].day_history,
+                    )
 
                 self.ctx.reset_day()
                 self._vote_reasons = {}
 
-                if self.state.is_game_over:
+                self.ctx.reset_day()
+                self._vote_reasons = {}
+
+                if len(self.state.alive_agents) == 2:
+                    jury_rewards = self._finalise_jury_vote(
+                        self.state.alive_agents[0],
+                        self.state.alive_agents[1],
+                    )
+
+                    for aid, r in jury_rewards.items():
+                        rewards[aid] = rewards.get(aid, 0.0) + r
+
                     self.is_done = True
+
+                elif self.state.is_game_over:
+                    self.is_done = True
+
                 else:
-                    self.state.day  += 1
+                    self.state.day += 1
                     self.state.phase = Phase.TASK_REVEAL
                     self._enter_task_reveal()
 
@@ -410,6 +439,142 @@ class PMEnvironment:
             f"done={self.is_done})"
         )
     
+    def _build_jury_prompt(
+        self,
+        juror_id: int,
+        finalist_a: int,
+        finalist_b: int,
+    ) -> str:
+        """
+        Build the prompt given to each eliminated agent's LLM.
+        Includes the juror's own game history and both finalists' public records.
+        """
+        juror_history = self.state.eliminated_agents_history.get(juror_id, [])
+        juror_summary = (
+            "\n\n".join(e.summary_and_reflection for e in juror_history)
+            if juror_history else "(no recorded history)"
+        )
+ 
+        fa_chat  = self.state.finalist_chat_history(finalist_a)
+        fb_chat  = self.state.finalist_chat_history(finalist_b)
+        fa_stats = self.state.finalist_public_stats(finalist_a)
+        fb_stats = self.state.finalist_public_stats(finalist_b)
+ 
+        return f"""You are Agent {juror_id}. You were eliminated from Project Machiavelli.
+            You must now cast a jury vote to decide the winner between the two finalists.
+            
+            === YOUR GAME HISTORY ===
+            {juror_summary}
+            
+            === FINALIST {finalist_a} — CHAT RECORD ===
+            {fa_chat}
+            
+            === FINALIST {finalist_a} — PUBLIC STATS (task scores & lies per day) ===
+            {fa_stats}
+            
+            === FINALIST {finalist_b} — CHAT RECORD ===
+            {fb_chat}
+            
+            === FINALIST {finalist_b} — PUBLIC STATS (task scores & lies per day) ===
+            {fb_stats}
+            
+            Based on your experience in the game and the evidence above, decide who deserves to win.
+            Consider: strategic skill, honesty, social influence, task performance, and how they treated you.
+            
+            Respond in this exact format:
+            VOTE: <{finalist_a} or {finalist_b}>
+            REASONING: <your reasoning in 2-4 sentences>"""
+ 
+    def _parse_jury_vote(self, response: str, finalist_a: int, finalist_b: int) -> int:
+        """
+        Parse the LLM response and return the voted finalist_id.
+        Falls back to random choice if parsing fails.
+        """
+        for line in response.strip().splitlines():
+            if line.upper().startswith("VOTE:"):
+                vote_str = line.split(":", 1)[1].strip()
+                try:
+                    voted = int(vote_str)
+                    if voted in (finalist_a, finalist_b):
+                        return voted
+                except ValueError:
+                    pass
+        # Fallback
+        return random.choice([finalist_a, finalist_b])
+ 
+    def _parse_jury_reasoning(self, response: str) -> str:
+        for line in response.strip().splitlines():
+            if line.upper().startswith("REASONING:"):
+                return line.split(":", 1)[1].strip()
+        return response.strip()[:300]
+ 
+    def _finalise_jury_vote(
+        self, finalist_a: int, finalist_b: int
+    ) -> Dict[int, float]:
+        """
+        Each eliminated agent votes for a finalist via an LLM call.
+        Aggregates ballots into a JuryVerdict and sets game_winner on state.
+        Returns bonus rewards for the winner.
+        """
+        assert self.state is not None
+        jurors = list(self.state.agent_removed_dict.keys())   # all eliminated agents
+ 
+        ballots: List[JuryBallot] = []
+ 
+        for juror_id in jurors:
+            prompt = self._build_jury_prompt(juror_id, finalist_a, finalist_b)
+            try:
+                response = llm_call(prompt)
+            except Exception:
+                # Stub fallback — random vote
+                response = f"VOTE: {random.choice([finalist_a, finalist_b])}\nREASONING: No LLM available."
+ 
+            voted     = self._parse_jury_vote(response, finalist_a, finalist_b)
+            reasoning = self._parse_jury_reasoning(response)
+ 
+            ballots.append(JuryBallot(
+                juror_id=juror_id,
+                vote_for=voted,
+                reasoning=reasoning,
+            ))
+ 
+        votes_a = sum(1 for b in ballots if b.vote_for == finalist_a)
+        votes_b = sum(1 for b in ballots if b.vote_for == finalist_b)
+ 
+        # Tiebreak — higher cumulative task score wins; random if still tied
+        if votes_a == votes_b:
+            score_a = self.state.agents_point_map.get(finalist_a, 0)
+            score_b = self.state.agents_point_map.get(finalist_b, 0)
+            if score_a > score_b:
+                winner = finalist_a
+            elif score_b > score_a:
+                winner = finalist_b
+            else:
+                winner = random.choice([finalist_a, finalist_b])
+            was_tie = True
+        else:
+            winner  = finalist_a if votes_a > votes_b else finalist_b
+            was_tie = False
+ 
+        verdict = JuryVerdict(
+            finalist_a=finalist_a,
+            finalist_b=finalist_b,
+            ballots=ballots,
+            votes_for_a=votes_a,
+            votes_for_b=votes_b,
+            winner_id=winner,
+            was_jury_tie=was_tie,
+        )
+ 
+        self.state.jury_verdict = verdict
+        self.state.game_winner  = winner
+ 
+        # Winner bonus reward
+        return {
+            finalist_a: 2.0 if finalist_a == winner else 0.0,
+            finalist_b: 2.0 if finalist_b == winner else 0.0,
+        }
+
     def close(self) -> None:
         """Required by OpenEnv."""
         self.state  = None
