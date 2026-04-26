@@ -2,139 +2,245 @@
     "1": [
         {
             "question": "The measured masses of the neutron H, N, and O are 1.008665 u, 1.007825 u, 15.000109 u, and 15.003065 u, respectively. Given that the radii of both the N and O nuclei are the same, 1 u = 931.5 MeV/c² (c is the speed of light) and e2/(4πε0)=1.44 MeV fm. Assuming the difference between the binding energies of N and O is purely due to electrostatic energy, the radius of either of the nuclei is:\n(a) 2.85 fm\n(b) 3.03 fm\n(c) 3.42 fm\n(d) 3.80 fm",
-            "answer": "(b) 3.42 fm",
+            "answer": "b",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "question": "A ball is dropped from a height of 20 m above the surface of the water in a lake. The refractive index of water is 4/3. A fish inside the lake, in the line of fall of the ball, is looking at the ball. At an instant, when the ball is 12.8 m above the water surface, the fish sees the speed of the ball as g = 10m/s2.\n(a) 9 m/s\n(b) 16 m/s\n(c) 12 m/s\n(d) 10 m/s",
-            "answer": "(b) 16 m/s",
+            "answer": "b",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "question": "The image of an object, formed by a plano-convex lens at a distance of 8 m behind the lens, is real and is one-third the size of the object. The wavelength of light inside the lens is 2/3 times the wavelength in free space. The radius of the curved surface of the lens is:\n(a) 1 m\n(b) 2 m\n(c) 3 m\n(d) 6 m",
-            "answer": "(c) 3 m",
+            "answer": "c",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "question": "A box weighs 196 N on a spring balance at the north pole. Its weight recorded on the same balance if it is shifted to the equator is close is (Take g = 10ms-2 at the north pole and the radius of the earth = 6400 km)\n(a) 194.32 N\n(b) 195.66 N\n(c) 194.66 N\n(d) 195.32 N",
-            "answer": "(d) 195.32 N",
+            "answer": "d",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "question": " Assuming 2s - 2p mixing is not operative, the paramagnetic species among the following is: \n(a) N₂\n(b) C₂\n(c) Be₂\n(d) B₂",
-            "answer": "(d) C",
-            "other information": ""
+            "answer": "d",
+            "type_of_question": "mcq",
+            "other information": null
         },
         {
             "question": "Identify the least stable ion among the following:\n(a) Li⁻\n(b) Be⁻\n(c) B⁻\n(d) C⁻",
-            "answer": "(b) B",
-            "other information": ""
+            "answer": "b",
+            "type_of_question": "mcq",
+            "other information": null
         },
         {
             "question": "Which among the following compounds is the most acidic.\n(a) p-nitrophenol\n(b) p-hydroxybenzoic acid\n(c) o-hydrobenzoic acid\n(d) p-toluic acid",
-            "answer": "(c) o-hydrobenzoic acid",
-            "other information": ""
+            "answer": "c",
+            "type_of_question": "mcq",
+            "other information": null
         },
         {
             "question": "The compound that does not liberate CO2, on treatment with aqueous sodium bicarbonate solution, is:\n(a) Benzoic acid\n(b) Phenol\n(c) salicylic acid\n(d) Acetylsalicylic acid",
-            "answer": "(b) Phenol",
-            "other information": ""
+            "answer": "b",
+            "type_of_question": "mcq",
+            "other information": null
         },
         {
             "question": "The positive integer value of n>3 satisfying the equation 1/sin(π/n) = 1/sin(2π/n) + 1/sin(3π/n)\n(a) 3\n(b) 13\n(c) 7\n(d) 5",
-            "answer": "(a) 7",
-            "other information": ""
+            "answer": "c",
+            "type_of_question": "mcq",
+            "other information": null
         },
         {
             "question": "There are 3 sections in a question paper and each section contains 5 questions. A candidate has to answer a total of 5 questions, choosing at least one question from each section. Then the number of ways, in which the candidate can choose the questions, is:\n(a) 2250\n(b) 1500\n(c) 2255\n(d) 3000",
-            "answer": "(a) 2250",
-            "other information": ""
+            "answer": "a",
+            "type_of_question": "mcq",
+            "other information": null
         },
         {
             "question": "A die is thrown two times and the sum of the scores appearing on the die is observed to be a multiple of 4. Then the conditional probability that the score 4 has appeared atleast once is:\n(a) 1/3\n(b) 1/4\n(c) 1/9\n(d) 1/8",
-            "answer": "(c) 1/9",
-            "other information": ""
+            "answer": "c",
+            "type_of_question": "mcq",
+            "other information": null
         },
         {
             "question": "If log7 2 = k, then log49 28 is equal to:\n(a) (2k+1)/4\n(b) (2k+1)/2\n(c) (2k+1)/3\n(d) (2k+1)/7",
-            "answer": "(b) (2k+1)/2",
-            "other information": ""
+            "answer": "b",
+            "type_of_question": "mcq",
+            "other information": null
         }
     ],
     "2": [
         {
             "image": "images/Andhra/friendly_1.jpg",
-            "answer": "Andhra Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. andhra pradesh\n            b. telegana\n            c. karnataka\n            d. tamil nadu\n            ",
+            "answer": "a",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "image": "images/Andhra/non_friendly_4.jpg",
-            "answer": "Andhra Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. andhra pradesh\n            b. telegana\n            c. karnataka\n            d. tamil nadu\n            ",
+            "answer": "a",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "image": "images/Andhra/non_friendly_3.jpg",
-            "answer": "Andhra Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. andhra pradesh\n            b. telegana\n            c. karnataka\n            d. tamil nadu\n            ",
+            "answer": "a",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "image": "images/Andhra/non_friendly_1.jpg",
-            "answer": "Andhra Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. andhra pradesh\n            b. telegana\n            c. karnataka\n            d. tamil nadu\n            ",
+            "answer": "a",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "image": "images/Andhra/non_friendly_2.jpg",
-            "answer": "Andhra Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. andhra pradesh\n            b. telegana\n            c. karnataka\n            d. tamil nadu\n            ",
+            "answer": "a",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "image": "images/Arunachal/friendly_1.jpg",
-            "answer": "Arunachal Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. arunachal pradesh\n            b. sikkim\n            c. himachal pradesh\n            d. west bengal\n            ",
+            "answer": "a",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "image": "images/Arunachal/non_friendly_4.jpg",
-            "answer": "Arunachal Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. arunachal pradesh\n            b. sikkim\n            c. himachal pradesh\n            d. west bengal\n            ",
+            "answer": "a",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "image": "images/Arunachal/non_friendly_3.jpg",
-            "answer": "Arunachal Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. arunachal pradesh\n            b. sikkim\n            c. himachal pradesh\n            d. west bengal\n            ",
+            "answer": "a",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "image": "images/Arunachal/non_friendly_1.jpg",
-            "answer": "Arunachal Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. arunachal pradesh\n            b. sikkim\n            c. himachal pradesh\n            d. west bengal\n            ",
+            "answer": "a",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "image": "images/Arunachal/non_friendly_2.jpg",
-            "answer": "Arunachal Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. arunachal pradesh\n            b. sikkim\n            c. himachal pradesh\n            d. west bengal\n            ",
+            "answer": "a",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "image": "images/Bengal/friendly_1.jpg",
-            "answer": "West Bengal",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. assam\n            b. chattisgarh\n            c. sikkim\n            d. west bengal\n            ",
+            "answer": "d",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "image": "images/Bengal/non_friendly_4.jpg",
-            "answer": "West Bengal",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. assam\n            b. chattisgarh\n            c. sikkim\n            d. west bengal\n            ",
+            "answer": "d",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "image": "images/Bengal/non_friendly_3.jpg",
-            "answer": "West Bengal",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. assam\n            b. chattisgarh\n            c. sikkim\n            d. west bengal\n            ",
+            "answer": "d",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "image": "images/Bengal/non_friendly_1.jpg",
-            "answer": "West Bengal",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. assam\n            b. chattisgarh\n            c. sikkim\n            d. west bengal\n            ",
+            "answer": "d",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "image": "images/Bengal/non_friendly_2.jpg",
-            "answer": "West Bengal",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. assam\n            b. chattisgarh\n            c. sikkim\n            d. west bengal\n            ",
+            "answer": "d",
+            "type_of_question": "mcq",
+            "other information": null
+        }
+    ],
+    "3": [
+        {
+            "question": "\n            1. What is the final value of a after execution of the following Fortran 90 code?\n\n                integer :: a = 2\n                a = a + f(a)\n                contains\n                integer function f(x)\n                    integer, intent(inout) :: x\n                    x = x * 2\n                    f = x + 1\n                end function\n                end\n\n            a. 7\n            b. 9\n            c. 5\n            d. 8\n            ",
+            "answer": "b",
+            "type_of_question": "mcq",
+            "other information": null
+        },
+        {
+            "question": " What does the following Scala 2 code print?\n\n            scala\n            import scala.util.continuations._\n            def foo(): Int @cps[Int] = shift { k: (Int => Int) =>\n            k(k(1))\n            }\n            reset {\n            val x = foo()\n            x + 2\n            }\n\n            a. 1\n            b. 2\n            c. 5\n            d. The code does not compile because the continuations plugin is not enabled.",
+            "answer": "c",
+            "type_of_question": "mcq",
+            "other information": null
+        },
+        {
+            "question": "\n            Given the type alias and existential type:\n\n            scala\n            type F[A] = List[A] forSome { type A }\n            val x: F[Int] = List(1, 2, 3)\n            \n            What is true?\n            a. x is a List[Int] and can be treated as such.\n            b. x is a List[A] for some unknown A, so you cannot add an Int to it.\n            c. F[Int] is a valid type alias, but x must be assigned a List[Int].\n            d. The code fails to compile because existential types cannot appear in a type alias position.\n            \n            ",
+            "answer": "d",
+            "type_of_question": "mcq",
+            "other information": null
+        }
+    ],
+    "4": [
+        {
+            "question": "\n            Eight-member family:\n            • Grandpa (G) and Grandma (GM) have 3 children: A (son), B (daughter), C (son)\n            • A married W; B married X; C married Y\n            • A and W have children: D and E\n            • B and X have one child: F\n            • C and Y have one child: H\n\n            Which of the following are definitely true?\n\n            a. D and F are first cousins\n            b. G has exactly 4 grandchildren\n            c. W is sister-in-law of B\n            d. X is brother-in-law of A\n            e. H and E are first cousins\n            ",
+            "answer": "a,b,c,d,e",
+            "type_of_question": "msq",
+            "other information": null
+        },
+        {
+            "question": "\n            Arrow-notation chain:\n                A → B: A is parent of B\n                A ↔ B: A is spouse of B\n                A ⇒ B: A is sibling of B\n                A ⊕ B: A is grandparent of B\n\n                Chain: L ⊕ M ↔ N → O ⇒ P → Q\n\n            Identify ALL true statements:\n                L ⊕ M: L is grandparent of M\n                M ↔ N: M and N are spouses\n                N → O: N is parent of O\n                O ⇒ P: O and P are siblings\n                P → Q: P is parent of Q\n\n            Choose the one or more options:\n            a. M and N are spouses\n            b. L is great-grandparent of Q\n            c. O and P are siblings\n            d. N is grandparent of Q\n            e. L is grandparent of O\n            ",
+            "answer": "a,b,c,d",
+            "type_of_question": "msq",
+            "other information": null
+        },
+        {
+            "question": "\n            Relationship puzzle:\n            • Meera's mother's brother is Rajan\n            • Rajan's wife is Sunita\n            • Sunita's father is Harish\n            • Harish's only son is Vikram\n            • Vikram is married to Pooja\n\n            Which of the following are definitely true?\n            a. Rajan is Meera's maternal uncle\n            b. Sunita is Meera's maternal aunt by marriage\n            c. Harish is Meera's great-uncle by marriage\n            d. Vikram is Sunita's brother\n            e. Pooja is Sunita's sister-in-law\n            ",
+            "answer": "a,b,d,e",
+            "type_of_question": "msq",
+            "other information": null
+        },
+        {
+            "question": "\n            Coded chain:\n                P # Q → P is son-in-law of Q\n                P @ Q → P is sister of Q\n                P & Q → P is father of Q\n                P ! Q → P is wife of Q\n                P $ Q → P is brother of Q\n\n                Chain: A & B @ C ! D & E $ F\n\n            Which are definitely true?\n                A & B: A is father of B\n                B @ C: B is sister of C (so A is father of C too)\n                C ! D: C is wife of D\n                D & E: D is father of E\n                E $ F: E is brother of F\n\n            Choose the one or more options:\n            a. A is grandfather of E\n            b. B is aunt of E\n            c. D is son-in-law of A\n            d. F is grandchild of A\n            e. C is daughter-in-law of A\n            ",
+            "answer": "a,b,c,d",
+            "type_of_question": "msq",
+            "other information": null
+        },
+        {
+            "question": "\n            Complex language puzzle:\n            \"Nikhil's wife's father-in-law's wife is Kamla.\"\n            \"Kamla's son's wife is Reena.\"\n            \"Reena's daughter is Siya.\"\n\n            Which of the following are definitely true?\n            a. Nikhil's mother is Kamla\n            b. Reena is Nikhil's sister-in-law or wife\n            c. Siya is Kamla's granddaughter\n            d. Kamla's husband is Nikhil's father\n            e. Siya is Nikhil's niece or daughter\n            ",
+            "answer": "a,c,d,e",
+            "type_of_question": "msq",
+            "other information": null
+        },
+        {
+            "question": "\n            Arrow chain:\n                A ⟶ B: A is paternal grandfather of B\n                A ⟵ B: A is maternal grandmother of B\n                A ⟺ B: A is married to B\n                A ⊃ B: A is father of B\n                A ⊂ B: A is mother of B\n\n                Chain: X ⟶ Y ⟺ Z ⊃ W ⊂ V ⟵ U\n\n            Select ALL definitely true statements:\n                X ⟶ Y: X is paternal grandfather of Y\n                Y ⟺ Z: Y and Z are spouses\n                Z ⊃ W: Z is father of W\n                W ⊂ V: W is mother of V\n                V ⟵ U: U is maternal grandmother of V\n\n            Choose the one or more options:\n            a. Y and Z are spouses\n            b. W is mother of V\n            c. X is great-grandfather of W\n            d. U is mother of W\n            e. Z is paternal grandfather of V\n            ",
+            "answer": "a,b,c,d",
+            "type_of_question": "msq",
+            "other information": null
+        },
+        {
+            "question": "\n            Coded operator puzzle:\n                P @ Q: P is the only daughter of Q\n                P % Q: P is the husband of Q\n                P ^ Q: P is the son of Q\n                P ~ Q: P is the sister of Q\n\n                Chain: A @ B % C ^ D ~ E @ F\n\n            Which statements are definitely true?\n                A @ B: A is only daughter of B\n                B % C: B is husband of C (C is wife of B)\n                C ^ D: C is son of D\n                D ~ E: D is sister of E\n                E @ F: E is only daughter of F\n\n            Choose the one or more options:\n            a. A has no siblings\n            b. C is grandson of F\n            c. B is son-in-law of C's parent\n            d. D and E share the same parents\n            e. E has no siblings\n            ",
+            "answer": "a,c,d,e",
+            "type_of_question": "msq",
             "other information": null
         }
     ]

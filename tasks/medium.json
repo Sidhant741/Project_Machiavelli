@@ -2,139 +2,257 @@
     "1": [
         {
             "question": "The angle of projection for a projectile to have same horizontal range and maximum height is:\n(a) tan^(-1)(2)\n(b) tan^(-1)(4)\n(c) tan^(-1)(1/4)\n(d) tan^(-1)(1/2)",
-            "answer": "(b) tan^(-1)(4)",
+            "answer": "b",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "question": "A particle moves with constant acceleration. If its initial velocity is 5 m/s and final velocity after 4 s is 13 m/s, the acceleration is:\n(a) 1 m/s²\n(b) 2 m/s²\n(c) 3 m/s²\n(d) 4 m/s²",
-            "answer": "(b) 2 m/s²",
+            "answer": "b",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "question": "The escape velocity from Earth is approximately:\n(a) 7.9 km/s\n(b) 11.2 km/s\n(c) 15 km/s\n(d) 9.8 km/s",
-            "answer": "(b) 11.2 km/s",
+            "answer": "b",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "question": "A spring of force constant k is cut into two equal parts. New spring constant of each part:\n(a) k/2\n(b) k\n(c) 2k\n(d) 4k",
-            "answer": "(c) 2k",
+            "answer": "c",
+            "type_of_question": "mcq",
             "other information": null
         },
         {
             "question": "If roots of x^2−5x+k=0 differ by 1, then k=\n(a) 5\n(b) 6\n(c) 4\n(d) 9",
-            "answer": "(b) 6",
-            "other information": ""
+            "answer": "b",
+            "type_of_question": "mcq",
+            "other information": null
         },
         {
             "question": "Which molecule has maximum bond angle?\n(a)NH₃\n(b)H₂O\n(c)CH₄\n(d)BF₃",
-            "answer": "(d) BF₃",
-            "other information": ""
+            "answer": "d",
+            "type_of_question": "mcq",
+            "other information": null
         },
         {
             "question": "Which is a reducing sugar?\n(a) Sucrose\n(b) Glucose\n(c) Starch\n(d) Cellulose",
-            "answer": "(b) Glucose",
-            "other information": ""
+            "answer": "b",
+            "type_of_question": "mcq",
+            "other information": null
         },
         {
             "question": "Major product of: Propene + HBr in presence of peroxide:\n(a) 2-bromopropane\n(b) 1-bromopropane\n(c) 3-bromopropane\n(d) bromobenzene",
-            "answer": "(b) 1-bromopropane",
-            "other information": ""
+            "answer": "b",
+            "type_of_question": "mcq",
+            "other information": null
         },
         {
             "question": "Which gives white precipitate with ammoniacal AgNO₃?\n(a) Ethene\n(b) Ethane\n(c) Propyne\n(d) Ethyne",
-            "answer": "(c) propyne",
-            "other information": ""
+            "answer": "c",
+            "type_of_question": "mcq",
+            "other information": null
         },
         {
             "question": "If f(x)=2x+1, g(x)=x^2, then g(f(2))=\n(a) 25\n(b) 5\n(c) 9\n(d) 16",
-            "answer": "(a) 25",
-            "other information": ""
+            "answer": "a",
+            "type_of_question": "mcq",
+            "other information": null
         },
         {
             "question": "If y=x^sinx, then ln(y)=\n(a) x sinx\n(b) sinxlnx\n(c) cosxlnx\n(d) xcosx",
-            "answer": "(b) sinxlnx",
-            "other information": ""
+            "answer": "b",
+            "type_of_question": "mcq",
+            "other information": null
         },
         {
             "question": "(1+i)^8=\n(a) 16\n(b) -16\n(c) 8i\n(d) -8i",
-            "answer": "(a) 16",
-            "other information": ""
+            "answer": "a",
+            "type_of_question": "mcq",
+            "other information": null
         }
     ],
     "2": [
         {
             "image": "images/Andhra/friendly_1.jpg",
-            "answer": "Andhra Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. andhra pradesh\n            b. telegana\n            c. karnataka\n            d. tamil nadu\n            ",
+            "answer": "a",
+            "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Andhra/friendly_2.jpg",
-            "answer": "Andhra Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. andhra pradesh\n            b. telegana\n            c. karnataka\n            d. tamil nadu\n            ",
+            "answer": "a",
+            "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Andhra/non_friendly_3.jpg",
-            "answer": "Andhra Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. andhra pradesh\n            b. telegana\n            c. karnataka\n            d. tamil nadu\n            ",
+            "answer": "a",
+            "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Andhra/non_friendly_1.jpg",
-            "answer": "Andhra Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. andhra pradesh\n            b. telegana\n            c. karnataka\n            d. tamil nadu\n            ",
+            "answer": "a",
+            "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Andhra/non_friendly_2.jpg",
-            "answer": "Andhra Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. andhra pradesh\n            b. telegana\n            c. karnataka\n            d. tamil nadu\n            ",
+            "answer": "a",
+            "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Arunachal/friendly_1.jpg",
-            "answer": "Arunachal Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. arunachal pradesh\n            b. sikkim\n            c. himachal pradesh\n            d. west bengal\n            ",
+            "answer": "a",
+            "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Arunachal/friendly_2.jpg",
-            "answer": "Arunachal Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. arunachal pradesh\n            b. sikkim\n            c. himachal pradesh\n            d. west bengal\n            ",
+            "answer": "a",
+            "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Arunachal/non_friendly_3.jpg",
-            "answer": "Arunachal Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. arunachal pradesh\n            b. sikkim\n            c. himachal pradesh\n            d. west bengal\n            ",
+            "answer": "a",
+            "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Arunachal/non_friendly_1.jpg",
-            "answer": "Arunachal Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. arunachal pradesh\n            b. sikkim\n            c. himachal pradesh\n            d. west bengal\n            ",
+            "answer": "a",
+            "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Arunachal/non_friendly_2.jpg",
-            "answer": "Arunachal Pradesh",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. arunachal pradesh\n            b. sikkim\n            c. himachal pradesh\n            d. west bengal\n            ",
+            "answer": "a",
+            "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Bengal/friendly_1.jpg",
-            "answer": "West Bengal",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. assam\n            b. chattisgarh\n            c. sikkim\n            d. west bengal\n            ",
+            "answer": "d",
+            "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Bengal/friendly_2.jpg",
-            "answer": "West Bengal",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. assam\n            b. chattisgarh\n            c. sikkim\n            d. west bengal\n            ",
+            "answer": "d",
+            "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Bengal/non_friendly_3.jpg",
-            "answer": "West Bengal",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. assam\n            b. chattisgarh\n            c. sikkim\n            d. west bengal\n            ",
+            "answer": "d",
+            "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Bengal/non_friendly_1.jpg",
-            "answer": "West Bengal",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. assam\n            b. chattisgarh\n            c. sikkim\n            d. west bengal\n            ",
+            "answer": "d",
+            "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Bengal/non_friendly_2.jpg",
-            "answer": "West Bengal",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. assam\n            b. chattisgarh\n            c. sikkim\n            d. west bengal\n            ",
+            "answer": "d",
+            "type_of_question": "icq",
+            "other information": null
+        }
+    ],
+    "3": [
+        {
+            "question": "\n            Consider the following C program:\n                #include <stdio.h>\n                int counter = 0;\n                int calc (int a, int b) {\n                int c;\n                counter++;\n                if (b==3) return (a*a*a);\n                else {\n                c = calc(a, b/3);\n                return (c*c*c);\n                }\n                }\n                int main (){\n                calc(4, 81);\n                printf (\"%d\", counter);\n                }\n            \n            The output of this program is _____.\n\n            Choose the correct option:\n            a. 6\n            b. 5\n            c. 4\n            d. 3\n            ",
+            "answer": "c",
+            "type_of_question": "mcq",
+            "other information": null
+        },
+        {
+            "question": "\n            Consider the following C code. Assume that unsigned long int type length is 64 bits.\n            \n            unsigned long int fun(unsigned long int n){\n            unsigned long int i, j = 0, sum = 0;\n            for (i = n; i > 1; i = i/2) j++;\n            for ( ; j > 1; j = j/2) sum++;\n            return(sum);\n            }\n            \n            The value returned when we call fun with the input 2**40 is\n            a. 4 \n            b. 5\n            c. 6\n            d. 40\n            ",
+            "answer": "b",
+            "type_of_question": "mcq",
+            "other information": null
+        },
+        {
+            "question": "\n            The integer value printed by the ANSI-C program given below is .\n\n\n            #include<stdio.h>\n            int funcp(){\n            static int x = 1;\n            x++;\n            return x;\n            }\n            int main(){\n            int x,y;\n            x = funcp();\n            y = funcp()+x;\n            printf(\"%d\\n\", (x+y));\n            return 0;\n            }\n\n            Choose the correct option:\n            a. 5\n            b. 7\n            c. 6\n            d. 8\n            ",
+            "answer": "b",
+            "type_of_question": "mcq",
+            "other information": null
+        },
+        {
+            "question": "\n            Consider the following C program. Assume parameters to a function are evaluated from right to left.\n            \n            #include <stdio.h>\n            int g(int p) { printf(\"%d\", p); return p; }\n            int h(int q) { printf(\"%d\", q); return q; }\n            void f(int x, int y) {\n            g(x);\n            h(y);\n            }\n            int main() {\n            f(g(10),h(20));\n            }\n            \n            Which one of the following options is the CORRECT output of the above C program?\n            a. 20101020\n            b. 10202010\n            c. 20102010\n            d. 10201020\n            ",
+            "answer": "a",
+            "type_of_question": "mcq",
+            "other information": null
+        },
+        {
+            "question": "\n            Consider the following C program:\n            \n            #include <stdio.h>\n            int g(int n) {\n            return (n+10);\n            }\n            int f(int n) {\n            return g(n*2);\n            }\n            int main() {\n            int sum, n;\n            sum=0;\n            for (n=1; n<3; n++)\n            sum += g(f(n));\n            printf (\"%d\", sum);\n            return 0;\n            }\n            \n            The output of the given C program is ________. \n\n            a. 46\n            b. 70\n            c. 64\n            d. 98\n            ",
+            "answer": "a",
+            "type_of_question": "mcq",
+            "other information": null
+        },
+        {
+            "question": "\n            #include <stdio.h>\n            int foo(int S[],int size){\n            if(size == 0) return 0;\n            if(size == 1) return 1;\n            if(S[0] != S[1]) return 1+foo(S+1,size-1);\n            return foo(S+1,size-1);\n            }\n            int main(){\n            int A[]={0,1,2,2,2,0,0,1,1};\n            printf(\"%d\",foo(A,9));\n            return 0;\n            }\n            \n            The value printed by the given C program is _______ . (Answer in integer)\n            \n            a. 4\n            b. 3\n            c. 6\n            d. 5\n            ",
+            "answer": "d",
+            "type_of_question": "mcq",
+            "other information": null
+        }
+    ],
+    "4": [
+        {
+            "question": "\n            A man said: \"The sister of the son of my father's wife is my aunt.\" How is the speaker related to that aunt's brother?\n\n            a. nephew\n            b. son\n            c. cousin\n            d. brother\n            ",
+            "answer": "a",
+            "type_of_question": "mcq",
+            "other information": null
+        },
+        {
+            "question": "\n            A woman introduces a man: \"His wife's father-in-law is the only son of my paternal grandfather.\" How is the man related to the woman?\n            \n            a. brother\n            b. cousin\n            c. uncle\n            d. husband\n            ",
+            "answer": "a",
+            "type_of_question": "mcq",
+            "other information": null
+        },
+        {
+            "question": "\n            Aryan's sister's husband's mother is Priya. Priya has only one son. Priya's husband is Grandpa Ram. How is Grandpa Ram related to Aryan?\n            \n            a. paternal grandfather\n            b. maternal grandfather\n            c. father-in-law\n            d. grand-uncle",
+            "answer": "c",
+            "type_of_question": "mcq",
+            "other information": null
+        },
+        {
+            "question": "\n            Decode the chain:\n                A → B: A is parent of B\n                A ← B: A is child of B\n                A ↔ B: A is spouse of B\n                A ⇒ B: A is sibling of B\n\n                Chain: P ↔ Q ← R ⇒ S → T ↔ U\n\n            How is U related to P?, The chain is given below:\n                P ↔ Q: P and Q are spouses\n                Q ← R: Q is child of R\n                R ⇒ S: R and S are siblings\n                S → T: S is parent of T\n                T ↔ U: T and U are spouses\n\n            a. daughter-in-law\n            b. sister-in-law\n            c. niece\n            d. granddaughter-in-law\n",
+            "answer": "a",
+            "type_of_question": "mcq",
+            "other information": null
+        },
+        {
+            "question": "\n            Decode the chain and select ALL true statements:\n                A → B: A is parent of B\n                A ↔ B: A is spouse of B\n                A ⇒ B: A is sibling of B\n                A ⊕ B: A is grandparent of B\n\n                The Chain: W ⊕ X ↔ Y → Z ⇒ V\n            \n            Now for the given statements below:\n                W ⊕ X: W is grandparent of X\n                X ↔ Y: X and Y are spouses\n                Y → Z: Y is parent of Z\n                Z ⇒ V: Z and V are siblings\n            \n            Choose the one or more options:\n            a. X and Y are spouses\n            b. Z and V are siblings\n            c. W is grandparent of Z\n            d. Y is parent of V\n            e. W is great-grandparent of Z\n            ",
+            "answer": "a,b,d",
+            "type_of_question": "msq",
+            "other information": null
+        },
+        {
+            "question": "\n            Decode using the key and select ALL true statements:\n                P # Q → P is son-in-law of Q\n                P @ Q → P is sister of Q\n                P & Q → P is father of Q\n                P ! Q → P is wife of Q\n\n                Chain: A & B @ C ! D & E\n\n            Now for the given statements below:\n                A & B → A is father of B\n                B @ C → B is sister of C (so A is father of C too)\n                C ! D → C is wife of D\n                D & E → D is father of E\n            \n            Choose the one or more options:\n            a. A is grandfather of E\n            b. D is son-in-law of A\n            c. B is aunt of E\n            d. C is daughter-in-law of A\n            e. E is grandchild of A\n            ",
+            "answer": "a,b,c,e",
+            "type_of_question": "msq",
             "other information": null
         }
     ]
