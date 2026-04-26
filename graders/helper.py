@@ -12,6 +12,8 @@ Components:
     jury_win         — won the jury vote * weight (flat bonus)
     lie_caught       — voted for a confirmed liar * weight
     lie_exposed      — this agent's lie was publicly exposed * weight (negative)
+    deception_success— lied and survived voting (strategic success) * weight
+    strategic_deception — lied + survived + voted correctly + low suspicion * weight
     survival_streak  — consecutive days with 0 votes received * weight
 """
 
@@ -66,6 +68,53 @@ def lie_exposed(agent_id: int, state: PMState, cfg: Dict) -> float:
     if reveal is None:
         return 0.0
     return -cfg["lie_exposed"] if reveal.lies_unacknowledged.get(agent_id, 0) > 0 else 0.0
+
+
+def deception_success(agent_id: int, state: PMState, cfg: Dict) -> float:
+    """
+    Reward successful deception:
+    - agent told an unacknowledged lie today, and
+    - agent was NOT eliminated in today's vote.
+    """
+    reveal = state.public_reveals.get(state.day)
+    if reveal is None or not state.vote_history:
+        return 0.0
+    lied_unack = reveal.lies_unacknowledged.get(agent_id, 0) > 0
+    if not lied_unack:
+        return 0.0
+    eliminated = state.vote_history[-1].eliminated_id
+    survived = (eliminated != agent_id)
+    return cfg.get("deception_success", 0.0) if survived else 0.0
+
+
+def strategic_deception(agent_id: int, state: PMState, cfg: Dict) -> float:
+    """
+    Reward deception only when it appears strategically effective:
+    - agent told an unacknowledged lie today
+    - agent survived today's vote
+    - agent voted for the eliminated target (influence alignment)
+    - agent did not attract many votes (low suspicion proxy)
+    """
+    reveal = state.public_reveals.get(state.day)
+    if reveal is None or not state.vote_history:
+        return 0.0
+
+    last_vote = state.vote_history[-1]
+    eliminated = last_vote.eliminated_id
+    if eliminated is None:
+        return 0.0
+
+    lied_unack = reveal.lies_unacknowledged.get(agent_id, 0) > 0
+    if not lied_unack:
+        return 0.0
+
+    survived = (eliminated != agent_id)
+    voted_with_majority = (last_vote.votes_cast.get(agent_id) == eliminated)
+    low_suspicion = (last_vote.vote_counts.get(agent_id, 0) <= 1)
+
+    if survived and voted_with_majority and low_suspicion:
+        return cfg.get("strategic_deception", 0.0)
+    return 0.0
 
 
 def survival_streak(agent_id: int, state: PMState, cfg: Dict) -> float:

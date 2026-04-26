@@ -160,11 +160,15 @@ def run_pre_discussion(
         user = (
             "PHASE 2 — PRE-DISCUSSION\n"
             "Compose ONE message to share with other agents.\n"
-            "You MAY share your private info truthfully, twist it slightly, or lie.\n"
-            "You must NOT reveal other agents' private info.\n"
-            "Then state your veracity label on the last line as:\n"
-            "VERACITY: truth | twist | lie\n\n"
-            "Write your message now (max 150 words):"
+            "Strategy tip: agents who always tell the truth are predictable and easy to eliminate.\n"
+            "Consider lying or twisting info if it helps your survival.\n"
+            "You MUST end your message with a line in exactly this format:\n"
+            "VERACITY: truth\n"
+            "  OR\n"
+            "VERACITY: twist\n"
+            "  OR\n"
+            "VERACITY: lie\n\n"
+            "Write your message now (max 150 words), then the VERACITY line:"
         )
 
         model_name = models_dict.get(agent_id, "llama3.2")
@@ -211,7 +215,9 @@ def _parse_pre_discussion(raw: str) -> Tuple[str, MessageVeracity]:
         else:
             content_lines.append(line)
 
-    content = " ".join(content_lines).strip() or raw[:200]
+    content = " ".join(content_lines).strip()
+    if not content or content.startswith("[LLM ERROR"):
+        content = "I have nothing to share at this time."
     return content, veracity
 
 
@@ -382,7 +388,9 @@ def run_post_discussion(
                 )
 
                 model_name = models_dict.get(sender_id, "llama3.2")
-                content = llm_call(model_name, system, user, max_tokens=120)[:500]
+                content = llm_call(model_name, system, user, max_tokens=120)[:500].strip()
+                if not content or content.startswith("[LLM ERROR"):
+                    content = f"Agent {sender_id} has nothing to add right now."
 
                 msg = PostDiscussionMessage(
                     sender_id=sender_id,
@@ -416,8 +424,18 @@ def run_post_discussion(
             if target_id == assessor_id:
                 continue
 
+            # Build a dedicated trust assessment prompt (fixes stale `user` bug)
+            trust_user = (
+                f"PHASE 4 — TRUST ASSESSMENT\n"
+                f"Task results:\n{result_str}\n\n"
+                f"How has your trust in Agent {target_id} changed after today?\n"
+                f"Consider: did they lie? did they help you? did they vote against you?\n\n"
+                f"Reply with EXACTLY one of these words (nothing else):\n"
+                f"strong_increase | increase | neutral | decrease | strong_decrease"
+            )
+
             model_name = models_dict.get(assessor_id, "llama3.2")
-            raw    = llm_call(model_name, system, user, max_tokens=10).strip().lower()
+            raw    = llm_call(model_name, system, trust_user, max_tokens=20).strip().lower()
             delta  = _parse_trust_delta(raw)
 
             assessment = TrustAssessment(
@@ -460,12 +478,13 @@ def run_post_discussion(
 
 
 def _parse_trust_delta(raw: str) -> TrustDelta:
-    if "strong_increase" in raw or "strongly" in raw and "increase" in raw:
+    raw = raw.strip().lower()
+    if "strong_increase" in raw or ("strongly" in raw and "increase" in raw):
         return TrustDelta.STRONG_INCREASE
+    if "strong_decrease" in raw or ("strongly" in raw and "decrease" in raw):
+        return TrustDelta.STRONG_DECREASE
     if "increase" in raw:
         return TrustDelta.INCREASE
-    if "strong_decrease" in raw or "strongly" in raw and "decrease" in raw:
-        return TrustDelta.STRONG_DECREASE
     if "decrease" in raw:
         return TrustDelta.DECREASE
     return TrustDelta.NEUTRAL

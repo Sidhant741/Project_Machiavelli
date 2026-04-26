@@ -63,6 +63,30 @@ def _make_question(
     return question, correct, options
 
 
+def _make_shared_question(
+    n_options: int, day: int, n_agents: int
+) -> Tuple[str, str, List[str]]:
+    """
+    Generate ONE shared question for the full day.
+    All agents see the same question context, but each agent receives a different
+    private option/hint extracted from the shared options list.
+    """
+    pool_size = max(n_options, n_agents, 2)
+    correct = str(random.randint(1, 100))
+    distractors: List[str] = []
+    while len(distractors) < pool_size - 1:
+        d = str(random.randint(1, 100))
+        if d != correct and d not in distractors:
+            distractors.append(d)
+    options = [correct] + distractors
+    random.shuffle(options)
+    question = (
+        f"Day {day}: Shared task for all agents — guess the secret number. "
+        f"Candidate options: {', '.join(options)}"
+    )
+    return question, correct, options
+
+
 def _resolve_tie(
     vote_counts: Dict[int, int], alive: List[int]
 ) -> Tuple[Optional[int], bool]:
@@ -145,18 +169,31 @@ def enter_task_reveal(
     ctx.day_questions = {}
     private_map: Dict[int, str] = {}
 
-    for aid in state.alive_agents:
-        question, correct, options = _make_question(n_options, day, aid)
-        ctx.day_questions[aid] = (question, correct, options)
+    # One shared question for all alive agents.
+    shared_q, shared_correct, shared_options = _make_shared_question(
+        n_options=n_options,
+        day=day,
+        n_agents=len(state.alive_agents),
+    )
 
-        if n_options == 1:
-            private_info = f"Your answer for today's task: {correct}"
-        else:
-            private_info = (
-                f"Task: {question}\n"
-                f"Your options: {', '.join(options)}\n"
-                f"(Exactly one option is correct.)"
-            )
+    # Assign each alive agent a different private candidate answer where possible.
+    assigned_candidates = list(shared_options)
+    random.shuffle(assigned_candidates)
+    if len(assigned_candidates) < len(state.alive_agents):
+        # Safety fallback; should rarely happen due to pool_size logic above.
+        assigned_candidates.extend(
+            [shared_correct] * (len(state.alive_agents) - len(assigned_candidates))
+        )
+
+    for idx, aid in enumerate(state.alive_agents):
+        private_candidate = assigned_candidates[idx]
+        ctx.day_questions[aid] = (shared_q, shared_correct, shared_options)
+        private_info = (
+            f"Task: {shared_q}\n"
+            f"Your private candidate answer: {private_candidate}\n"
+            f"All candidates: {', '.join(shared_options)}\n"
+            f"(Exactly one candidate is correct. You may tell truth, twist, or lie.)"
+        )
 
         private_map[aid]         = private_info
         agents[aid].private_info = private_info

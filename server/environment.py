@@ -136,10 +136,32 @@ class PMEnvironment:
 
         agent_ids = list(range(n_agents))
 
+        # Seed from prior snapshots if a previous episode recorded them
+        def _prior_trust(aid: int, others: List[int]) -> Dict[int, float]:
+            snap = self.global_inference_store.get_latest_prior(aid)
+            if snap is None:
+                return {other: 0.5 for other in others if other != aid}
+            # Carry over trust for peers that also exist in this episode
+            base = {other: snap.final_trust_scores.get(other, 0.5)
+                    for other in others if other != aid}
+            return base
+
         self.agents = {
             aid: Agent(
                 id=aid,
-                trust_scores={other: 0.5 for other in agent_ids if other != aid},
+                trust_scores=_prior_trust(aid, agent_ids),
+                truthful_prior=(
+                    self.global_inference_store.get_latest_prior(aid).truthful_prior
+                    if self.global_inference_store.get_latest_prior(aid) else 0.5
+                ),
+                deception_prior=(
+                    self.global_inference_store.get_latest_prior(aid).deception_prior
+                    if self.global_inference_store.get_latest_prior(aid) else 0.5
+                ),
+                risk_beta=(
+                    self.global_inference_store.get_latest_prior(aid).risk_beta
+                    if self.global_inference_store.get_latest_prior(aid) else 1.0
+                ),
             )
             for aid in agent_ids
         }
@@ -151,7 +173,7 @@ class PMEnvironment:
             task_type=task_type,
             task_rules=self._describe_task_rules(cfg),
             trust_scores_dict={
-                aid: {other: 0.5 for other in agent_ids if other != aid}
+                aid: dict(self.agents[aid].trust_scores)
                 for aid in agent_ids
             },
             agents_point_map={aid: 0 for aid in agent_ids},

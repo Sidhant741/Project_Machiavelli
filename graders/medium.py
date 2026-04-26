@@ -35,6 +35,8 @@ def grade(agent_id: int, state: PMState, task_config: Dict) -> float:
     r += helpers.jury_win(agent_id, state, CFG)
     r += helpers.lie_caught(agent_id, state, CFG)
     r += helpers.lie_exposed(agent_id, state, CFG)
+    r += helpers.deception_success(agent_id, state, CFG)
+    r += helpers.strategic_deception(agent_id, state, CFG)
     r += helpers.survival_streak(agent_id, state, CFG)
     return helpers.normalise(r, CFG)
 
