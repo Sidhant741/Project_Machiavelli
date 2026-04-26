@@ -17,7 +17,7 @@ on:
         description: "Hugging Face namespace"
         required: false
         type: string
-        default: "Deep712sharma"
+        default: "Killua7531"
       private:
         description: "Deploy version-suffixed spaces as private"
         required: false
