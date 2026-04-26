@@ -108,22 +108,24 @@ body { background-color: #ffffff !important; }
 
 .agent-card-container { display: flex !important; flex-direction: column !important;
     align-items: center !important; }
-.agent-card { width: 160px !important; height: 230px !important;
+.agent-card { width: 200px !important; height: 280px !important;
     background: #F4B1D2 !important; border-radius: 25px !important;
     border: 2px solid #000 !important; display: flex !important;
-    flex-direction: column !important; justify-content: center !important;
-    align-items: center !important; }
+    flex-direction: column !important; justify-content: flex-start !important;
+    align-items: center !important; padding-top: 15px !important; box-sizing: border-box !important; }
 .agent-card.eliminated { background: #d0d0d0 !important; }
 .agent-card.communicating { border: 4px solid #FFD700 !important; box-shadow: 0 0 20px rgba(255, 215, 0, 0.6) !important; transform: scale(1.05) !important; transition: all 0.3s ease !important; }
 .agent-card-container.dimmed { opacity: 0.4 !important; filter: grayscale(80%) !important; pointer-events: none !important; transition: all 0.3s ease !important; }
-.agent-name { font-weight: 800 !important; font-size: 1.6rem !important;
-    color: #000 !important; visibility: hidden; }
-.agent-pts  { font-weight: 600 !important; font-size: 1.2rem !important;
-    color: #000 !important; visibility: hidden; }
-.agent-chat { width: 90% !important; height: 85% !important; background: rgba(255, 255, 255, 0.5) !important;
-    border-radius: 15px !important; padding: 12px !important; font-size: 0.95rem !important;
-    font-weight: 500 !important; color: #1a1a1a !important; overflow-y: auto !important;
-    text-align: left !important; box-sizing: border-box !important; position: absolute !important; }
+.agent-name { font-weight: 800 !important; font-size: 1.4rem !important;
+    color: #000 !important; line-height: 1.1 !important; z-index: 10 !important; }
+.agent-pts  { font-weight: 600 !important; font-size: 1.1rem !important;
+    color: #000 !important; z-index: 10 !important; margin-bottom: 4px !important; }
+.agent-score { font-weight: 700 !important; font-size: 1.0rem !important;
+    color: #006400 !important; margin-top: 8px !important; text-align: center !important; border-top: 1px solid rgba(0,0,0,0.1) !important; padding-top: 4px !important;}
+.agent-chat { width: 90% !important; height: calc(100% - 60px) !important; background: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 15px !important; padding: 10px !important; font-size: 0.9rem !important;
+    font-weight: 600 !important; color: #000 !important; overflow-y: auto !important;
+    text-align: left !important; box-sizing: border-box !important; position: relative !important; z-index: 5 !important; margin-bottom: 10px !important; border: 1px solid rgba(0,0,0,0.2) !important; }
 .agent-chat::-webkit-scrollbar { width: 4px !important; }
 .agent-chat::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2) !important; border-radius: 4px !important; }
 .typing-indicator { display: flex; gap: 4px; padding: 4px; align-items: center; justify-content: center; height: 100%; }
@@ -181,4 +183,49 @@ body { background-color: #ffffff !important; }
     pointer-events: none !important; height: 0 !important; width: 0 !important;
     margin: 0 !important; padding: 0 !important; overflow: hidden !important; }
 footer { display: none !important; }
+
+/* ── Winner neon glow ── */
+.agent-card.winner {
+    border: 3px solid #00ff88 !important;
+    box-shadow: 0 0 25px rgba(0, 255, 136, 0.7),
+                0 0 50px rgba(0, 255, 136, 0.4),
+                inset 0 0 15px rgba(0, 255, 136, 0.15) !important;
+    animation: neon-pulse 1.5s ease-in-out infinite alternate !important;
+}
+@keyframes neon-pulse {
+    from { box-shadow: 0 0 15px rgba(0,255,136,0.5), 0 0 30px rgba(0,255,136,0.3); }
+    to   { box-shadow: 0 0 30px rgba(0,255,136,0.8), 0 0 60px rgba(0,255,136,0.5), 0 0 90px rgba(0,255,136,0.2); }
+}
+
+/* ── Veracity badges inside agent chat ── */
+.veracity-badge { display: inline-block; font-size: 0.7rem; font-weight: 700;
+    padding: 2px 8px; border-radius: 12px; margin-left: 4px;
+    text-transform: uppercase; letter-spacing: 0.05em; }
+.veracity-truth { background: #27ae60; color: #fff; }
+.veracity-twist { background: #f39c12; color: #fff; }
+.veracity-lie   { background: #e74c3c; color: #fff; }
+
+/* ── Agent chat info lines ── */
+.agent-info-line { font-size: 0.78rem !important; line-height: 1.4 !important;
+    margin: 3px 0 !important; word-break: break-word !important; }
+.agent-info-line .label { font-weight: 700 !important; }
+.agent-msg-sent { font-size: 0.8rem !important; color: #1a7f37 !important; margin: 2px 0 !important; font-weight: 600 !important; }
+.agent-msg-recv { font-size: 0.8rem !important; color: #1f6feb !important; margin: 2px 0 !important; font-weight: 600 !important; }
+
+/* ── Eliminated agent overlay ── */
+.agent-card.eliminated::after {
+    content: '✕ ELIMINATED';
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; font-weight: 900; color: #fff;
+    background: rgba(0,0,0,0.55); border-radius: 25px;
+    letter-spacing: 0.1em;
+}
+
+/* ── Game over banner ── */
+.game-over-banner { text-align: center; padding: 16px; margin: 12px auto;
+    max-width: 600px; background: linear-gradient(135deg, #0d1117 0%, #1a1a2e 100%);
+    border: 2px solid #00ff88; border-radius: 16px; color: #00ff88;
+    font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800;
+    letter-spacing: 0.08em; box-shadow: 0 0 30px rgba(0,255,136,0.3); }
 """

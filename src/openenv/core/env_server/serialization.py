@@ -150,7 +150,30 @@ def serialize_observation(observation: Any) -> Dict[str, Any]:
         "done": bool,
     }
     """
-    if isinstance(observation, dict):
+    if isinstance(observation, tuple):
+        # Handle Gym-style tuple returns: (obs, reward, done, info) or (obs, reward, terminated, truncated, info)
+        if len(observation) == 4:
+            obs, reward, done, info = observation
+        elif len(observation) == 5:
+            obs, reward, terminated, truncated, info = observation
+            done = terminated or truncated
+        else:
+            obs, reward, done = observation[0], None, False
+        
+        # Serialize the inner observation (which could be a dict or a Pydantic model)
+        if isinstance(obs, dict):
+            obs_dict = {
+                str(k): (
+                    v.model_dump(exclude={"reward", "done", "metadata"})
+                    if hasattr(v, "model_dump")
+                    else v
+                )
+                for k, v in obs.items()
+            }
+        else:
+            obs_dict = obs.model_dump(exclude={"reward", "done", "metadata"}) if hasattr(obs, "model_dump") else obs
+
+    elif isinstance(observation, dict):
         # Handle multi-agent environment returning Dict[int, Observation]
         obs_dict = {
             str(k): (
@@ -170,7 +193,7 @@ def serialize_observation(observation: Any) -> Dict[str, Any]:
                 "done",
                 "metadata",
             }  # Exclude these from observation dict
-        )
+        ) if hasattr(observation, "model_dump") else observation
         # Extract reward and done directly from the observation
         reward = getattr(observation, "reward", None)
         done = getattr(observation, "done", False)
