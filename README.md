@@ -1,7 +1,7 @@
 # 🎭 Project Machiavelli: When AI Agents Play a Social Survival Game
 
 
-[![HuggingFace](https://img.shields.io/badge/huggingface.svg)](https://python.org)
+[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Project%20Machiavelli-FFD21E?labelColor=1a1a1a)](https://huggingface.co/yourname/project-machiavelli)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![OpenEnv](https://img.shields.io/badge/OpenEnv-Compatible-purple.svg)](https://openenv.dev)
