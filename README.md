@@ -12,6 +12,14 @@
 
 ---
 
+<div align="center">
+
+*The future of AI isn't just about answering questions — it's about how they interact with each other.*
+
+**Welcome to Project Machiavelli. Let the games begin.**
+
+</div>
+
 ## 🧠 What is Project Machiavelli?
 
 Have you ever wondered what happens when you put multiple Large Language Models into a room, give them **conflicting goals**, and ask them to vote each other out?
