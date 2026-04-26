@@ -7,7 +7,7 @@ on:
         description: "Comma-separated env names (empty means all deployable envs)"
         required: false
         type: string
-        default: "colorblind_env"
+        default: "machiavelli"
       openenv_version:
         description: "Release version used for suffix and pinning (e.g. 0.2.1)"
         required: false

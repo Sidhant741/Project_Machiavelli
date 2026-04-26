@@ -284,7 +284,7 @@ is_deployable_env() {
     local env_name="$1"
     # If env_name is exactly 'colorblind_env' (the default) or matches our root packages,
     # we consider the project root as the environment source.
-    if [ "$env_name" = "colorblind_env" ] || [ "$env_name" = "colorblind-env" ]; then
+    if [ "$env_name" = "machiavelli" ] || [ "$env_name" = "machiavelli" ]; then
         [ -f "Dockerfile" ] && [ -f "README.md" ]
         return $?
     fi
@@ -297,7 +297,7 @@ is_deployable_env() {
 
 resolve_env_dockerfile() {
     local env_name="$1"
-    if [ "$env_name" = "colorblind_env" ] || [ "$env_name" = "colorblind-env" ]; then
+    if [ "$env_name" = "machiavelli" ] || [ "$env_name" = "machiavelli" ]; then
         if [ -f "Dockerfile" ]; then
             printf "%s" "Dockerfile"
             return 0
@@ -317,8 +317,8 @@ resolve_env_dockerfile() {
 discover_all_envs() {
     # If no envs/ directory, we default to the root environment
     if [ ! -d "envs" ]; then
-        if is_deployable_env "colorblind_env"; then
-            SELECTED_ENVS+=("colorblind_env")
+        if is_deployable_env "machiavelli"; then
+            SELECTED_ENVS+=("machiavelli")
         fi
         return
     fi
@@ -407,7 +407,7 @@ create_environment_dockerfile() {
         error "Could not find Dockerfile for $env_name"
     }
 
-    if [ "$env_name" = "colorblind_env" ] || [ "$env_name" = "colorblind-env" ]; then
+    if [ "$env_name" = "machiavelli" ] || [ "$env_name" = "machiavelli" ]; then
         prepare_script="server/prepare_hf.sh" # Simplified path for single env
     else
         prepare_script="envs/$env_name/server/prepare_hf.sh"
@@ -590,7 +590,7 @@ create_readme() {
     local env_name="$1"
     local stage_dir="$2"
     local readme_source=""
-    if [ "$env_name" = "colorblind_env" ] || [ "$env_name" = "colorblind-env" ]; then
+    if [ "$env_name" = "machiavelli" ] || [ "$env_name" = "machiavelli" ]; then
         readme_source="README.md"
     else
         readme_source="envs/$env_name/README.md"
@@ -604,7 +604,7 @@ create_readme() {
         #chat_env) env_class="ChatEnv" ;;
         #atari_env) env_class="AtariEnv" ;;
         #openspiel_env) env_class="OpenSpielEnv" ;;
-        colorblind_env) env_class="ColorblindEnv" ;;
+        machiavelli) env_class="PMEnvironment" ;;
     esac
 
     if head -n 1 "$readme_source" | grep -q '^---$'; then
@@ -689,7 +689,7 @@ prepare_stage() {
         cp -R "$stage_dir/src/openenv/." "$stage_dir/src/core/openenv/"
     fi
     
-    if [ "$env_name" = "colorblind_env" ] || [ "$env_name" = "colorblind-env" ]; then
+    if [ "$env_name" = "machiavelli" ] || [ "$env_name" = "machiavelli" ]; then
         # For root env, server and other root folders are needed.
         cp -R server "$stage_dir/"
         # We don't need to copy "envs/$env_name" because root files are already copied in handle_stage
@@ -701,7 +701,7 @@ prepare_stage() {
     [ -f pyproject.toml ] && cp pyproject.toml "$stage_dir/"
     
     # Also copy env content to stage root for Dockerfiles that use "COPY . /app/env".
-    if [ "$env_name" = "colorblind_env" ] || [ "$env_name" = "colorblind-env" ]; then
+    if [ "$env_name" = "machiavelli" ] || [ "$env_name" = "colorblind-env" ]; then
         # Copy everything except staging dirs and hidden files to stage root
         # This is a bit tricky, but since we are copying to hf-staging we should be careful.
         # But prepare_stage usually works with a clean stage_dir.
