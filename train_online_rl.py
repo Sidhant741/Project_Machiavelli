@@ -2,11 +2,12 @@
 Online RL training loop for Project Machiavelli.
 
 This script trains simple per-agent policies directly against PMEnvironment
-using REINFORCE-style updates on one key behavior:
+using REINFORCE-style updates on two key learnable behaviors:
   - Phase 2 message veracity choice: truth vs twist vs lie
+  - Phase 5 vote strategy: lowest_trust vs highest_threat vs random
 
-It is intentionally lightweight so you can run 30+ episodes quickly and
-produce evidence that behavior changes with rewards.
+Other actions (task answers, trust assessments) are heuristic-driven to
+reduce noise in the reward signal.
 """
 
 from __future__ import annotations
@@ -41,15 +42,21 @@ def _softmax(logits: Dict[str, float]) -> Dict[str, float]:
     return {k: exps[k] / s for k in exps}
 
 
-def _sample_veracity(logits: Dict[str, float]) -> MessageVeracity:
+def _sample_from(logits: Dict[str, float]) -> str:
+    """Generic categorical sampler for any logits dict."""
     probs = _softmax(logits)
     r = random.random()
     c = 0.0
-    for label in ("truth", "twist", "lie"):
+    labels = list(probs.keys())
+    for label in labels:
         c += probs[label]
         if r <= c:
-            return MessageVeracity(label)
-    return MessageVeracity.LIE
+            return label
+    return labels[-1]
+
+
+def _sample_veracity(logits: Dict[str, float]) -> MessageVeracity:
+    return MessageVeracity(_sample_from(logits))
 
 
 def _parse_veracity_label(raw: str) -> Optional[MessageVeracity]:
@@ -204,7 +211,7 @@ def _compose_pre_message(veracity: MessageVeracity, true_answer: str) -> str:
 
 def run_episode(
     env: PMEnvironment,
-    policy_logits: Dict[int, Dict[str, float]],
+    policy_logits: Dict[int, Dict],
     difficulty: str,
     policy_backend: str = "tabular",
     unsloth_policy: Optional[UnslothPolicy] = None,
@@ -217,7 +224,10 @@ def run_episode(
     alive_snapshot = list(env.state.alive_agents)
     rewards_total = {aid: 0.0 for aid in alive_snapshot}
     action_counts = {
-        aid: {"truth": 0, "twist": 0, "lie": 0}
+        aid: {
+            "truth": 0, "twist": 0, "lie": 0,
+            "vote_lowest_trust": 0, "vote_highest_threat": 0, "vote_random": 0,
+        }
         for aid in alive_snapshot
     }
 
@@ -280,10 +290,12 @@ def run_episode(
 
         elif phase.value == "task_execution":
             for aid in alive:
+                # Submit the correct answer from task config
+                correct_answer = _extract_correct_answer(env, aid)
                 action = PMAction(
                     agent_id=aid,
                     action_type=ActionType.SUBMIT_TASK_INPUT,
-                    task_input="0",
+                    task_input=correct_answer,
                 )
                 _, rewards, _, _ = env.step(action)
                 for k, v in rewards.items():
@@ -314,23 +326,41 @@ def run_episode(
                     except ValueError:
                         pass
 
-            # Required trust assessments (n * (n-1)).
+            # Trust assessments driven by observed veracity.
+            # Check public reveal for exposed lies to inform trust decisions.
+            reveal = env.state.public_reveals.get(env.state.day)
             for assessor in alive:
                 for target in alive:
                     if assessor == target:
                         continue
-                    delta = random.choice(
-                        [
-                            TrustDelta.INCREASE,
-                            TrustDelta.NEUTRAL,
-                            TrustDelta.DECREASE,
+                    # Decide trust delta based on what we know about target
+                    if reveal and reveal.lies_unacknowledged.get(target, 0) > 0:
+                        delta = TrustDelta.STRONG_DECREASE
+                        reasoning = "caught lying"
+                    elif reveal and reveal.lies_acknowledged.get(target, 0) > 0:
+                        delta = TrustDelta.DECREASE
+                        reasoning = "acknowledged lie"
+                    else:
+                        # Check pre-task messages for veracity
+                        obs = env.get_observation(assessor)
+                        target_msgs = [
+                            m for m in obs.pre_task_messages_received
+                            if m.sender_id == target
                         ]
-                    )
+                        if target_msgs and target_msgs[-1].veracity == MessageVeracity.TRUTH:
+                            delta = TrustDelta.INCREASE
+                            reasoning = "told truth"
+                        elif target_msgs and target_msgs[-1].veracity == MessageVeracity.LIE:
+                            delta = TrustDelta.DECREASE
+                            reasoning = "suspicious"
+                        else:
+                            delta = TrustDelta.NEUTRAL
+                            reasoning = "no strong signal"
                     ta = TrustAssessment(
                         assessor_id=assessor,
                         target_id=target,
                         day=env.state.day,
-                        reasoning="policy update pending",
+                        reasoning=reasoning,
                         delta=delta,
                     )
                     action = PMAction(
@@ -345,12 +375,31 @@ def run_episode(
         elif phase.value == "voting":
             for voter in alive:
                 candidates = [x for x in alive if x != voter]
-                target = random.choice(candidates)
+                # Sample vote strategy from learned policy
+                vote_logits = policy_logits[voter].get("vote_strategy", {})
+                if not vote_logits:
+                    vote_logits = {"lowest_trust": 0.0, "highest_threat": 0.0, "random": 0.0}
+                strategy = _sample_from(vote_logits)
+                action_counts[voter][f"vote_{strategy}"] += 1
+
+                trust_scores = env.state.trust_scores_dict.get(voter, {})
+                if strategy == "lowest_trust":
+                    # Vote for agent we trust least
+                    target = min(candidates, key=lambda c: trust_scores.get(c, 0.5))
+                elif strategy == "highest_threat":
+                    # Vote for agent with highest points (biggest threat)
+                    target = max(
+                        candidates,
+                        key=lambda c: env.state.agents_point_map.get(c, 0),
+                    )
+                else:
+                    target = random.choice(candidates)
+
                 action = PMAction(
                     agent_id=voter,
                     action_type=ActionType.VOTE,
                     vote_target=target,
-                    task_input="strategic vote",
+                    task_input=f"{strategy} vote",
                 )
                 _, rewards, _, _ = env.step(action)
                 for k, v in rewards.items():
@@ -374,7 +423,7 @@ def run_episode(
 
 
 def update_policy(
-    policy_logits: Dict[int, Dict[str, float]],
+    policy_logits: Dict[int, Dict],
     rewards: Dict[int, float],
     action_counts: Dict[int, Dict[str, int]],
     baseline: float,
@@ -383,25 +432,37 @@ def update_policy(
 ) -> None:
     for aid, counts in action_counts.items():
         advantage = rewards.get(aid, 0.0) - baseline
-        total = sum(counts.values())
-        if total == 0:
-            continue
-        probs = _softmax(policy_logits[aid])
-        uniform = 1.0 / 3.0
-        for label in ("truth", "twist", "lie"):
-            frac = counts[label] / total
-            # Simple policy-gradient style push toward actions used in good episodes.
-            policy_logits[aid][label] += lr * advantage * frac
-            # Entropy-like regularizer: gently keep distribution from collapsing.
-            policy_logits[aid][label] += entropy_coef * (uniform - probs[label])
+
+        # --- Update veracity policy ---
+        veracity_labels = ("truth", "twist", "lie")
+        v_total = sum(counts.get(l, 0) for l in veracity_labels)
+        if v_total > 0:
+            v_probs = _softmax({l: policy_logits[aid][l] for l in veracity_labels})
+            for label in veracity_labels:
+                frac = counts[label] / v_total
+                policy_logits[aid][label] += lr * advantage * frac
+                policy_logits[aid][label] += entropy_coef * (1.0 / 3.0 - v_probs[label])
+
+        # --- Update vote strategy policy ---
+        vote_labels = ("lowest_trust", "highest_threat", "random")
+        vote_logits = policy_logits[aid].setdefault(
+            "vote_strategy", {l: 0.0 for l in vote_labels}
+        )
+        vote_total = sum(counts.get(f"vote_{l}", 0) for l in vote_labels)
+        if vote_total > 0:
+            vote_probs = _softmax(vote_logits)
+            for label in vote_labels:
+                frac = counts.get(f"vote_{label}", 0) / vote_total
+                vote_logits[label] += lr * advantage * frac
+                vote_logits[label] += entropy_coef * (1.0 / 3.0 - vote_probs[label])
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Online RL trainer for Project Machiavelli.")
     parser.add_argument("--difficulty", choices=["easy", "medium", "hard"], default="easy")
-    parser.add_argument("--episodes", type=int, default=30)
+    parser.add_argument("--episodes", type=int, default=200)
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--lr", type=float, default=0.08)
+    parser.add_argument("--lr", type=float, default=0.15)
     parser.add_argument("--entropy_coef", type=float, default=0.02)
     parser.add_argument(
         "--policy_backend",
@@ -454,7 +515,12 @@ def main() -> None:
     env.reset(task=args.difficulty)
     agent_ids = list(env.agents.keys())
     policy_logits = {
-        aid: {"truth": 0.0, "twist": 0.0, "lie": 0.0}
+        aid: {
+            "truth": 0.0, "twist": 0.0, "lie": 0.0,
+            "vote_strategy": {
+                "lowest_trust": 0.0, "highest_threat": 0.0, "random": 0.0,
+            },
+        }
         for aid in agent_ids
     }
     unsloth_policy: Optional[UnslothPolicy] = None
@@ -528,6 +594,11 @@ def main() -> None:
         twist_count = sum(v["twist"] for v in action_counts.values())
         total_count = max(1, lie_count + truth_count + twist_count)
 
+        vlt = sum(v.get("vote_lowest_trust", 0) for v in action_counts.values())
+        vht = sum(v.get("vote_highest_threat", 0) for v in action_counts.values())
+        vrn = sum(v.get("vote_random", 0) for v in action_counts.values())
+        vote_total = max(1, vlt + vht + vrn)
+
         row = {
             "episode": ep,
             "mean_reward": round(mean_reward, 4),
@@ -535,13 +606,18 @@ def main() -> None:
             "lie_rate": round(lie_count / total_count, 4),
             "truth_rate": round(truth_count / total_count, 4),
             "twist_rate": round(twist_count / total_count, 4),
+            "vote_lowest_trust": round(vlt / vote_total, 4),
+            "vote_highest_threat": round(vht / vote_total, 4),
+            "vote_random": round(vrn / vote_total, 4),
             "trust_dispersion": round(trust_metrics["trust_dispersion"], 4),
         }
         rows.append(row)
         print(
             f"[ep {ep:03d}] reward={row['mean_reward']:.3f} "
             f"lie={row['lie_rate']:.2f} truth={row['truth_rate']:.2f} "
-            f"twist={row['twist_rate']:.2f} trust_disp={row['trust_dispersion']:.3f}"
+            f"twist={row['twist_rate']:.2f} "
+            f"vote=LT{row['vote_lowest_trust']:.0%}/HT{row['vote_highest_threat']:.0%}/R{row['vote_random']:.0%} "
+            f"trust_disp={row['trust_dispersion']:.3f}"
         )
 
     out_csv = Path(args.out_csv)

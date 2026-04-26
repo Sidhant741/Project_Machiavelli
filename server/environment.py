@@ -294,9 +294,8 @@ class PMEnvironment:
         # ── Phase 3 → 4 ─────────────────────────────────────────────
         elif phase == Phase.TASK_EXECUTION:
             if is_task_execution_complete(self.state, self.ctx):
-                _ = finalise_task_execution(
-                    self.state, self.agents, self.ctx, self.task_config
-                )
+                # State mutation only — rewards come from grader at end of day
+                finalise_task_execution(self.state, self.agents, self.ctx, self.task_config)
 
                 # Snapshot before clearing
                 self._task_inputs_snapshot = dict(self.ctx.pending_task_inputs)

@@ -1,7 +1,12 @@
-from graders.easy import EasyGrader
-from graders.medium import MediumGrader
-from graders.hard import HardGrader
-
+# After — relative imports with absolute fallback
+try:
+    from .easy import EasyGrader
+    from .medium import MediumGrader
+    from .hard import HardGrader
+except ImportError:
+    from graders.easy import EasyGrader
+    from graders.medium import MediumGrader
+    from graders.hard import HardGrader
 
 _GRADER_MAP = {
     "easy":   EasyGrader,
@@ -25,6 +30,8 @@ def get_grader(difficulty: str):
             f"Must be one of: {list(_GRADER_MAP.keys())}"
         )
     return _GRADER_MAP[difficulty]()
+
+
 
 
 __all__ = ['EasyGrader', 'MediumGrader', 'HardGrader', 'get_grader']
