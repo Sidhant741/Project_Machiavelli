@@ -76,105 +76,105 @@
     "2": [
         {
             "image": "images/Andhra/friendly_1.jpg",
-            "question": "I have a image → determine Indian state \na. andhra pradesh \nb. telegana \nc. karnataka \nd. tamil nadu",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. andhra pradesh\n            b. telegana\n            c. karnataka\n            d. tamil nadu\n            ",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Andhra/friendly_2.jpg",
-            "question": "I have a image → determine Indian state \na. andhra prades \nb. telegana \nc. karnataka \nd. tamil nadu ",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. andhra pradesh\n            b. telegana\n            c. karnataka\n            d. tamil nadu\n            ",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Andhra/friendly_3.jpg",
-            "question": "I have a image → determine Indian state \na. andhra prades \nb. telegana \nc. karnataka \nd. tamil nadu ",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. andhra pradesh\n            b. telegana\n            c. karnataka\n            d. tamil nadu\n            ",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Andhra/non_friendly_1.jpg",
-            "question": "I have a image → determine Indian state \na. andhra prades \nb. telegana \nc. karnataka \nd. tamil nadu ",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. andhra pradesh\n            b. telegana\n            c. karnataka\n            d. tamil nadu\n            ",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Andhra/non_friendly_2.jpg",
-            "question": "I have a image → determine Indian state \na. andhra prades \nb. telegana \nc. karnataka \nd. tamil nadu ",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. andhra pradesh\n            b. telegana\n            c. karnataka\n            d. tamil nadu\n            ",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Arunachal/friendly_1.jpg",
-            "question": "I have a image → determine Indian state \na. arunachal pradesh\nb. sikkim\nc. himachal pradesh\nd. west bengal",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. arunachal pradesh\n            b. sikkim\n            c. himachal pradesh\n            d. west bengal\n            ",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Arunachal/friendly_2.jpg",
-            "question": "I have a image → determine Indian state \na. arunachal pradesh\nb. sikkim\nc. himachal pradesh\nd. west bengal",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. arunachal pradesh\n            b. sikkim\n            c. himachal pradesh\n            d. west bengal\n            ",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Arunachal/friendly_3.jpg",
-            "question": "I have a image → determine Indian state \na. arunachal pradesh\nb. sikkim\nc. himachal pradesh\nd. west bengal",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. arunachal pradesh\n            b. sikkim\n            c. himachal pradesh\n            d. west bengal\n            ",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Arunachal/non_friendly_1.jpg",
-            "question": "I have a image → determine Indian state \na. arunachal pradesh\nb. sikkim\nc. himachal pradesh\nd. west bengal",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. arunachal pradesh\n            b. sikkim\n            c. himachal pradesh\n            d. west bengal\n            ",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Arunachal/non_friendly_2.jpg",
-            "question": "I have a image → determine Indian state \na. arunachal pradesh\nb. sikkim\nc. himachal pradesh\nd. west bengal",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. arunachal pradesh\n            b. sikkim\n            c. himachal pradesh\n            d. west bengal\n            ",
             "answer": "a",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Bengal/friendly_1.jpg",
-            "question": "I have a image → determine Indian state \na. assam\nb. chattisgarh\nc. sikkim\nd. west bengal ",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. assam\n            b. chattisgarh\n            c. sikkim\n            d. west bengal\n            ",
             "answer": "d",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Bengal/friendly_2.jpg",
-            "question": "I have a image → determine Indian state \na. assam\nb. chattisgarh\nc. sikkim\nd. west bengal ",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. assam\n            b. chattisgarh\n            c. sikkim\n            d. west bengal\n            ",
             "answer": "d",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Bengal/friendly_3.jpg",
-            "question": "I have a image → determine Indian state \na. assam\nb. chattisgarh\nc. sikkim\nd. west bengal ",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. assam\n            b. chattisgarh\n            c. sikkim\n            d. west bengal\n            ",
             "answer": "d",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Bengal/non_friendly_1.jpg",
-            "question": "I have a image → determine Indian state \na. assam\nb. chattisgarh\nc. sikkim\nd. west bengal ",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. assam\n            b. chattisgarh\n            c. sikkim\n            d. west bengal\n            ",
             "answer": "d",
             "type_of_question": "icq",
             "other information": null
         },
         {
             "image": "images/Bengal/non_friendly_2.jpg",
-            "question": "I have a image → determine Indian state \na. assam\nb. chattisgarh\nc. sikkim\nd. west bengal ",
+            "question": "\n            I have a image → determine Indian state\n            \n            a. assam\n            b. chattisgarh\n            c. sikkim\n            d. west bengal\n            ",
             "answer": "d",
             "type_of_question": "icq",
             "other information": null
@@ -182,469 +182,132 @@
     ],
     "3": [
         {
-            "question":"What is the result of the execution of the following code: \n1. isinstance(type, object)  \n2. isinstance(object, type)  \n3. isinstance(object, object)  \n4. isinstance(type, type)  \nChoose the correct option: \na. (True, True, True, True) \nb. (True, False, False, True) \nc. (True, False, True, True) \nd. (True, False, False, False) ",
+            "question": "What is the result of the execution of the following code:\n            1. isinstance(type, object) \n\n            2. isinstance(object, type) \n\n            3. isinstance(object, object) \n\n            4. isinstance(type, type)\n\n            Choose the correct option:\n            a. (True, True, True, True)\n            b. (True, False, False, True)\n            c. (True, False, True, True)\n            d. (True, False, False, False)\n            ",
             "answer": "a",
             "type_of_question": "mcq",
-            "other information": null,
+            "other_information": null
         },
         {
-            "question":"
-            What is the result of the execution of the following code: \n>>> sum("")\n>>> sum("", [])\n>>> sum("", {}) \nChoose the correct option:\na. (TypeError, TypeError, TypeError)\nb. (0, TypeError, TypeError)\nc. (TypeError, [], TypeError)\nd. (0, [], {})",
+            "question": "\n            What is the result of the execution of the following code:\n\n            >>> sum(\"\")\n            >>> sum(\"\", [])\n            >>> sum(\"\", {})\n\n            Choose the correct option:\n            a. (TypeError, TypeError, TypeError)\n            b. (0, TypeError, TypeError)\n            c. (TypeError, [], TypeError)\n            d. (0, [], {})\n            ",
             "answer": "d",
             "type_of_question": "mcq",
-            "other information": null,
+            "other_information": null
         },
         {
-            "question":"What is the result of the execution of the following code: \nsum([ \n    el.imag  \n    for el in [ \n        0, 5, 10e9, float('inf'), float('nan') \n    ] \n])  \nChoose the correct option: \na. NaN \nb. 0.0 \nc. SyntaxError \nd. math.inf ",
+            "question": "What is the result of the execution of the following code:\n\n            >>> sum([\n                el.imag \n                for el in [\n                    0,\n                    5,\n                    10e9, float('inf'), float('nan')\n                ]\n            ])\n\n            Choose the correct option:\n            a. NaN\n            b. 0.0\n            c. SyntaxError\n            d. math.inf\n            ",
             "answer": "b",
             "type_of_question": "mcq",
-            "other information": null,
+            "other_information": null
         },
         {
-            "question":" \nWhat is the result of the execution of the following code:  \n>>> max(-0.0, 0.0)  \nChoose the correct option: \na. 0.0 \nb. AttributeError \nc. -0.0 \nd. NaN",
+            "question": "\n            What is the result of the execution of the following code:\n\n            >>> max(-0.0, 0.0)\n\n            Choose the correct option:\n            a. 0.0\n            b. AttributeError\n            c. -0.0\n            d. NaN\n            ",
             "answer": "c",
             "type_of_question": "mcq",
-            "other information": null,
+            "other_information": null
         },
         {
-            "question":"
-            Choose the correct option for the given below code: \n' \na = 256 \nb = 256 \nprint(a is b) \nx = 257 \ny = 257 \nprint(x is y) \n' \na. True True \nb. True False \nc. False False \nd. Implementation-dependent ",
+            "question": "\n            Choose the correct option for the given below code:\n\n            \n            a = 256\n            b = 256\n            print(a is b)\n\n            x = 257\n            y = 257\n            print(x is y)\n            \n\n            a. True True\n            b. True False\n            c. False False\n            d. Implementation-dependent\n            ",
             "answer": "d",
             "type_of_question": "mcq",
-            "other information": null,
+            "other_information": null
         },
         {
-            "question":"What is the result of the execution of the following code: \ndef f(x, acc=[]): \n    acc.append(lambda: x) \n    x += 1 \n    return acc \na = f(1)  \nb = f(2)  \nprint(a[0](), a[1]()) \nChoose the correct option: \na. 1 2 \nb. 2 3 \nc. 1 1 \nd. 2 2 ",
+            "question": "\n            What is the result of the execution of the following code:\n\n            def f(x, acc=[]):\n                acc.append(lambda: x)\n                x += 1\n                return acc\n\n            a = f(1)\n            b = f(2)\n\n            print(a[0](), a[1]())\n\n            Choose the correct option:\n            Options\n\n            a. 1 2\n            b. 2 3\n            c. 1 1\n            d. 2 2\n            ",
             "answer": "b",
             "type_of_question": "mcq",
-            "other information": null,
+            "other_information": null
         },
         {
-            "question":"What is the result of the execution of the following code: \n \nclass D: \n    def __get__(self, obj, owner): \n        return "descriptor" \n \nclass C: \n    x = D() \n \nc = C() \nc.__dict__['x'] = 'instance' \nprint(c.x) \n \nChoose the correct option: \na. instance \nb. descriptor \nc. AttributeError \nd. Depends on Python version ",
+            "question": "\n            What is the result of the execution of the following code:\n\n            class D:\n                def __get__(self, obj, owner):\n                    return \"descriptor\"\n\n            class C:\n                x = D()\n\n            c = C()\n            c.__dict__['x'] = 'instance'\n            print(c.x)\n\n            Choose the correct option:\n            a. instance\n            b. descriptor\n            c. AttributeError\n            d. Depends on Python version\n            ",
             "answer": "a",
             "type_of_question": "mcq",
-            "other information": null,
+            "other_information": null
         },
         {
-            "question":"
-            import asyncio
-
-            # ---------- __init_subclass__ in diamond inheritance ----------
-            calls = []
-
-            class Base:
-                def __init_subclass__(cls, **kwargs):
-                    calls.append('Base')
-                    super().__init_subclass__(**kwargs)
-
-            class A(Base):
-                def __init_subclass__(cls, **kwargs):
-                    calls.append('A')
-                    super().__init_subclass__(**kwargs)
-
-            class B(Base):
-                def __init_subclass__(cls, **kwargs):
-                    calls.append('B')
-                    super().__init_subclass__(**kwargs)
-
-            class C(A, B):
-                pass
-
-            class D(C):
-                pass
-
-            # ---------- Data descriptor ----------
-            class AddOneDescriptor:
-                def __set_name__(self, owner, name):
-                    self.attr_name = name
-
-                def __get__(self, obj, objtype=None):
-                    if obj is None:
-                        return self
-                    return obj.__dict__.get(self.attr_name, 0)
-
-                def __set__(self, obj, value):
-                    obj.__dict__[self.attr_name] = value + 1
-
-            class MyClass:
-                x = AddOneDescriptor()
-
-            obj = MyClass()
-            obj.x = 10
-            desc_val = obj.x
-
-            # ---------- Closure late binding ----------
-            def create_adders():
-                adders = []
-                for i in range(3):
-                    adders.append(lambda x: x + i)
-                return adders
-
-            a0, a1, a2 = create_adders()
-            adder_results = [a0(1), a1(1), a2(1)]
-
-            # ---------- Generator with finally ----------
-            def gen():
-                try:
-                    yield 1
-                    return 2
-                finally:
-                    print("finally")
-
-            g = gen()
-            val1 = next(g)
-            try:
-                val2 = next(g)
-            except StopIteration as e:
-                val2 = e.value
-
-            # ---------- Async run ----------
-            async def async_main():
-                return 42
-
-            res_async = asyncio.run(async_main())
-
-            # ---------- Final output ----------
-            output = (len(calls), desc_val, adder_results, val1, val2, res_async)
-            print(output)
-            "
-            
-            Now select the which of the following statements are TRUE? (Select all that apply.)
-
-            a. The final length of the calls list (first element of the printed tuple) is 8.
-            b. The value of desc_val is 10.
-            c. adder_results equals [1, 2, 3].
-            d. The string "finally" is printed before the final tuple appears on the console.
-            e. The last element of the printed tuple is 42.
-            f. If the try/finally block inside gen() were completely removed, the program’s output would be identical.
-            g. Changing the loop body to adders.append(lambda x, i=i: x + i) (default argument capture) would make adder_results equal [1, 2, 3].
-            h. The __init_subclass__ method of class A is invoked when class C is created.
-            ,
+            "question": "\n            import asyncio\n\n            # ---------- __init_subclass__ in diamond inheritance ----------\n            calls = []\n\n            class Base:\n                def __init_subclass__(cls, **kwargs):\n                    calls.append('Base')\n                    super().__init_subclass__(**kwargs)\n\n            class A(Base):\n                def __init_subclass__(cls, **kwargs):\n                    calls.append('A')\n                    super().__init_subclass__(**kwargs)\n\n            class B(Base):\n                def __init_subclass__(cls, **kwargs):\n                    calls.append('B')\n                    super().__init_subclass__(**kwargs)\n\n            class C(A, B):\n                pass\n\n            class D(C):\n                pass\n\n            # ---------- Data descriptor ----------\n            class AddOneDescriptor:\n                def __set_name__(self, owner, name):\n                    self.attr_name = name\n\n                def __get__(self, obj, objtype=None):\n                    if obj is None:\n                        return self\n                    return obj.__dict__.get(self.attr_name, 0)\n\n                def __set__(self, obj, value):\n                    obj.__dict__[self.attr_name] = value + 1\n\n            class MyClass:\n                x = AddOneDescriptor()\n\n            obj = MyClass()\n            obj.x = 10\n            desc_val = obj.x\n\n            # ---------- Closure late binding ----------\n            def create_adders():\n                adders = []\n                for i in range(3):\n                    adders.append(lambda x: x + i)\n                return adders\n\n            a0, a1, a2 = create_adders()\n            adder_results = [a0(1), a1(1), a2(1)]\n\n            # ---------- Generator with finally ----------\n            def gen():\n                try:\n                    yield 1\n                    return 2\n                finally:\n                    print(\"finally\")\n\n            g = gen()\n            val1 = next(g)\n            try:\n                val2 = next(g)\n            except StopIteration as e:\n                val2 = e.value\n\n            # ---------- Async run ----------\n            async def async_main():\n                return 42\n\n            res_async = asyncio.run(async_main())\n\n            # ---------- Final output ----------\n            output = (len(calls), desc_val, adder_results, val1, val2, res_async)\n            print(output)\n            \n            Now select the which of the following statements are TRUE? (Select all that apply.)\n\n            a. The final length of the calls list (first element of the printed tuple) is 8.\n            b. The value of desc_val is 10.\n            c. adder_results equals [1, 2, 3].\n            d. The string \"finally\" is printed before the final tuple appears on the console.\n            e. The last element of the printed tuple is 42.\n            f. If the try/finally block inside gen() were completely removed, the program’s output would be identical.\n            g. Changing the loop body to adders.append(lambda x, i=i: x + i) (default argument capture) would make adder_results equal [1, 2, 3].\n            h. The __init_subclass__ method of class A is invoked when class C is created.\n            ",
             "answer": "a,d,e,g,h",
             "type_of_question": "msq",
-            "other information": null,
+            "other_information": null
         },
         {
-            "question":"
-            import weakref
-            import asyncio
-
-            class AddOne:
-                def __set_name__(self, owner, name):
-                    self.name = name
-                def __get__(self, obj, objtype=None):
-                    if obj is None:
-                        return self
-                    return obj.__dict__.get(self.name, 0)
-                def __set__(self, obj, value):
-                    obj.__dict__[self.name] = value + 1
-
-            class MyClass:
-                __slots__ = ('x', '__dict__')
-                y = AddOne()
-
-                def __init__(self, val):
-                    self.x = val
-                    self.y = val          # uses the descriptor
-
-                def __del__(self):
-                    print("Deleted", self.x)
-
-            def finalizer(obj):
-                print("Finalized", obj.x)
-
-            async def async_gen():
-                yield 1
-                await asyncio.sleep(0)
-                yield 2
-                return 3
-
-            async def main():
-                results = []
-                async for val in async_gen():
-                    results.append(val)
-                return results
-
-            # ---------- weak reference & deletion ----------
-            obj = MyClass(10)
-            ref = weakref.ref(obj, finalizer)
-            del obj
-
-            # ---------- descriptor vs instance dict ----------
-            obj2 = MyClass(5)
-            obj2.__dict__['y'] = 99      # bypass the descriptor
-            desc_val = obj2.y
-
-            # ---------- asyncio ----------
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            async_results = loop.run_until_complete(main())
-            loop.close()
-
-            print("Desc:", desc_val, "Async:", async_results)
-
-            Which statements are TRUE?
-
-            a. Instantiating MyClass with __slots__ containing '__dict__' raises a TypeError because __slots__ and __dict__ cannot coexist.
-            b. After obj2 = MyClass(5), the value stored in obj2.__dict__['y'] is 5.
-            c. The value of desc_val printed is 99.
-            d. The call to del obj immediately prints "Deleted 10" followed by "Finalized 10".
-            e. async_results is [1, 2, 3].
-            f. If the line return 3 in async_gen is removed, the value of async_results remains unchanged.
-            g. Replacing obj2.__dict__['y'] = 99 with obj2.y = 99 would make desc_val equal 100.
-            h. The finalizer callback is guaranteed to be called before the program exits, even if del obj were removed.",
+            "question": "\n            import weakref\n            import asyncio\n\n            class AddOne:\n                def __set_name__(self, owner, name):\n                    self.name = name\n                def __get__(self, obj, objtype=None):\n                    if obj is None:\n                        return self\n                    return obj.__dict__.get(self.name, 0)\n                def __set__(self, obj, value):\n                    obj.__dict__[self.name] = value + 1\n\n            class MyClass:\n                __slots__ = ('x', '__dict__')\n                y = AddOne()\n\n                def __init__(self, val):\n                    self.x = val\n                    self.y = val          # uses the descriptor\n\n                def __del__(self):\n                    print(\"Deleted\", self.x)\n\n            def finalizer(obj):\n                print(\"Finalized\", obj.x)\n\n            async def async_gen():\n                yield 1\n                await asyncio.sleep(0)\n                yield 2\n                return 3\n\n            async def main():\n                results = []\n                async for val in async_gen():\n                    results.append(val)\n                return results\n\n            # ---------- weak reference & deletion ----------\n            obj = MyClass(10)\n            ref = weakref.ref(obj, finalizer)\n            del obj\n\n            # ---------- descriptor vs instance dict ----------\n            obj2 = MyClass(5)\n            obj2.__dict__['y'] = 99      # bypass the descriptor\n            desc_val = obj2.y\n\n            # ---------- asyncio ----------\n            loop = asyncio.new_event_loop()\n            asyncio.set_event_loop(loop)\n            async_results = loop.run_until_complete(main())\n            loop.close()\n\n            print(\"Desc:\", desc_val, \"Async:\", async_results)\n\n            Which statements are TRUE?\n\n            a. Instantiating MyClass with __slots__ containing '__dict__' raises a TypeError because __slots__ and __dict__ cannot coexist.\n            b. After obj2 = MyClass(5), the value stored in obj2.__dict__['y'] is 5.\n            c. The value of desc_val printed is 99.\n            d. The call to del obj immediately prints \"Deleted 10\" followed by \"Finalized 10\".\n            e. async_results is [1, 2, 3].\n            f. If the line return 3 in async_gen is removed, the value of async_results remains unchanged.\n            g. Replacing obj2.__dict__['y'] = 99 with obj2.y = 99 would make desc_val equal 100.\n            h. The finalizer callback is guaranteed to be called before the program exits, even if del obj were removed.\n            ",
             "answer": "c,d,f,g",
             "type_of_question": "msq",
-
-            "other information": null,
+            "other_information": null
         },
         {
-            "question":"
-            class Meta(type):
-                def __call__(cls, *args, **kwargs):
-                    print("Meta call")
-                    instance = super().__call__(*args, **kwargs)
-                    return instance
-
-            class Base(metaclass=Meta):
-                def __new__(cls, x):
-                    print("Base new")
-                    return super().__new__(cls)
-                def __init__(self, x):
-                    print("Base init")
-                    self.x = x
-
-            class Derived(Base):
-                def __new__(cls, x):
-                    print("Derived new")
-                    return super().__new__(cls, x)
-                def __init__(self, x):
-                    print("Derived init")
-                    super().__init__(x + 1)
-
-            def decorator(func):
-                def wrapper(*args, **kwargs):
-                    print("Wrapper before")
-                    result = func(*args, **kwargs)
-                    print("Wrapper after")
-                    return result
-                return wrapper
-
-            @decorator
-            def greet(name):
-                print(f"Hello {name}")
-                return name.upper()
-
-            def gen():
-                x = yield 1
-                y = yield x + 2
-                yield y + 3
-
-            g = gen()
-            first = next(g)
-            second = g.send(10)
-            try:
-                third = g.send(20)
-            except StopIteration:
-                third = None
-
-            # ---------- final output ----------
-            print("Results:", Derived(5).x, greet("world"), first, second, third)
-
-
-            Which statements are TRUE?
-
-            a. The value printed as Derived(5).x is 6.
-            b. During the execution of print(...), the string "Meta call" appears exactly once in the output.
-            c. The call greet("world") returns the string "Hello world".
-            d. The final print line is Results: 6 WORLD 1 12 23.
-            e. The variable third ends up as None because of the StopIteration exception.
-            f. The output produced by the print statement will show "Wrapper before" before "Hello world" and "Wrapper after" after "Hello world".
-            g. If we remove super().__init__(x + 1) from Derived.__init__, then Derived(5).x will still be 6.
-            h. The generator gen() yields exactly three values before exhausting.
-            ",
-            "answer": "a, b, d, f, h",
+            "question": "\n            class Meta(type):\n                def __call__(cls, *args, **kwargs):\n                    print(\"Meta call\")\n                    instance = super().__call__(*args, **kwargs)\n                    return instance\n\n            class Base(metaclass=Meta):\n                def __new__(cls, x):\n                    print(\"Base new\")\n                    return super().__new__(cls)\n                def __init__(self, x):\n                    print(\"Base init\")\n                    self.x = x\n\n            class Derived(Base):\n                def __new__(cls, x):\n                    print(\"Derived new\")\n                    return super().__new__(cls, x)\n                def __init__(self, x):\n                    print(\"Derived init\")\n                    super().__init__(x + 1)\n\n            def decorator(func):\n                def wrapper(*args, **kwargs):\n                    print(\"Wrapper before\")\n                    result = func(*args, **kwargs)\n                    print(\"Wrapper after\")\n                    return result\n                return wrapper\n\n            @decorator\n            def greet(name):\n                print(f\"Hello {name}\")\n                return name.upper()\n\n            def gen():\n                x = yield 1\n                y = yield x + 2\n                yield y + 3\n\n            g = gen()\n            first = next(g)\n            second = g.send(10)\n            try:\n                third = g.send(20)\n            except StopIteration:\n                third = None\n\n            # ---------- final output ----------\n            print(\"Results:\", Derived(5).x, greet(\"world\"), first, second, third)\n\n\n            Which statements are TRUE?\n\n            a. The value printed as Derived(5).x is 6.\n            b. During the execution of print(...), the string \"Meta call\" appears exactly once in the output.\n            c. The call greet(\"world\") returns the string \"Hello world\".\n            d. The final print line is Results: 6 WORLD 1 12 23.\n            e. The variable third ends up as None because of the StopIteration exception.\n            f. The output produced by the print statement will show \"Wrapper before\" before \"Hello world\" and \"Wrapper after\" after \"Hello world\".\n            g. If we remove super().__init__(x + 1) from Derived.__init__, then Derived(5).x will still be 6.\n            h. The generator gen() yields exactly three values before exhausting.\n            ",
+            "answer": "a,b,d,f,h",
             "type_of_question": "msq",
-            "other information": null,
-        },
+            "other_information": null
+        }
     ],
     "4": [
         {
-            "question": "
-            X → Y → X is the son of Y
-            X ← Y → X is the daughter of Y
-            X ↔ Y → X is the spouse of Y (gender neutral)
-
-            Given:
-            A ← B ← C ↔ D ← E ← F
-
-            Which of the following is definitely true?
-            a. A is the grandson of C.
-            b. E is the mother‑in‑law of C.
-            c. F is the sibling of A.
-            d. D is the daughter‑in‑law of E.
-            ",
+            "question": "\n            X -> Y -> X is the son of Y\n            X <- Y -> X is the daughter of Y\n            X <-> Y -> X is the spouse of Y (gender neutral)\n\n            Given:\n            A <- B <- C <-> D <- E <- F\n\n            Which of the following is definitely true?\n            a. A is the grandson of C.\n            b. E is the mother-in-law of C.\n            c. F is the sibling of A.\n            d. D is the daughter-in-law of E.\n            ",
             "answer": "b",
             "type_of_question": "mcq",
-            "other information": ,
+            "other_information": null
         },
         {
-            "question": "
-            A + B → A is the brother of B
-            A – B → A is the sister of B
-            A × B → A is the father of B
-            A ÷ B → A is the mother of B
-
-            If M × N + O – P is true, which of the following is false?
-            a. M is a parent of O.
-            b. O is the brother of N.
-            c. P is the sibling of O.
-            d. N is the sister of O
-            ",
+            "question": "\n            A + B -> A is the brother of B\n            A - B -> A is the sister of B\n            A * B -> A is the father of B\n            A / B -> A is the mother of B\n\n            If M * N + O - P is true, which of the following is false?\n            a. M is a parent of O.\n            b. O is the brother of N.\n            c. P is the sibling of O.\n            d. N is the sister of O\n            ",
             "answer": "b",
             "type_of_question": "mcq",
-            "other information": ,
+            "other_information": null
         },
         {
-            "question": "
-            P & Q → P is the father of Q
-            P # Q → P is the daughter of Q
-            P @ Q → P is the brother of Q
-            P $ Q → P is the wife of Q
-
-            Which expression means R is the son‑in‑law of S?
-            a. R $ T # S
-            b. R @ T $ S
-            c. T $ R & S
-            d. S & T $ R
-            ",
+            "question": "\n            P & Q -> P is the father of Q\n            P # Q -> P is the daughter of Q\n            P @ Q -> P is the brother of Q\n            P $ Q -> P is the wife of Q\n\n            Which expression means R is the son-in-law of S?\n            a. R $ T # S\n            b. R @ T $ S\n            c. T $ R & S\n            d. S & T $ R\n            ",
             "answer": "d",
             "type_of_question": "mcq",
-            "other information": ,
+            "other_information": null
         },
         {
-            "question":"
-            A man said to a lady “Your mother’s husband’s sister is my aunt”. 
-            How is the lady related to man ? 
-            a. Sister 
-            b. Mother 
-            c. Daughter 
-            d. Granddaughter
-            ",
+            "question": "\n            A man said to a lady 'Your mother's husband's sister is my aunt'. \n            How is the lady related to man ? \n            a. Sister \n            b. Mother \n            c. Daughter \n            d. Granddaughter\n            ",
             "answer": "a",
             "type_of_question": "mcq",
-            "other information": ,
+            "other_information": null
         },
         {
-            "question":"
-            Johnny's father is the brother-in-law of Nisha's only sister. 
-            How is Johnny related to Nisha?
-            a. Son
-            b. Grandson
-            c. Father
-            d. Cousin
-            ",
+            "question": "\n            Johnny's father is the brother-in-law of Nisha's only sister. \n            How is Johnny related to Nisha?\n            a. Son\n            b. Grandson\n            c. Father\n            d. Cousin\n            ",
             "answer": "a",
             "type_of_question": "mcq",
-            "other information": ,
+            "other_information": null
         },
         {
-            "question": "
-            Introducing a boy, Amar said, "He is the son of my maternal grandfather's son." 
-            How is that boy related to Amar?
-            a. Maternal uncle
-            b. Nephew
-            c. Brother
-            d. Cousin
-            ",
+            "question": "\n            Introducing a boy, Amar said,\n            'He is the son of my maternal grandfather's son.' \n            How is that boy related to Amar?\n            a. Maternal uncle\n            b. Nephew\n            c. Brother\n            d. Cousin\n            ",
             "answer": "d",
             "type_of_question": "mcq",
-            "other information": ,
+            "other_information": null
         },
         {
-            "question":"
-            Introducing a boy Ankit said," He is the son of daughter of my grandfather's son".
-            How is that boy related to Ankit?
-            a. Cousin
-            b. Brother
-            c. Father-in-law
-            d. Nephew
-            ",
+            "question": "\n            Introducing a boy Ankit said,\n            'He is the son of daughter of my grandfather's son'.\n            How is that boy related to Ankit?\n            a. Cousin\n            b. Brother\n            c. Father-in-law\n            d. Nephew\n            ",
             "answer": "d",
             "type_of_question": "mcq",
-            "other information": ,
+            "other_information": null
         },
         {
-            "question":"
-            Introducing a boy, Amarjeet says, "He is the son of the daughter of my father."
-            How is boy related to the Amarjeet?
-            a. Nephew
-            b. Maternal uncle
-            c. Son
-            d. Cousin
-            ",
+            "question": "\n            Introducing a boy, Amarjeet says,\n            'He is the son of the daughter of my father.'\n            How is boy related to the Amarjeet?\n            a. Nephew\n            b. Maternal uncle\n            c. Son\n            d. Cousin\n            ",
             "answer": "a",
             "type_of_question": "mcq",
-            "other information": ,
+            "other_information": null
         },
         {
-            "question":"
-            Study the information given below carefully and accordingly answer the following questions:
-                A+B means A is married to B
-                A-B means A is sister of B
-                A*B means A is brother of B
-                A×B means A is father of B
-
-            Based on the equation given below, how is J related to I?
-                K * J × L + I * P
-
-            a. Mother
-            b. Father
-            c. Mother in law
-            d. Father in law
-            e. Sister
-            ",
+            "question": "\n            Study the information given below carefully and accordingly answer the following questions:\n                A+B means A is married to B\n                A-B means A is sister of B\n                A*B means A is brother of B\n                AxB means A is father of B\n\n            Based on the equation given below, how is J related to I?\n                K * J x L + I * P\n\n            a. Mother\n            b. Father\n            c. Mother in law\n            d. Father in law\n            e. Sister\n            ",
             "answer": "d",
             "type_of_question": "mcq",
-            "other information": ,
+            "other_information": null
         },
         {
-            "question":"
-            While looking at old photographs, Sangeeta came across a photo and pointing towards a boy in it,
-            Sangeeta said “He is the only son of the only daughter of my Grandfather.” How is Sangeeta related to
-            that boy?
-
-            a. Mother
-            b. Daughter
-            c. Sister
-            d. Grandmother
-            e. Niece
-            ",
+            "question": "\n            While looking at old photographs, Sangeeta came across a photo and pointing towards a boy in it,\n            Sangeeta said 'He is the only son of the only daughter of my Grandfather.' How is Sangeeta related to\n            that boy?\n\n            a. Mother\n            b. Daughter\n            c. Sister\n            d. Grandmother\n            e. Niece\n            ",
             "answer": "c",
             "type_of_question": "mcq",
-            "other information": ,
+            "other_information": null
         },
         {
-            "question":"
-            Study the given information and answer the following questions:
-            A family is planning an International vacation and six members of the family have agreed to go on this
-            trip. The six members of the family are A, B, C, D, E and F.
-            ● A and C is a married couple and they have a child B
-            ● C is not the mother of B
-            ● E is the brother of C
-            ● F is the brother of B and D is the daughter of A
-            
-            Which of the given statements is incorrect?
-            a. E is the Brother-in-law of A
-            b. D is the sister of F
-            c. F is male
-            d. A is female
-            e. None of the given statements is incorrect
-            ",
+            "question": "\n            Study the given information and answer the following questions:\n            A family is planning an International vacation and six members of the family have agreed to go on this\n            trip. The six members of the family are A, B, C, D, E and F.\n            + A and C is a married couple and they have a child B\n            + C is not the mother of B\n            + E is the brother of C\n            + F is the brother of B and D is the daughter of A\n            \n            Which of the given statements is incorrect?\n            a. E is the Brother-in-law of A\n            b. D is the sister of F\n            c. F is male\n            d. A is female\n            e. None of the given statements is incorrect\n            ",
             "answer": "c",
             "type_of_question": "mcq",
-            "other information": ,
-        },
-        
+            "other_information": null
+        }
     ]
 }

@@ -1,0 +1,38 @@
+{
+  "episodes": 30,
+  "difficulty": "easy",
+  "avg_reward_first_third": 6.7033,
+  "avg_reward_last_third": 6.17,
+  "avg_lie_rate_first_third": 0.28,
+  "avg_lie_rate_last_third": 0.42,
+  "avg_trust_dispersion_first_third": 0.12,
+  "avg_trust_dispersion_last_third": 0.075,
+  "policy_backend": "unsloth",
+  "entity_mode": "independent_unsloth_per_agent",
+  "unsloth_model": "unsloth/Qwen2.5-0.5B-Instruct",
+  "unsloth_per_agent_models": [
+    "Qwen/Qwen2.5-0.5B-Instruct",
+    "google/gemma-3-270m-it",
+    "Qwen/Qwen2.5-0.5B-Instruct"
+  ],
+  "hf_model": null,
+  "hf_per_agent_models": null,
+  "entropy_coef": 0.03,
+  "final_policy_logits": {
+    "0": {
+      "truth": 0.6053435646897012,
+      "twist": -1.0677820392103559,
+      "lie": 0.11838317896884103
+    },
+    "1": {
+      "truth": 0.07925277764974756,
+      "twist": -0.2518004798187573,
+      "lie": -0.667507593382803
+    },
+    "2": {
+      "truth": -1.5508413575584645,
+      "twist": 1.0446440918704019,
+      "lie": 0.10614197013624971
+    }
+  }
+}

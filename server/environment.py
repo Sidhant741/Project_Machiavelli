@@ -35,6 +35,7 @@ try:
     )
     from .compression import compress_day, store_day_summaries, compress_episode
     from .utils import llm_call
+    from ..graders import get_grader
 except ImportError:
     from models import (
         Agent, PMState, PMObservation, PMAction,
@@ -53,6 +54,7 @@ except ImportError:
     )
     from server.compression import compress_day, store_day_summaries, compress_episode
     from server.utils import llm_call
+    from graders import get_grader
 
 
 class PMEnvironment:
@@ -127,6 +129,8 @@ class PMEnvironment:
         cfg = GAME_CONFIGS[self.task]
         self.task_config = cfg
 
+        self.grader = get_grader(self.task)
+
         n_agents: int      = cfg["n_agents"]
         task_type_str: str = cfg.get("task_type", "individual")
         task_type = (
@@ -136,10 +140,32 @@ class PMEnvironment:
 
         agent_ids = list(range(n_agents))
 
+        # Seed from prior snapshots if a previous episode recorded them
+        def _prior_trust(aid: int, others: List[int]) -> Dict[int, float]:
+            snap = self.global_inference_store.get_latest_prior(aid)
+            if snap is None:
+                return {other: 0.5 for other in others if other != aid}
+            # Carry over trust for peers that also exist in this episode
+            base = {other: snap.final_trust_scores.get(other, 0.5)
+                    for other in others if other != aid}
+            return base
+
         self.agents = {
             aid: Agent(
                 id=aid,
-                trust_scores={other: 0.5 for other in agent_ids if other != aid},
+                trust_scores=_prior_trust(aid, agent_ids),
+                truthful_prior=(
+                    self.global_inference_store.get_latest_prior(aid).truthful_prior
+                    if self.global_inference_store.get_latest_prior(aid) else 0.5
+                ),
+                deception_prior=(
+                    self.global_inference_store.get_latest_prior(aid).deception_prior
+                    if self.global_inference_store.get_latest_prior(aid) else 0.5
+                ),
+                risk_beta=(
+                    self.global_inference_store.get_latest_prior(aid).risk_beta
+                    if self.global_inference_store.get_latest_prior(aid) else 1.0
+                ),
             )
             for aid in agent_ids
         }
@@ -151,7 +177,7 @@ class PMEnvironment:
             task_type=task_type,
             task_rules=self._describe_task_rules(cfg),
             trust_scores_dict={
-                aid: {other: 0.5 for other in agent_ids if other != aid}
+                aid: dict(self.agents[aid].trust_scores)
                 for aid in agent_ids
             },
             agents_point_map={aid: 0 for aid in agent_ids},
@@ -268,11 +294,8 @@ class PMEnvironment:
         # ── Phase 3 → 4 ─────────────────────────────────────────────
         elif phase == Phase.TASK_EXECUTION:
             if is_task_execution_complete(self.state, self.ctx):
-                task_rewards = finalise_task_execution(
-                    self.state, self.agents, self.ctx, self.task_config
-                )
-                for k, v in task_rewards.items():
-                    rewards[k] = rewards.get(k, 0.0) + v
+                # State mutation only — rewards come from grader at end of day
+                finalise_task_execution(self.state, self.agents, self.ctx, self.task_config)
 
                 # Snapshot before clearing
                 self._task_inputs_snapshot = dict(self.ctx.pending_task_inputs)
@@ -291,12 +314,52 @@ class PMEnvironment:
         # ── Phase 5 → next day / game over ──────────────────────────
         elif phase == Phase.VOTING:
             if is_voting_complete(self.state, self.ctx):
+                n_initial = len(self.agents)
+                is_last_day = (self.state.day >= n_initial - 1)
+                
+                # We need to compute if there's a tie in regular voting first
+                vote_counts = {aid: 0 for aid in self.state.alive_agents}
+                for _voter, target in self.ctx.pending_votes.items():
+                    vote_counts[target] = vote_counts.get(target, 0) + 1
+                    
+                has_votes = bool(vote_counts)
+                max_votes = max(vote_counts.values()) if has_votes else 0
+                tied_agents = [a for a, v in vote_counts.items() if v == max_votes]
+                is_tie = len(tied_agents) > 1
 
-                vote_rewards, eliminated = finalise_voting(
+                is_showdown = (len(self.state.alive_agents) == 2 and is_last_day)
+                
+                # "in case of tie of last day, then use jurywin"
+                # If it's the last day and there is a tie, we escalate to a jury vote between the tied agents
+                # (Or if it's a standard showdown between 2 agents)
+                if is_showdown or (is_last_day and is_tie and len(tied_agents) == 2):
+                    self._run_compression()
+
+                    if is_showdown:
+                        finalist_1, finalist_2 = self.state.alive_agents[0], self.state.alive_agents[1]
+                    else:
+                        finalist_1, finalist_2 = tied_agents[0], tied_agents[1]
+
+                    _ = self._finalise_jury_vote(finalist_1, finalist_2)
+
+                    # Compute final day rewards for all agents alive before the showdown
+                    alive_before_jury = list(self.state.alive_agents)
+                    for aid in alive_before_jury:
+                        rewards[aid] = self.grader(aid, self.state, self.task_config)
+
+                    self.is_done = True
+                    self._run_episode_compression()
+                    return rewards
+
+                # Normal day logic: eliminate one agent based on votes
+                alive_before_elimination = list(self.state.alive_agents)
+                _, eliminated = finalise_voting(
                     self.state, self.agents, self.ctx, self._vote_reasons
                 )
-                for k, v in vote_rewards.items():
-                    rewards[k] = rewards.get(k, 0.0) + v
+
+                # Compute daily rewards for all agents alive during this day's vote
+                for aid in alive_before_elimination:
+                    rewards[aid] = self.grader(aid, self.state, self.task_config)
 
                 self._run_compression()
 
@@ -309,22 +372,9 @@ class PMEnvironment:
                 self.ctx.reset_day()
                 self._vote_reasons = {}
 
-                if len(self.state.alive_agents) == 2:
-                    jury_rewards = self._finalise_jury_vote(
-                        self.state.alive_agents[0],
-                        self.state.alive_agents[1],
-                    )
-
-                    for aid, r in jury_rewards.items():
-                        rewards[aid] = rewards.get(aid, 0.0) + r
-
+                if self.state.is_game_over:
                     self.is_done = True
                     self._run_episode_compression()
-
-                elif self.state.is_game_over:
-                    self.is_done = True
-                    self._run_episode_compression()
-
                 else:
                     self.state.day += 1
                     self.state.phase = Phase.TASK_REVEAL
@@ -603,6 +653,13 @@ class PMEnvironment:
         self.state.jury_verdict = verdict
         self.state.game_winner  = winner
  
+        # Eliminate the loser of the jury vote to ensure only one agent is left
+        loser = finalist_b if winner == finalist_a else finalist_a
+        if loser in self.state.alive_agents:
+            self.state.alive_agents.remove(loser)
+            self.state.agent_removed_dict[loser] = self.state.day
+            self.agents[loser].alive = False
+
         # Winner bonus reward
         return {
             finalist_a: 2.0 if finalist_a == winner else 0.0,
