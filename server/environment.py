@@ -107,7 +107,7 @@ class PMEnvironment:
     # reset()
     # ------------------------------------------------------------------
 
-    def reset(self, task: Optional[str] = None) -> Dict[int, PMObservation]:
+    def reset(self, task: Optional[str] = None, **kwargs) -> Dict[int, PMObservation]:
         """
         Initialise a fresh episode.
 
@@ -119,8 +119,8 @@ class PMEnvironment:
         -------
         { agent_id: PMObservation }  (Phase 1 auto-advances to Phase 2)
         """
-        if task is None:
-            self.task = random.choice(["easy", "medium", "hard"])
+        if task is None and "difficulty" in kwargs:
+            task = kwargs["difficulty"].lower()
         else:
             normalised = task.replace("task_", "")
             assert normalised in GAME_CONFIGS, f"task '{task}' must be easy | medium | hard"
@@ -131,7 +131,7 @@ class PMEnvironment:
 
         self.grader = get_grader(self.task)
 
-        n_agents: int      = cfg["n_agents"]
+        n_agents: int = kwargs.get("num_agents", cfg["n_agents"])
         task_type_str: str = cfg.get("task_type", "individual")
         task_type = (
             TaskType(task_type_str)
