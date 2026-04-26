@@ -1,9 +1,6 @@
-# 🎭 Project Machiavelli
-### *When AI Agents Play a Social Survival Game*
+# 🎭 Project Machiavelli: When AI Agents Play a Social Survival Game
 
-> **Deception. Negotiation. Coalition Formation.**
-> A multi-agent reinforcement learning environment where LLM-powered agents compete to survive.
-> 
+
 [![HuggingFace](https://img.shields.io/badge/huggingface.svg)](https://python.org)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -19,6 +16,9 @@
 **Welcome to Project Machiavelli. Let the games begin.**
 
 </div>
+
+> **Deception. Negotiation. Coalition Formation.**
+> A multi-agent reinforcement learning environment where LLM-powered agents compete to survive.
 
 ## 🧠 What is Project Machiavelli?
 
