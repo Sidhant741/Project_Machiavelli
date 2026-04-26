@@ -343,19 +343,8 @@ Project_Machiavelli/
 └── README.md               # Project documentation
 
 ```
-
----
-
 ## 📄 License
 
 MIT License — see [LICENSE](LICENSE) for details.
 
 ---
-
-<div align="center">
-
-*The future of AI isn't just about answering questions — it's about how they interact with each other.*
-
-**Welcome to Project Machiavelli. Let the games begin.**
-
-</div>
