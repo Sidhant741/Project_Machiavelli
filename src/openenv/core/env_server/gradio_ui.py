@@ -366,24 +366,60 @@ def build_gradio_app(
             f"Environment reset with {agents} agents ({diff})."
         ]
 
-    async def step_env(diff, agents, *values):
+    async def step_env(diff, agents, action_json_str=""):
+        import json
         agents = int(agents)
-        action_data = {}
-        for i, field in enumerate(action_fields):
-            if i < len(values):
-                val = values[i]
-                if val in ("", None, []):
-                    continue
-                if isinstance(val, str) and val.strip().startswith("{") and val.strip().endswith("}"):
-                    try:
-                        import json
-                        val = json.loads(val)
-                    except Exception:
-                        pass
-                action_data[field["name"]] = val
+        
+        def _generate_fallback_action():
+            try:
+                state = web_manager.env.state
+                if not state or getattr(state, "is_done", False): 
+                    return None
+                phase = state.phase.value if hasattr(state.phase, 'value') else str(state.phase)
+                alive = state.alive_agents
+                day = state.day
+                ctx = web_manager.env.ctx
 
-        if "agent_id" not in action_data or "action_type" not in action_data:
-            raise gr.Error("⚠️ Action inputs required! Please open the 'Debug & Status' panel below and fill out the Action Input fields (Agent ID and Action Type) before clicking Step.")
+                for aid in alive:
+                    if "pre_discussion" in phase.lower():
+                        if aid not in ctx.pending_pre_task_msgs:
+                            return {"agent_id": aid, "action_type": "send_pre_task_message", "pre_task_message": {"sender_id": aid, "content": f"Automated pre-task msg from Agent {aid}.", "veracity": "truth", "day": day}}
+                    elif "task_execution" in phase.lower():
+                        if aid not in ctx.pending_task_inputs:
+                            return {"agent_id": aid, "action_type": "submit_task_input", "task_input": "a"}
+                    elif "post_discussion" in phase.lower():
+                        day_assessments = state.trust_assessments.get(day, [])
+                        assessed_targets = [a.target_id if hasattr(a, 'target_id') else a.get('target_id') for a in day_assessments if (a.assessor_id if hasattr(a, 'assessor_id') else a.get('assessor_id')) == aid]
+                        unassessed = [t for t in alive if t != aid and t not in assessed_targets]
+                        if unassessed:
+                            return {"agent_id": aid, "action_type": "submit_trust_assessment", "trust_assessment": {"assessor_id": aid, "target_id": unassessed[0], "day": day, "reasoning": "Automated trust assessment.", "delta": "neutral"}}
+                    elif "voting" in phase.lower():
+                        if aid not in ctx.pending_votes:
+                            targets = [t for t in alive if t != aid]
+                            import random
+                            return {"agent_id": aid, "action_type": "vote", "vote_target": random.choice(targets) if targets else aid, "task_input": "Automated vote."}
+            except Exception as e:
+                print(f"Fallback generation error: {e}")
+            return None
+
+        action_data = {}
+        if action_json_str and action_json_str.strip():
+            try:
+                action_data = json.loads(action_json_str)
+            except Exception as e:
+                raise gr.Error(f"Invalid Action JSON: {e}")
+
+        if not action_data:
+            action_data = _generate_fallback_action()
+
+        if not action_data or "agent_id" not in action_data or "action_type" not in action_data:
+            state = web_manager.env.state
+            if not state:
+                raise gr.Error("⚠️ The environment has not been started! Please click 'Reset' first to begin the simulation.")
+            elif getattr(state, "is_done", False):
+                raise gr.Error("⚠️ The game is over! Please click 'Reset' to start a new game.")
+            else:
+                raise gr.Error("⚠️ Action inputs required! Please provide a valid JSON with 'agent_id' and 'action_type' in the Debug & Status panel.")
 
         data = await web_manager.step_environment(action_data)
         day = data.get("observation", {}).get("day", 1)
@@ -405,6 +441,7 @@ def build_gradio_app(
                 agent_radio = gr.Radio(["3", "4"], label="Agents", value="4")
 
             day_selector = gr.Number(value=0, elem_id="day-selector",   elem_classes="hidden-selector")
+            phase_selector = gr.Number(value=0, elem_id="phase-selector", elem_classes="hidden-selector")
             day_html     = gr.HTML(_render_day_header(0, 4),             elem_id="day-header")
             phase_html   = gr.HTML(_render_phase_bar(""),                elem_id="phase-header")
             task_html    = gr.HTML(_render_task_box(None))
@@ -413,10 +450,15 @@ def build_gradio_app(
             with gr.Row(elem_classes="bottom-controls"):
                 state_btn      = gr.Button("State",  elem_classes="tan-btn")
                 step_btn       = gr.Button("Step",   elem_classes="tan-btn")
-                action_btn     = gr.Button("Action", elem_classes="tan-btn")
+                #action_btn     = gr.Button("Action", elem_classes="tan-btn")
                 main_reset_btn = gr.Button("Reset",  elem_classes="tan-btn")
 
             with gr.Accordion("Debug & Status", open=False) as interaction_panel:
+                action_input = gr.Textbox(
+                    label="Action JSON", 
+                    placeholder='{"agent_id": 0, "action_type": "vote", "vote_target": 1}',
+                    lines=2
+                )
                 status    = gr.Textbox(label="Status", interactive=False)
                 raw_json   = gr.Code(label="Raw JSON", language="json", interactive=False)
 
@@ -430,7 +472,7 @@ def build_gradio_app(
             outputs=[day_selector, day_html, grid_html]
         )
 
-        action_btn.click(fn=lambda: gr.update(open=True), outputs=[interaction_panel])
+        #action_btn.click(fn=lambda: gr.update(open=True), outputs=[interaction_panel])
 
         main_reset_btn.click(
             fn=reset_env,
@@ -455,7 +497,7 @@ def build_gradio_app(
 
         step_btn.click(
             fn=step_env,
-            inputs=[diff_radio, agent_radio],
+            inputs=[diff_radio, agent_radio, action_input],
             outputs=[day_selector, phase_html, task_html, grid_html, raw_json, status]
         )
 
@@ -464,6 +506,12 @@ def build_gradio_app(
             fn=lambda d, a: _render_day_header(int(d), int(a)),
             inputs=[day_selector, agent_radio],
             outputs=[day_html],
+        )
+
+        phase_selector.change(
+            fn=lambda p: _render_phase_bar(int(p)),
+            inputs=[phase_selector],
+            outputs=[phase_html],
         )
 
     return demo

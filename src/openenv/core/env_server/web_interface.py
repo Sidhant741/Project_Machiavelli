@@ -211,7 +211,7 @@ class ActionLog(BaseModel):
     timestamp: str = Field(description="Timestamp when action was taken")
     action: Dict[str, Any] = Field(description="Action that was taken")
     observation: Dict[str, Any] = Field(description="Observation returned from action")
-    reward: Optional[float] = Field(
+    reward: Any = Field(
         default=None, description="Reward received from action"
     )
     done: bool = Field(description="Whether the episode is done after this action")
