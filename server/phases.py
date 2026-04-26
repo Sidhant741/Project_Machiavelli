@@ -46,21 +46,30 @@ def _make_question(
 ) -> Tuple[str, str, List[str]]:
     """
     Generate (question_text, correct_answer, all_options).
-    Replace with a real trivia DB in production.
     """
-    correct = str(random.randint(1, 100))
-    distractors: List[str] = []
-    while len(distractors) < n_options - 1:
-        d = str(random.randint(1, 100))
-        if d != correct and d not in distractors:
-            distractors.append(d)
-    options = [correct] + distractors
+    if day == 1:
+        question = "PCM Question: What is the derivative of x^2?"
+        correct = "2x"
+        distractors = ["x^2", "2", "x"]
+    elif day == 2:
+        question = "[IMG]/tasks/images/map.png"
+        correct = "India"
+        distractors = ["China", "Brazil", "Australia"]
+    elif day == 3:
+        question = "Coding Question: What is the output of print(2 ** 3) in Python?"
+        correct = "8"
+        distractors = ["6", "9", "Error"]
+    else:
+        question = "Blood Relation Question: A is the brother of B. B is the sister of C. How is A related to C?"
+        correct = "Brother"
+        distractors = ["Sister", "Cousin", "Father"]
+        
+    options = [correct] + distractors[:n_options-1]
+    if len(options) < n_options:
+        while len(options) < n_options:
+            options.append(f"Option_{len(options)}")
     random.shuffle(options)
-    question = (
-        f"Day {day} | Agent {agent_id}: "
-        f"Guess the secret number. Options: {', '.join(options)}"
-    )
-    return question, correct, options
+    return f"Day {day} | Agent {agent_id}: {question}", correct, options
 
 
 def _make_shared_question(
@@ -68,23 +77,37 @@ def _make_shared_question(
 ) -> Tuple[str, str, List[str]]:
     """
     Generate ONE shared question for the full day.
-    All agents see the same question context, but each agent receives a different
-    private option/hint extracted from the shared options list.
     """
     pool_size = max(n_options, n_agents, 2)
-    correct = str(random.randint(1, 100))
-    distractors: List[str] = []
-    while len(distractors) < pool_size - 1:
-        d = str(random.randint(1, 100))
-        if d != correct and d not in distractors:
-            distractors.append(d)
-    options = [correct] + distractors
+    
+    if day == 1:
+        question = "PCM Question: If a car travels at 60 km/h for 2 hours, what distance does it cover?"
+        correct = "120 km"
+        distractors = ["60 km", "180 km", "100 km", "80 km", "140 km"]
+    elif day == 2:
+        question = "[IMG]/tasks/images/map.png"
+        correct = "India"
+        distractors = ["China", "Brazil", "Australia", "Russia", "USA"]
+    elif day == 3:
+        question = "Coding Question: Which data structure uses LIFO (Last In First Out)?"
+        correct = "Stack"
+        distractors = ["Queue", "Array", "Tree", "Graph", "Linked List"]
+    else:
+        question = "Blood Relation Question: Pointing to a photograph, a man said, 'I have no brother or sister but that man's father is my father's son.' Whose photograph was it?"
+        correct = "His son"
+        distractors = ["His father", "His nephew", "Himself", "His cousin", "His uncle"]
+        
+    options = [correct] + distractors[:pool_size-1]
+    if len(options) < pool_size:
+        while len(options) < pool_size:
+            options.append(f"Option_{len(options)}")
     random.shuffle(options)
-    question = (
-        f"Day {day}: Shared task for all agents — guess the secret number. "
-        f"Candidate options: {', '.join(options)}"
-    )
-    return question, correct, options
+    
+    prefix = f"Day {day}: Shared task for all agents — "
+    if question.startswith("[IMG]"):
+        prefix = ""
+        
+    return f"{prefix}{question}", correct, options
 
 
 def _resolve_tie(
@@ -116,7 +139,7 @@ class PhaseContext:
     """
 
     def __init__(self) -> None:
-        self.pending_pre_task_msgs:  Dict[int, PreTaskMessage] = {}
+        self.pending_pre_task_msgs:  Dict[str, PreTaskMessage] = {}
         self.pending_task_inputs:    Dict[int, str]            = {}
         self.pending_votes:          Dict[int, int]            = {}
         self.post_msg_counts:        Dict[int, Dict[int, Dict[int, int]]] = {}
@@ -200,8 +223,8 @@ def enter_task_reveal(
 
     state.each_agent_private_info = private_map
     state.global_public_info = (
-        f"Day {day} — Each agent holds a private answer. "
-        f"Submit your best answer during Task Execution. "
+        f"{shared_q}\n"
+        f"Each agent holds a private answer. Submit your best answer during Task Execution. "
         f"Points awarded for correct submissions."
     )
 
@@ -231,18 +254,30 @@ def handle_pre_discussion(
     assert msg.sender_id == action.agent_id
     assert msg.day       == state.day
 
-    if action.agent_id in ctx.pending_pre_task_msgs:
+    if action.agent_id in [int(k.split("__")[0]) for k in ctx.pending_pre_task_msgs.keys() if k.endswith("__None")]:
         raise ValueError(
-            f"Agent {action.agent_id} already submitted a pre-task message on day {state.day}."
+            f"Agent {action.agent_id} already broadcasted a pre-task message."
         )
 
-    ctx.pending_pre_task_msgs[action.agent_id] = msg
+    key = f"{action.agent_id}__{msg.recipient_id}"
+    if key in ctx.pending_pre_task_msgs:
+        raise ValueError(
+            f"Agent {action.agent_id} already sent a pre-task message to {msg.recipient_id}."
+        )
+
+    ctx.pending_pre_task_msgs[key] = msg
     state.record_pre_task_message(msg)
     agents[action.agent_id].record_pre_task_message(msg)
 
 
 def is_pre_discussion_complete(state: PMState, ctx: PhaseContext) -> bool:
-    return all(aid in ctx.pending_pre_task_msgs for aid in state.alive_agents)
+    for aid in state.alive_agents:
+        if f"{aid}__None" in ctx.pending_pre_task_msgs:
+            continue
+        targets = [t for t in state.alive_agents if t != aid]
+        if not all(f"{aid}__{t}" in ctx.pending_pre_task_msgs for t in targets):
+            return False
+    return True
 
 
 # ---------------------------------------------------------------------------

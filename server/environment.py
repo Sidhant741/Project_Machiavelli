@@ -146,15 +146,8 @@ class PMEnvironment:
             if snap is None:
                 return {other: 0.5 for other in others if other != aid}
             # Carry over trust for peers that also exist in this episode
-            # Psychological Paranoia: Deceptive agents project their deception and trust others less
-            paranoia_discount = max(0.0, snap.deception_prior - 0.33)
-            
-            base = {}
-            for other in others:
-                if other != aid:
-                    raw_trust = snap.final_trust_scores.get(other, 0.5)
-                    # Scale trust down based on paranoia
-                    base[other] = max(0.0, raw_trust * (1.0 - paranoia_discount))
+            base = {other: snap.final_trust_scores.get(other, 0.5)
+                    for other in others if other != aid}
             return base
 
         self.agents = {
@@ -265,130 +258,6 @@ class PMEnvironment:
     def get_observation(self, agent_id: int, reveal_veracity: bool = False) -> PMObservation:
         assert self.state is not None
         return PMObservation.from_state(self.state, agent_id, reveal_veracity=reveal_veracity)
-
-    # ------------------------------------------------------------------
-    # Post-discussion context & prompt (canonical — used by all trainers)
-    # ------------------------------------------------------------------
-
-    def get_discussion_context(
-        self, agent_id: int, target_id: int, agent_veracity: str = "truth",
-    ) -> dict:
-        """
-        Return a structured dict with everything an agent needs to compose
-        a post-discussion message.  Lives here so *every* training script
-        gets the same observation — swapping templates becomes impossible.
-
-        Keys
-        ----
-        agent_id, target_id, day,
-        messages_received: List[{sender, content}],
-        own_task_score: int,
-        own_veracity: str,
-        trust_of_target: float,
-        alive_agents: List[int],
-        """
-        assert self.state is not None
-        obs = self.get_observation(agent_id)
-        msgs = [
-            {"sender": str(m.sender_id), "content": m.content}
-            for m in obs.pre_task_messages_received
-        ]
-
-        # Task score — may not be available yet if task hasn't been scored
-        task_result = self.state.task_results.get(self.state.day)
-        task_score = 0
-        if task_result and hasattr(task_result, "scores"):
-            task_score = task_result.scores.get(agent_id, 0)
-        elif task_result:
-            task_score = getattr(task_result, "score", 0)
-
-        trust_of_target = self.state.trust_scores_dict.get(
-            agent_id, {}
-        ).get(target_id, 0.5)
-
-        return {
-            "agent_id": agent_id,
-            "target_id": target_id,
-            "day": self.state.day,
-            "messages_received": msgs,
-            "own_task_score": task_score,
-            "own_veracity": agent_veracity,
-            "trust_of_target": round(trust_of_target, 4),
-            "alive_agents": list(self.state.alive_agents),
-        }
-
-    @staticmethod
-    def build_discussion_messages(ctx: dict) -> list:
-        """
-        Return a list of chat-format dicts for ``tokenizer.apply_chat_template()``.
-        This is the preferred method for instruction-tuned models (Qwen, Gemma, etc).
-        """
-        task_status = "correct" if ctx["own_task_score"] > 0 else "wrong"
-        strategy = ctx["own_veracity"]
-
-        system_msg = (
-            "You are playing a social deception game. "
-            "Write short, natural messages to other players. "
-            "You can accuse, defend, build trust, or be suspicious. "
-            "Keep it to 1-2 sentences. Be direct."
-        )
-
-        user_msg = (
-            f"You are Agent {ctx['agent_id']}. Day {ctx['day']}. "
-            f"Your strategy: {strategy}. Your task answer was {task_status}. "
-            f"Write a message to Agent {ctx['target_id']}."
-        )
-
-        return [
-            {"role": "system", "content": system_msg},
-            {"role": "user", "content": user_msg},
-        ]
-
-    @staticmethod
-    def build_discussion_prompt(ctx: dict) -> str:
-        """
-        Plain-text fallback prompt for models without chat template support.
-        Kept very short to avoid confusing small models.
-        """
-        task_status = "correct" if ctx["own_task_score"] > 0 else "wrong"
-        return (
-            f"Agent {ctx['agent_id']} to Agent {ctx['target_id']}, "
-            f"day {ctx['day']}, task was {task_status}: \""
-        )
-
-    @staticmethod
-    def generate_discussion_fallback(ctx: dict) -> str:
-        """
-        Deterministic template fallback when no LLM is available.
-        Behaviour is fully determined by the context dict, ensuring
-        consistent outputs regardless of training script.
-        """
-        trust = ctx["trust_of_target"]
-        score = ctx["own_task_score"]
-        veracity = ctx["own_veracity"]
-        msgs = ctx["messages_received"]
-        target = ctx["target_id"]
-
-        if score == 0 and msgs:
-            suspect = msgs[0]["sender"]
-            return (
-                f"I got the task wrong after trusting shared info. "
-                f"Agent {suspect}, was your answer honest?"
-            )
-        if trust < 0.4:
-            return (
-                f"Agent {target}, I have doubts about your honesty. "
-                f"Your answers seem off."
-            )
-        if veracity == "lie":
-            return (
-                f"Agent {target}, I believe we should cooperate. "
-                f"I shared what I knew."
-            )
-        return (
-            f"Agent {target}, I think we can trust each other. "
-            f"Let's work together."
-        )
 
     # ------------------------------------------------------------------
     # Phase entry

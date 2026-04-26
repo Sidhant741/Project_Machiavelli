@@ -84,7 +84,7 @@ fi
 
 BASE_IMAGE_SHA=""
 BASE_IMAGE_REF=""
-HF_NAMESPACE="${HF_NAMESPACE:-Killua7531}"
+HF_NAMESPACE="${HF_NAMESPACE:-Deep712sharma}"
 SPACE_SUFFIX="${SPACE_SUFFIX:-}"
 STAGING_DIR="hf-staging"
 HUB_TAG="openenv"
@@ -702,10 +702,12 @@ prepare_stage() {
     
     # Also copy env content to stage root for Dockerfiles that use "COPY . /app/env".
     if [ "$env_name" = "machiavelli" ] || [ "$env_name" = "colorblind-env" ]; then
-        # Copy everything except staging dirs and hidden files to stage root
-        # This is a bit tricky, but since we are copying to hf-staging we should be careful.
-        # But prepare_stage usually works with a clean stage_dir.
-        cp -R . "$stage_dir/" 2>/dev/null || true
+        # Copy everything except staging dirs to stage root
+        for item in *; do
+            if [ "$item" != "hf-staging" ] && [ "$item" != "envs" ] && [ "$item" != "src" ] && [ "$item" != "server" ]; then
+                cp -R "$item" "$stage_dir/" 2>/dev/null || true
+            fi
+        done
     else
         cp -R "envs/$env_name/." "$stage_dir/"
     fi

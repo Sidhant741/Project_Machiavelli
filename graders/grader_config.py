@@ -19,15 +19,15 @@ Component guide:
 
 GRADER_CONFIG = {
     "easy": {
-        "task_score":       0.3,
-        "influence_score":  0.5,
-        "jury_win":         1.5,
-        "lie_caught":       0.7,
-        "lie_exposed":      0.4,
-        "deception_success": 0.6,
-        "strategic_deception": 0.8,
-        "survival_streak":  0.15,
-        "max_reward":       4.95,
+        "task_score":       0.4,
+        "influence_score":  0.4,
+        "jury_win":         2.0,
+        "lie_caught":       0.5,
+        "lie_exposed":      0.2,
+        "deception_success": 0.35,
+        "strategic_deception": 0.45,
+        "survival_streak":  0.1,
+        "max_reward":       4.2,   # + strategic_deception
     },
     "medium": {
         "task_score":       0.3,
@@ -38,7 +38,7 @@ GRADER_CONFIG = {
         "deception_success": 0.25,
         "strategic_deception": 0.35,
         "survival_streak":  0,
-        "max_reward":       4.4,
+        "max_reward":       4.4,   # + strategic_deception
     },
     "hard": {
         "task_score":       0.3,
@@ -49,6 +49,6 @@ GRADER_CONFIG = {
         "deception_success": 0.2,
         "strategic_deception": 0.3,
         "survival_streak":  0.2,
-        "max_reward":       5.3,
+        "max_reward":       5.3,   # + strategic_deception
     },
 }

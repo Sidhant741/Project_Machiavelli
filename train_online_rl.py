@@ -14,21 +14,17 @@ from __future__ import annotations
 
 import argparse
 import csv
-import html as html_mod
 import json
 import math
 import os
 import random
-import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
-from torch.utils.tensorboard import SummaryWriter
 
 from models import (
     ActionType,
-    AgentPriorSnapshot,
     MessageVeracity,
     PMAction,
     PostDiscussionMessage,
@@ -213,109 +209,6 @@ def _compose_pre_message(veracity: MessageVeracity, true_answer: str) -> str:
     return f"I'm confident the correct answer is {lied}."
 
 
-# ---------------------------------------------------------------------------
-# ANSI chat display
-# ---------------------------------------------------------------------------
-
-_AGENT_COLORS = {
-    0: "\033[91m",   # Red
-    1: "\033[94m",   # Blue
-    2: "\033[92m",   # Green
-    3: "\033[93m",   # Yellow
-}
-_RESET = "\033[0m"
-_BOLD = "\033[1m"
-_DIM = "\033[2m"
-
-
-def _display_chat(chat_log: List[Dict], day: int) -> None:
-    """Print a rich terminal chat display for one day."""
-    day_msgs = [m for m in chat_log if m["day"] == day]
-    if not day_msgs:
-        return
-    header = f" 💬  Day {day} — Post-Discussion "
-    print(f"\n{'╭' + '─' * 60 + '╮'}")
-    print(f"│{header:^60}│")
-    print(f"├{'─' * 60}┤")
-    for msg in day_msgs:
-        s = msg["sender"]
-        r = msg["recipient"]
-        text = msg["content"][:80]
-        sc = _AGENT_COLORS.get(s, "")
-        rc = _AGENT_COLORS.get(r, "")
-        label = f"{sc}{_BOLD}Agent {s}{_RESET} → {rc}{_BOLD}Agent {r}{_RESET}"
-        print(f"│  {label}")
-        # Wrap text in a bubble
-        print(f"│  {_DIM}┌{'─' * 56}┐{_RESET}")
-        # Word-wrap to 54 chars
-        words = text.split()
-        line = ""
-        for w in words:
-            if len(line) + len(w) + 1 > 54:
-                print(f"│  {_DIM}│{_RESET} {line:<54} {_DIM}│{_RESET}")
-                line = w
-            else:
-                line = f"{line} {w}".strip()
-        if line:
-            print(f"│  {_DIM}│{_RESET} {line:<54} {_DIM}│{_RESET}")
-        print(f"│  {_DIM}└{'─' * 56}┘{_RESET}")
-    print(f"╰{'─' * 60}╯")
-
-
-def _save_chat_html(chat_log: List[Dict], episode: int, filepath: Path) -> None:
-    """Save one episode's chat log as a styled HTML file."""
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-    agent_css = {
-        0: "#ff6b6b", 1: "#4ecdc4", 2: "#45b7d1", 3: "#f9ca24",
-    }
-    days = sorted(set(m["day"] for m in chat_log))
-    body_parts = []
-    for day in days:
-        body_parts.append(f'<h2>Day {day}</h2>')
-        for msg in chat_log:
-            if msg["day"] != day:
-                continue
-            s = msg["sender"]
-            r = msg["recipient"]
-            sc = agent_css.get(s, "#999")
-            rc = agent_css.get(r, "#999")
-            text = html_mod.escape(msg["content"])
-            ver = html_mod.escape(msg.get("sender_veracity", ""))
-            badge = ""
-            if ver:
-                badge = f' <span class="badge badge-{ver}">{ver}</span>'
-            body_parts.append(
-                f'<div class="msg">'
-                f'<div class="sender" style="color:{sc}">Agent {s}{badge}</div>'
-                f'<div class="arrow">→ <span style="color:{rc}">Agent {r}</span></div>'
-                f'<div class="bubble">{text}</div>'
-                f'</div>'
-            )
-    html_str = f"""<!DOCTYPE html>
-<html><head><meta charset="utf-8">
-<title>Episode {episode} — Chat Log</title>
-<style>
-body {{ font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: #eee;
-        max-width: 700px; margin: 40px auto; padding: 20px; }}
-h1 {{ text-align: center; color: #e94560; }}
-h2 {{ color: #0f3460; background: #16213e; padding: 8px 16px; border-radius: 8px; }}
-.msg {{ margin: 12px 0; padding: 12px; background: #16213e; border-radius: 12px;
-        border-left: 4px solid #e94560; }}
-.sender {{ font-weight: bold; font-size: 14px; }}
-.arrow {{ font-size: 12px; color: #888; margin: 2px 0; }}
-.bubble {{ margin-top: 6px; padding: 10px 14px; background: #0f3460;
-           border-radius: 8px; line-height: 1.5; font-size: 14px; }}
-.badge {{ font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }}
-.badge-truth {{ background: #27ae60; color: #fff; }}
-.badge-twist {{ background: #f39c12; color: #fff; }}
-.badge-lie {{ background: #e74c3c; color: #fff; }}
-</style></head><body>
-<h1>🎭 Episode {episode} — Agent Conversations</h1>
-{''.join(body_parts)}
-</body></html>"""
-    filepath.write_text(html_str, encoding="utf-8")
-
-
 def run_episode(
     env: PMEnvironment,
     policy_logits: Dict[int, Dict],
@@ -325,15 +218,11 @@ def run_episode(
     unsloth_policies: Optional[Dict[int, UnslothPolicy]] = None,
     hf_policy: Optional[HFEndpointPolicy] = None,
     hf_policies: Optional[Dict[int, HFEndpointPolicy]] = None,
-    use_llm_chat: bool = True,
-) -> Tuple[Dict[int, float], Dict[int, Dict[str, int]], Dict[int, float], List[Dict]]:
+) -> Tuple[Dict[int, float], Dict[int, Dict[str, int]], Dict[int, float]]:
     env.reset(task=difficulty)
 
     alive_snapshot = list(env.state.alive_agents)
     rewards_total = {aid: 0.0 for aid in alive_snapshot}
-    chat_log: List[Dict] = []  # stores all post-discussion messages
-    # Track per-agent veracity choice for this episode (for discussion prompts)
-    agent_veracity_log: Dict[int, str] = {}
     action_counts = {
         aid: {
             "truth": 0, "twist": 0, "lie": 0,
@@ -378,7 +267,6 @@ def run_episode(
                 else:
                     veracity = _sample_veracity(policy_logits[aid])
                 action_counts[aid][veracity.value] += 1
-                agent_veracity_log[aid] = veracity.value
                 true_answer = _extract_correct_answer(env, aid)
                 content = _compose_pre_message(veracity, true_answer)
                 others = [x for x in alive if x != aid]
@@ -414,83 +302,15 @@ def run_episode(
                     rewards_total[k] = rewards_total.get(k, 0.0) + float(v)
 
         elif phase.value == "post_discussion":
-            # --- LLM-driven post-discussion conversations ---
-            # Context & prompts come from env (canonical — same for all trainers)
+            # Minimal one-turn chatter for each directed pair.
             for sender in alive:
                 for recipient in alive:
                     if sender == recipient:
                         continue
-                    sender_veracity = agent_veracity_log.get(sender, "truth")
-
-                    # Get structured context from the environment
-                    disc_ctx = env.get_discussion_context(
-                        agent_id=sender,
-                        target_id=recipient,
-                        agent_veracity=sender_veracity,
-                    )
-
-                    # Generate discussion message via LLM or fallback
-                    content = ""
-                    if use_llm_chat and policy_backend == "unsloth" and (unsloth_policies or unsloth_policy):
-                        agent_policy = (unsloth_policies or {}).get(sender, unsloth_policy)
-                        if agent_policy:
-                            try:
-                                # Use chat template (proper format for instruct models)
-                                chat_msgs = PMEnvironment.build_discussion_messages(disc_ctx)
-                                prompt = agent_policy.tokenizer.apply_chat_template(
-                                    chat_msgs,
-                                    tokenize=False,
-                                    add_generation_prompt=True,
-                                )
-                                inputs = agent_policy.tokenizer(
-                                    prompt, return_tensors="pt"
-                                )
-                                try:
-                                    import torch
-                                    if torch.cuda.is_available():
-                                        inputs = {
-                                            k: v.to("cuda")
-                                            for k, v in inputs.items()
-                                        }
-                                except Exception:
-                                    pass
-                                out = agent_policy.model.generate(
-                                    **inputs,
-                                    max_new_tokens=50,
-                                    do_sample=True,
-                                    temperature=0.7,
-                                    top_p=0.9,
-                                    repetition_penalty=1.2,
-                                )
-                                # Decode only the new tokens
-                                new_tokens = out[0][inputs["input_ids"].shape[-1]:]
-                                content = agent_policy.tokenizer.decode(
-                                    new_tokens, skip_special_tokens=True
-                                ).strip()
-                                # Strip quotes, trim to 2 sentences, cap length
-                                content = content.strip('"').strip()
-                                sentences = re.split(r'(?<=[.!?])\s+', content)
-                                content = " ".join(sentences[:2])
-                                if len(content) > 120:
-                                    content = content[:117] + "..."
-                            except Exception:
-                                content = ""
-
-                    if not content:
-                        content = PMEnvironment.generate_discussion_fallback(disc_ctx)
-
-                    chat_log.append({
-                        "day": env.state.day,
-                        "sender": sender,
-                        "recipient": recipient,
-                        "content": content,
-                        "sender_veracity": sender_veracity,
-                    })
-
                     msg = PostDiscussionMessage(
                         sender_id=sender,
                         recipient_id=recipient,
-                        content=content,
+                        content=f"Agent {sender} discusses trust with Agent {recipient}.",
                         day=env.state.day,
                         turn_index=0,
                     )
@@ -528,23 +348,11 @@ def run_episode(
                             if m.sender_id == target
                         ]
                         if target_msgs and target_msgs[-1].veracity == MessageVeracity.TRUTH:
-                            # Paranoia mechanic: highly deceptive agents discount positive trust signals
-                            assessor_deception = env.agents[assessor].deception_prior
-                            if assessor_deception > 0.4:
-                                delta = TrustDelta.NEUTRAL
-                                reasoning = "told truth but I am paranoid"
-                            else:
-                                delta = TrustDelta.INCREASE
-                                reasoning = "told truth"
+                            delta = TrustDelta.INCREASE
+                            reasoning = "told truth"
                         elif target_msgs and target_msgs[-1].veracity == MessageVeracity.LIE:
-                            assessor_deception = env.agents[assessor].deception_prior
-                            # Paranoia mechanic: deceptive agents amplify negative trust signals
-                            if assessor_deception > 0.4:
-                                delta = TrustDelta.STRONG_DECREASE
-                                reasoning = "suspicious and I am paranoid"
-                            else:
-                                delta = TrustDelta.DECREASE
-                                reasoning = "suspicious"
+                            delta = TrustDelta.DECREASE
+                            reasoning = "suspicious"
                         else:
                             delta = TrustDelta.NEUTRAL
                             reasoning = "no strong signal"
@@ -611,7 +419,7 @@ def run_episode(
         trust_dispersion = sum(abs(x - mean) for x in trust_vals) / len(trust_vals)
 
     trust_metrics = {"trust_dispersion": trust_dispersion}
-    return rewards_total, action_counts, trust_metrics, chat_log
+    return rewards_total, action_counts, trust_metrics
 
 
 def update_policy(
@@ -622,23 +430,8 @@ def update_policy(
     lr: float,
     entropy_coef: float = 0.02,
 ) -> None:
-    # 1. Compute base advantages (reward - moving average)
-    agent_advs = {aid: rewards.get(aid, 0.0) - baseline for aid in action_counts}
-    
-    # 2. Normalize advantages across agents in THIS episode.
-    # This is crucial: it creates a strong relative signal (mean=0, std=1) 
-    # forcing agents to differentiate instead of all collapsing to the entropy prior.
-    adv_vals = list(agent_advs.values())
-    if len(adv_vals) > 1:
-        mean_a = sum(adv_vals) / len(adv_vals)
-        std_a = (sum((x - mean_a) ** 2 for x in adv_vals) / len(adv_vals)) ** 0.5
-        if std_a > 1e-5:
-            agent_advs = {aid: (v - mean_a) / std_a for aid, v in agent_advs.items()}
-        else:
-            agent_advs = {aid: v - mean_a for aid, v in agent_advs.items()}
-
     for aid, counts in action_counts.items():
-        advantage = agent_advs.get(aid, 0.0)
+        advantage = rewards.get(aid, 0.0) - baseline
 
         # --- Update veracity policy ---
         veracity_labels = ("truth", "twist", "lie")
@@ -671,8 +464,6 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--lr", type=float, default=0.15)
     parser.add_argument("--entropy_coef", type=float, default=0.02)
-    parser.add_argument("--llm_chat_every", type=int, default=20, 
-                        help="Only generate LLM text every N episodes to speed up training")
     parser.add_argument(
         "--policy_backend",
         choices=["tabular", "unsloth", "hf_endpoint"],
@@ -773,16 +564,9 @@ def main() -> None:
 
     rows = []
     reward_history: List[float] = []
-    chat_dir = Path("logs/chats")
-    chat_dir.mkdir(parents=True, exist_ok=True)
-    
-    tb_writer = SummaryWriter(log_dir="logs/tensorboard")
 
     for ep in range(1, args.episodes + 1):
-        # Only use slow LLM generation every N episodes to speed up training
-        use_llm_chat = (ep % args.llm_chat_every == 0) or (ep == args.episodes)
-
-        rewards, action_counts, trust_metrics, chat_log = run_episode(
+        rewards, action_counts, trust_metrics = run_episode(
             env=env,
             policy_logits=policy_logits,
             difficulty=args.difficulty,
@@ -791,7 +575,6 @@ def main() -> None:
             unsloth_policies=unsloth_policies,
             hf_policy=hf_policy,
             hf_policies=hf_policies,
-            use_llm_chat=use_llm_chat,
         )
 
         mean_reward = sum(rewards.values()) / len(rewards) if rewards else 0.0
@@ -806,35 +589,6 @@ def main() -> None:
             entropy_coef=args.entropy_coef,
         )
 
-        # --- Sync policy_logits → agent priors (so they carry across episodes) ---
-        for aid in agent_ids:
-            v_probs = _softmax({
-                "truth": policy_logits[aid]["truth"],
-                "twist": policy_logits[aid]["twist"],
-                "lie":   policy_logits[aid]["lie"],
-            })
-            new_truthful  = round(v_probs["truth"], 4)
-            new_deception = round(v_probs["lie"], 4)
-            # risk_beta: higher when agent lies more (risk-seeking), lower when truthful
-            new_risk_beta = round(max(0.1, 0.5 + 2.0 * (v_probs["lie"] - v_probs["truth"])), 4)
-
-            if aid in env.agents:
-                env.agents[aid].truthful_prior  = new_truthful
-                env.agents[aid].deception_prior = new_deception
-                env.agents[aid].risk_beta       = new_risk_beta
-
-            # Also update global_inference_store so next env.reset() uses these
-            env.global_inference_store.agent_priors[aid] = AgentPriorSnapshot(
-                agent_id=aid,
-                episode_index=ep,
-                truthful_prior=new_truthful,
-                deception_prior=new_deception,
-                risk_beta=new_risk_beta,
-                final_trust_scores=dict(
-                    env.state.trust_scores_dict.get(aid, {})
-                ),
-            )
-
         lie_count = sum(v["lie"] for v in action_counts.values())
         truth_count = sum(v["truth"] for v in action_counts.values())
         twist_count = sum(v["twist"] for v in action_counts.values())
@@ -844,23 +598,6 @@ def main() -> None:
         vht = sum(v.get("vote_highest_threat", 0) for v in action_counts.values())
         vrn = sum(v.get("vote_random", 0) for v in action_counts.values())
         vote_total = max(1, vlt + vht + vrn)
-
-        # Collect per-agent priors for logging
-        avg_truthful  = sum(
-            _softmax({k: policy_logits[a][k] for k in ("truth","twist","lie")})["truth"]
-            for a in agent_ids
-        ) / len(agent_ids)
-        avg_deception = sum(
-            _softmax({k: policy_logits[a][k] for k in ("truth","twist","lie")})["lie"]
-            for a in agent_ids
-        ) / len(agent_ids)
-        avg_risk_beta = sum(
-            max(0.1, 0.5 + 2.0 * (
-                _softmax({k: policy_logits[a][k] for k in ("truth","twist","lie")})["lie"]
-                - _softmax({k: policy_logits[a][k] for k in ("truth","twist","lie")})["truth"]
-            ))
-            for a in agent_ids
-        ) / len(agent_ids)
 
         row = {
             "episode": ep,
@@ -873,84 +610,15 @@ def main() -> None:
             "vote_highest_threat": round(vht / vote_total, 4),
             "vote_random": round(vrn / vote_total, 4),
             "trust_dispersion": round(trust_metrics["trust_dispersion"], 4),
-            "avg_truthful_prior": round(avg_truthful, 4),
-            "avg_deception_prior": round(avg_deception, 4),
-            "avg_risk_beta": round(avg_risk_beta, 4),
         }
-        # Per-agent detail: priors + individual rewards
-        for a in agent_ids:
-            vp = _softmax({k: policy_logits[a][k] for k in ("truth","twist","lie")})
-            row[f"agent{a}_truthful"]  = round(vp["truth"], 4)
-            row[f"agent{a}_deception"] = round(vp["lie"], 4)
-            row[f"agent{a}_risk_beta"] = round(max(0.1, 0.5 + 2.0 * (vp["lie"] - vp["truth"])), 4)
-            row[f"agent{a}_reward"]    = round(rewards.get(a, 0.0), 4)
-
         rows.append(row)
-
-        # Build per-agent reward string
-        agent_rewards_str = " ".join(
-            f"A{a}:{rewards.get(a, 0.0):.2f}" for a in agent_ids
-        )
         print(
-            f"[ep {ep:03d}] rewards=[{agent_rewards_str}] mean={row['mean_reward']:.3f} "
+            f"[ep {ep:03d}] reward={row['mean_reward']:.3f} "
             f"lie={row['lie_rate']:.2f} truth={row['truth_rate']:.2f} "
             f"twist={row['twist_rate']:.2f} "
             f"vote=LT{row['vote_lowest_trust']:.0%}/HT{row['vote_highest_threat']:.0%}/R{row['vote_random']:.0%} "
-            f"trust_disp={row['trust_dispersion']:.3f} "
-            f"priors=[T:{row['avg_truthful_prior']:.2f} D:{row['avg_deception_prior']:.2f} β:{row['avg_risk_beta']:.2f}]"
+            f"trust_disp={row['trust_dispersion']:.3f}"
         )
-
-        # --- Tensorboard Logging ---
-        tb_writer.add_scalar("Globals/Mean_Reward", row["mean_reward"], ep)
-        tb_writer.add_scalar("Globals/Trust_Dispersion", row["trust_dispersion"], ep)
-        
-        # Plot globals behavior mix
-        tb_writer.add_scalar("Globals_Behavior/Lie_Rate", row["lie_rate"], ep)
-        tb_writer.add_scalar("Globals_Behavior/Truth_Rate", row["truth_rate"], ep)
-        tb_writer.add_scalar("Globals_Behavior/Twist_Rate", row["twist_rate"], ep)
-
-        # Plot per-agent metrics
-        truth_priors = {}
-        deception_priors = {}
-        risk_betas = {}
-        rewards_dict = {}
-        behav_truth = {}
-        behav_lie = {}
-        behav_twist = {}
-
-        for a in agent_ids:
-            truth_priors[f"Agent_{a}"] = row[f"agent{a}_truthful"]
-            deception_priors[f"Agent_{a}"] = row[f"agent{a}_deception"]
-            risk_betas[f"Agent_{a}"] = row[f"agent{a}_risk_beta"]
-            rewards_dict[f"Agent_{a}"] = row[f"agent{a}_reward"]
-
-            # Behaviour mix (action rates per agent)
-            total_acts_a = max(1, action_counts[a].get("truth", 0) + action_counts[a].get("lie", 0) + action_counts[a].get("twist", 0))
-            behav_truth[f"Agent_{a}"] = action_counts[a].get("truth", 0) / total_acts_a
-            behav_lie[f"Agent_{a}"] = action_counts[a].get("lie", 0) / total_acts_a
-            behav_twist[f"Agent_{a}"] = action_counts[a].get("twist", 0) / total_acts_a
-
-        tb_writer.add_scalars("Priors/Truthful", truth_priors, ep)
-        tb_writer.add_scalars("Priors/Deception", deception_priors, ep)
-        tb_writer.add_scalars("Priors/Risk_Beta", risk_betas, ep)
-        tb_writer.add_scalars("Rewards/Per_Agent", rewards_dict, ep)
-        tb_writer.add_scalars("Behavior_Mix/Truth", behav_truth, ep)
-        tb_writer.add_scalars("Behavior_Mix/Lie", behav_lie, ep)
-        tb_writer.add_scalars("Behavior_Mix/Twist", behav_twist, ep)
-        
-        # Flush TensorBoard writer so data is visible immediately and isn't lost on Ctrl+C
-        tb_writer.flush()
-
-        # --- Display post-discussion chats in terminal ---
-        if chat_log:
-            days_in_ep = sorted(set(m["day"] for m in chat_log))
-            for d in days_in_ep:
-                _display_chat(chat_log, d)
-
-        # --- Save HTML chat log ---
-        if chat_log:
-            html_path = chat_dir / f"ep_{ep:03d}.html"
-            _save_chat_html(chat_log, ep, html_path)
 
     out_csv = Path(args.out_csv)
     out_csv.parent.mkdir(parents=True, exist_ok=True)
@@ -1081,11 +749,7 @@ def main() -> None:
     print(f"\nWrote episode metrics: {out_csv}")
     print(f"Wrote summary: {out_json}")
     print(f"Wrote plots: {out_plot}")
-    print(f"Wrote chat logs: {chat_dir}/")
-    print(f"Wrote TensorBoard logs: logs/tensorboard/")
     print(json.dumps(summary, indent=2))
-    
-    tb_writer.close()
 
 
 if __name__ == "__main__":
