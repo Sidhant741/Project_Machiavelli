@@ -3,3 +3,7 @@ b.py
 c.py
 *.pyc
 unsloth_compiled_cache
+inference_results/*
+logs/*
+saved_models/*
+unsloth_checkpoints/*
