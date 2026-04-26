@@ -84,7 +84,7 @@ class UnslothPolicy:
     def __init__(self, model_name: str, max_new_tokens: int = 4) -> None:
         try:
             from unsloth import FastLanguageModel  # type: ignore
-        except Exception as exc:
+        except ImportError as exc:
             raise RuntimeError(
                 "Unsloth backend requested but unsloth is not installed. "
                 "Install with: pip install unsloth"

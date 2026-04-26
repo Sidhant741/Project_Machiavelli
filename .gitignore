@@ -2,3 +2,4 @@ a.py
 b.py
 c.py
 *.pyc
+unsloth_compiled_cache

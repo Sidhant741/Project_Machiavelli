@@ -675,7 +675,7 @@ def train(
             print(f"{'─'*66}")
 
             # ── Load tasks for this day ──────────────────────────────
-            questions = loader.get_day_questions(difficulty, day, n_agents=len(alive))
+            questions = loader.get_day_questions(difficulty, day)
             agent_questions: Dict[int, Dict] = {
                 aid: q for aid, q in zip(alive, questions)
             }

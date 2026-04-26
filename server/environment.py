@@ -35,6 +35,7 @@ try:
     )
     from .compression import compress_day, store_day_summaries, compress_episode
     from .utils import llm_call
+    from ..graders import get_grader
 except ImportError:
     from models import (
         Agent, PMState, PMObservation, PMAction,
@@ -53,6 +54,7 @@ except ImportError:
     )
     from server.compression import compress_day, store_day_summaries, compress_episode
     from server.utils import llm_call
+    from graders import get_grader
 
 
 class PMEnvironment:
@@ -126,6 +128,8 @@ class PMEnvironment:
 
         cfg = GAME_CONFIGS[self.task]
         self.task_config = cfg
+
+        self.grader = get_grader(self.task)
 
         n_agents: int      = cfg["n_agents"]
         task_type_str: str = cfg.get("task_type", "individual")
@@ -290,11 +294,9 @@ class PMEnvironment:
         # ── Phase 3 → 4 ─────────────────────────────────────────────
         elif phase == Phase.TASK_EXECUTION:
             if is_task_execution_complete(self.state, self.ctx):
-                task_rewards = finalise_task_execution(
+                _ = finalise_task_execution(
                     self.state, self.agents, self.ctx, self.task_config
                 )
-                for k, v in task_rewards.items():
-                    rewards[k] = rewards.get(k, 0.0) + v
 
                 # Snapshot before clearing
                 self._task_inputs_snapshot = dict(self.ctx.pending_task_inputs)
@@ -339,20 +341,26 @@ class PMEnvironment:
                     else:
                         finalist_1, finalist_2 = tied_agents[0], tied_agents[1]
 
-                    jury_rewards = self._finalise_jury_vote(finalist_1, finalist_2)
-                    for aid, r in jury_rewards.items():
-                        rewards[aid] = rewards.get(aid, 0.0) + r
+                    _ = self._finalise_jury_vote(finalist_1, finalist_2)
+
+                    # Compute final day rewards for all agents alive before the showdown
+                    alive_before_jury = list(self.state.alive_agents)
+                    for aid in alive_before_jury:
+                        rewards[aid] = self.grader(aid, self.state, self.task_config)
 
                     self.is_done = True
                     self._run_episode_compression()
                     return rewards
 
                 # Normal day logic: eliminate one agent based on votes
-                vote_rewards, eliminated = finalise_voting(
+                alive_before_elimination = list(self.state.alive_agents)
+                _, eliminated = finalise_voting(
                     self.state, self.agents, self.ctx, self._vote_reasons
                 )
-                for k, v in vote_rewards.items():
-                    rewards[k] = rewards.get(k, 0.0) + v
+
+                # Compute daily rewards for all agents alive during this day's vote
+                for aid in alive_before_elimination:
+                    rewards[aid] = self.grader(aid, self.state, self.task_config)
 
                 self._run_compression()
 
